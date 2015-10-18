@@ -1,0 +1,25 @@
+Project Main is
+  
+  for Languages use ("Ada", "C");
+  for Main use ("sparse_test.adb");
+  for Source_Dirs use ("src");
+  for Object_Dir use "obj";
+  for Exec_Dir use ".";
+  
+  
+  package Compiler is
+     for Default_Switches ("Ada")
+       use ("-gnata",                   -- assertions
+	    "-s",                       -- if switches change
+	    "-gnaty3aCefiklnprstM100",  -- various style checks
+	    "-gnatW8",
+	    "-gnato");                  -- overflow
+     for Default_Switches ("C") use ("-Wall");
+  end Compiler;
+  
+  
+  package Linker is
+     for Default_Switches ("C") use ("-lm");
+  end Linker;
+  
+end Main;
