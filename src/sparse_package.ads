@@ -72,7 +72,7 @@ package Sparse_Package is
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    ------- Matrix operations -----------------------------------
-   function Eye (N : in Pos) return Matrix;
+   function Eye (N : in Nat) return Matrix;
    function Zero_Vector (N : in Nat) return Matrix;
    function Dot_Product (Left_I, Right_J : in Int_Array;
 		      Left_X, Right_Y : in Real_Array) return Real;
@@ -84,7 +84,8 @@ package Sparse_Package is
    function Minus (Left  : in Matrix;
 		   Right : in Matrix) return Matrix
      with Pre => Has_Same_Dimensions (Left, Right);
-   function Mult (Left, Right : in Matrix) return Matrix;
+   function Mult (Left, Right : in Matrix) return Matrix
+     with Pre => N_Col (Left) = N_Row (Right);
    function Mult_Int_Array (Left, Right : in Int_Array) return Boolean;
    function Kronecker (Left, Right : in Matrix) return Matrix;
    function Direct_Sum (Left, Right : in Matrix) return Matrix;
@@ -112,8 +113,6 @@ private
    
    procedure Transposed (Mat : in out Matrix);
 
-   
-   
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    -------- Essential Tools -----------------------------------------

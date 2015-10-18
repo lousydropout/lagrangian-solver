@@ -1,6 +1,6 @@
 separate (Sparse_Package)
 
-function Eye (N : in Pos) return Matrix is
+function Eye (N : in Nat) return Matrix is
    Result : Matrix;
    use Ada.Containers;
 begin

@@ -134,10 +134,10 @@ package body Sparse_Package is
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    ------- Matrix Operations -----------------------------------
-   function Eye (N : in Pos) return Matrix is separate;
+   function Eye (N : in Nat) return Matrix is separate;
    function Zero_Vector (N : in Nat) return Matrix is separate;
    function Dot_Product (Left_I, Right_J : in Int_Array;
-		      Left_X, Right_Y : in Real_Array) return Real is separate;
+			 Left_X, Right_Y : in Real_Array) return Real is separate;
    procedure Transposed (Mat : in out Matrix) is separate;
    function Transpose (Mat : in Matrix) return Matrix is separate;
    function Mult (Left, Right : in Matrix) return Matrix is separate;
