@@ -10,52 +10,18 @@ package body Sparse_Package is
    
 
    procedure Print (Mat : in Matrix) is separate;
+   
+   
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    ------- Basic Getter Functions -----------------------------------
+   function Norm2 (Item : in Matrix) return Real is separate;
    function N_Row (Mat : in Matrix) return Pos is separate;
    function N_Col (Mat : in Matrix) return Pos is separate;
-   function Max (Item : in Int_Array) return Int is
-      Result : Int := Item (Item'First);
-   begin
-      for N of Item loop
-	 Result := Int'Max (Result, N);
-      end loop;
-      return Result;
-   end Max;
-
-   function Max (Item : in Real_Array) return Real is
-      Result : Real := Item (Item'First);
-   begin
-      for N of Item loop
-	 Result := Real'Max (Result, N);
-      end loop;
-      return Result;
-   end Max;
-   
-   function Abs_Max (Item : in Int_Array) return Int is
-      Result : Int := 0;
-   begin
-      for N of Item loop
-	 Result := Int'Max (Result, abs (N));
-      end loop;
-      return Result;
-   end Abs_Max;
-   
-   
-   
-   
-   function Abs_Max (Item : in Real_Array) return Real is
-      Result : Real := 0.0;
-   begin
-      for N of Item loop
-	 Result := Real'Max (Result, abs (N));
-      end loop;
-      return Result;
-   end Abs_Max;
-   
-   
-   
+   function Max_Int_Array (Item : in Int_Array) return Int is separate;
+   function Max_Real_Array (Item : in Real_Array) return Real is separate;
+   function Abs_Max_IA (Item : in Int_Array) return Int is separate;
+   function Abs_Max_RA (Item : in Real_Array) return Real is separate;
    
    
    ------------------------------------------------------------------
@@ -72,115 +38,17 @@ package body Sparse_Package is
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    -------- Essential Tools -----------------------------------------
-   function Cumulative_Sum (Item : in Int_Array) return Int_Array is
-      Result : Int_Array (Item'Range);
-      Tmp    : Int := 1;
-   begin
-      for I in Item'Range loop
-	 Result (I) := Tmp;
-	 Tmp := Tmp + Item (I);
-      end loop;
-      return Result;
-   end Cumulative_Sum;
-   procedure Remove_Duplicates (Mat : in out Matrix) is
-      N, Iter : Pos := 0;
-      J : Int_Array  (1 .. Nat (Mat.P.Length)) := (others => 0);
-      I : Int_Array  (1 .. Nat (Mat.I.Length));
-      X : Real_Array (1 .. Nat (Mat.X.Length));
-   begin
-      for K in 1 .. Nat (Mat.P.Length) - 1 loop
-	 Iter := 0;
-	 for L in Mat.P (K) .. Mat.P (K + 1) - 1 loop
-	    if Iter /= Mat.I (L) then
-	       N     := N + 1;
-	       Iter  := Mat.I (L);
-	       I (N) := Iter; 
-	       J (K) := J (K) + 1;
-	       X (N) := Mat.X (L);
-	    else
-	       X (N) := X (N) + Mat.X (L);
-	    end if;
-	 end loop;
-      end loop;
-      J := Cumulative_Sum (J);
-      Mat.I := Vectorize (I (1 .. N)); 
-      Mat.X := Vectorize (X (1 .. N)); 
-      Mat.P := Vectorize (J);
-   end Remove_Duplicates;
-   procedure Compress (Mat : in out Matrix) is
-      X          : Real_Array (1 .. Int (Mat.X.Length)) := (others => 0.0);
-      I          : Int_Array  (1 .. Int (Mat.X.Length)) := (others => 0);
-      Col, Count : Int_Array  (1 .. Mat.N_Col + 1)          := (others => 0);
-      Index      : Nat                                 := 1;
-      P          : Int_Vector renames Mat.P;
-   begin
-      Mat.Format := CSC;
-      
-      for K of P loop
-	 Count (K) := Count (K) + 1;
-      end loop;
-      
-      Col := Cumulative_Sum (Count); Count := Col;
-
-      for K in 1 .. Nat (Mat.X.Length) loop
-	 Index       := Col (P (K));
-	 Col (P (K)) := Col (P (K)) + 1;
-	 I (Index)   := Mat.I (K); 
-	 X (Index)   := Mat.X (K);
-      end loop;
-      
-      Mat.I := Vectorize (I); 
-      Mat.X := Vectorize (X);
-      P     := Vectorize (Count); 
-      
-      Mat.Convert; Mat.Convert;
-      Mat.Remove_Duplicates;
-   end Compress;
-
-   
+   function Cumulative_Sum (Item : in Int_Array) return Int_Array is separate;
+   procedure Remove_Duplicates (Mat : in out Matrix) is separate;
+   procedure Compress (Mat : in out Matrix) is separate;
+   procedure Convert (Mat : in out Matrix) is separate;
    function Convert (Mat : in Matrix) return Matrix is
       Result : Matrix := Mat;
    begin
-      return Result.Convert;
+      Result.Convert;
+      return Result;
    end Convert;
    
-   procedure Convert (Mat : in out Matrix) is
-      X          : Real_Array (1 .. Nat (Mat.X.Length)) 
-	:= (others => 0.0);
-      I          : Int_Array (1 .. Nat (Mat.I.Length))  
-	:= (others => 0);
-      N          : constant Nat := Nat'Max (Mat.N_Col, Mat.N_Row);
-      Row, Count : Int_Array (1 .. N + 1) := (others => 0);
-      Index      : Int := 1;
-      TRANSPOSE_EXCEPTION : exception;
-   begin
-      case Mat.Format is
-	 when CSC => Mat.Format := CSR;
-	 when CSR => Mat.Format := CSC;
-	 when Triplet => raise TRANSPOSE_EXCEPTION;
-      end case;
-      
-      for K of Mat.I loop
-	 Count (K) := Count (K) + 1;
-      end loop;
-      
-      Row := Cumulative_Sum (Count); Count := Row;
-      for K in 1 .. Nat (Mat.P.Length) - 1 loop
-	 for J in Mat.P (K) .. Mat.P (K + 1) - 1 loop
-	    Index           := Row (Mat.I (J));
-	    Row (Mat.I (J)) := Row (Mat.I (J)) + 1;
-	    I (Index)       := K;
-	    X (Index)       := Mat.X (J);
-	 end loop;
-      end loop;
-      
-      case Mat.Format is
-	 when CSC => Mat.P := Vectorize (Count (1 .. Mat.N_Col + 1)); 
-	 when CSR => Mat.P := Vectorize (Count (1 .. Mat.N_Row + 1)); 
-	 when others => raise TRANSPOSE_EXCEPTION;
-      end case;
-      Mat.I := Vectorize (I); Mat.X := Vectorize (X);
-   end Convert;
    
    -- Vectorize & To_Array are needed in Triplet_To_Matrix
    function Vectorize (Item : in Real_Array) return Real_Vector is
@@ -224,8 +92,6 @@ package body Sparse_Package is
    end To_Array;
 
    
-   
-   
    function Vectorize (I : in Int_Array;
 		       X : in Real_Array) return Matrix is
       Result   : Matrix;
@@ -252,6 +118,41 @@ package body Sparse_Package is
    
    
    
+   
+   
+   
+   ------------------------------------------------------------------
+   ------------------------------------------------------------------
+   ------- Testing Functions -----------------------------------
+   function Is_Col_Vector (A : in Matrix) return Boolean is separate;
+   function Is_Square_Matrix (A : in Matrix) return Boolean is separate;
+   function Has_Same_Dimensions (Left, Right : in Matrix) return Boolean is separate;   
+   
+   
+   
+   
+   ------------------------------------------------------------------
+   ------------------------------------------------------------------
+   ------- Matrix Operations -----------------------------------
+   function Eye (N : in Pos) return Matrix is separate;
+   function Zero_Vector (N : in Nat) return Matrix is separate;
+   function Dot_Product (Left_I, Right_J : in Int_Array;
+		      Left_X, Right_Y : in Real_Array) return Real is separate;
+   procedure Transposed (Mat : in out Matrix) is separate;
+   function Transpose (Mat : in Matrix) return Matrix is separate;
+   function Mult (Left, Right : in Matrix) return Matrix is separate;
+   function Mult_Int_Array (Left, Right : in Int_Array) return Boolean is separate;
+   function Plus (Left  : in Matrix;
+		  Right : in Matrix) return Matrix is separate;
+   function Minus (Left  : in Matrix;
+		   Right : in Matrix) return Matrix is separate;
+   function Kronecker (Left, Right : in Matrix) return Matrix is separate;
+   function Direct_Sum (Left, Right : in Matrix) return Matrix is separate;
+   function Mult_R_RV (Left  : in Real;
+		 Right : in Real_Vector) return Real_Vector is separate;
+   function Mult_M_RV (Left  : in Matrix;
+		       Right : in Real_Vector) return Real_Vector is separate;
+
 begin
    null;
 end Sparse_Package;
