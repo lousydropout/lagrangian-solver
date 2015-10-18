@@ -33,6 +33,8 @@ package Sparse_Package is
    
    ------- Basic Getter Functions -----------------------------------
    function Norm2 (Item : in Matrix) return Real;
+   function Norm2_RV (X : in Real_Vector) return Real;
+   function Norm_RV (X : in Real_Vector) return Real;
    function N_Row (Mat : in Matrix) return Pos with Inline => True;
    function N_Col (Mat : in Matrix) return Pos with Inline => True;
    function Max_Int_Array (Item : in Int_Array) return Int with Inline => True;
@@ -44,6 +46,8 @@ package Sparse_Package is
    function Max (Item : in Real_Array) return Real renames Max_Real_Array;
    function Abs_Max (Item : in Int_Array) return Int renames Abs_Max_IA;
    function Abs_Max (Item : in Real_Array) return Real renames Abs_Max_RA;
+   function Norm2 (X : in Real_Vector) return Real renames Norm2_RV;
+   function Norm (X : in Real_Vector) return Real renames Norm_RV;
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    ------- Functions for Creating Sparse Matrices -------------------
@@ -54,7 +58,7 @@ package Sparse_Package is
 			       N_Col  : in Pos := 0;
 			       Format : in Matrix_Format := CSC) return Matrix
      with Pre => I'Length = J'Length and I'Length = X'Length;
-     
+   
    function Convert (Mat : in Matrix) return Matrix;
    function Vectorize (I : in Int_Array;
 		       X : in Real_Array) return Matrix
@@ -75,11 +79,13 @@ package Sparse_Package is
    function Eye (N : in Nat) return Matrix;
    function Zero_Vector (N : in Nat) return Matrix;
    function Dot_Product (Left_I, Right_J : in Int_Array;
-		      Left_X, Right_Y : in Real_Array) return Real;
+			 Left_X, Right_Y : in Real_Array) return Real;
+   function Dot_Product_RV (X, Y : in Real_Vector) return Real;
+   function Dot_Product (X, Y : in Real_Vector) return Real 
+     renames Dot_Product_RV;
    function Transpose (Mat : in Matrix) return Matrix;
-   
    function Plus (Left  : in Matrix;
-		 Right : in Matrix) return Matrix
+		  Right : in Matrix) return Matrix
      with Pre => Has_Same_Dimensions (Left, Right);
    function Minus (Left  : in Matrix;
 		   Right : in Matrix) return Matrix
@@ -94,7 +100,16 @@ package Sparse_Package is
    function Mult_M_RV (Left  : in Matrix;
 		       Right : in Real_Vector) return Real_Vector
      with Pre => N_Row (Left) = Pos (Right.Length);
+   function Add_RV_RV (Left, Right : in Real_Vector) return Real_Vector;
+   function Minus_RV_RV (Left, Right : in Real_Vector) return Real_Vector;
+   function Permute_By_Col (Mat : in Matrix;
+			    P   : in Int_Array) return Matrix;
+   function Permute (Mat : in Matrix;
+		     P   : in Int_Array;
+		     By  : in Permute_By_Type := Column) return Matrix;
 
+   
+   
    ---------- In Binary Form -----------------------------------------------
    function "+" (Left, Right : in Matrix) return Matrix renames Plus;
    function "-" (Left, Right : in Matrix) return Matrix renames Minus;
@@ -107,10 +122,17 @@ package Sparse_Package is
 		 Right : in Real_Vector) return Real_Vector renames Mult_R_RV;
    function "*" (Left  : in Matrix;
 		 Right : in Real_Vector) return Real_Vector renames Mult_M_RV;
+   function "-" (Left, Right : in Real_Vector) return Real_Vector renames Minus_RV_RV;
+   function "+" (Left, Right : in Real_Vector) return Real_Vector renames Add_RV_RV;
+   
    
    
 private
    
+   function BiCGSTAB (A	 : in Matrix;
+   		      B	 : in Real_Vector;
+   		      X0 : in Real_Vector) return Real_Vector;
+
    procedure Transposed (Mat : in out Matrix);
 
    ------------------------------------------------------------------
@@ -143,5 +165,5 @@ private
 	 I      : Int_Vector;
 	 P      : Int_Vector;
       end record;
-      
+   
 end Sparse_Package;

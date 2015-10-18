@@ -1,8 +1,8 @@
 with Ada.Text_IO, Ada.Numerics.Generic_Elementary_Functions, Ada.Numerics.Generic_Real_Arrays; 
 
 package body Sparse_Package is
-   --  package Real_Functions is
-   --     new Ada.Numerics.Generic_Elementary_Functions (Real);
+   package Real_Functions is
+      new Ada.Numerics.Generic_Elementary_Functions (Real);
    package Real_Arrays is new Ada.Numerics.Generic_Real_Arrays (Real);
    package Int_IO is new Ada.Text_IO.Integer_IO (Integer);
    package Real_IO is new Ada.Text_IO.Float_IO (Real);
@@ -138,6 +138,8 @@ package body Sparse_Package is
    function Zero_Vector (N : in Nat) return Matrix is separate;
    function Dot_Product (Left_I, Right_J : in Int_Array;
 			 Left_X, Right_Y : in Real_Array) return Real is separate;
+   function Dot_Product_RV (X, Y : in Real_Vector) return Real is separate;
+
    procedure Transposed (Mat : in out Matrix) is separate;
    function Transpose (Mat : in Matrix) return Matrix is separate;
    function Mult (Left, Right : in Matrix) return Matrix is separate;
@@ -149,10 +151,26 @@ package body Sparse_Package is
    function Kronecker (Left, Right : in Matrix) return Matrix is separate;
    function Direct_Sum (Left, Right : in Matrix) return Matrix is separate;
    function Mult_R_RV (Left  : in Real;
-		 Right : in Real_Vector) return Real_Vector is separate;
+		       Right : in Real_Vector) return Real_Vector is separate;
    function Mult_M_RV (Left  : in Matrix;
 		       Right : in Real_Vector) return Real_Vector is separate;
+   function Add_RV_RV (Left, Right : in Real_Vector) return Real_Vector is separate;
+   function Minus_RV_RV (Left, Right : in Real_Vector) return Real_Vector is separate;
+   function Permute_By_Col (Mat : in Matrix;
+			    P   : in Int_Array) return Matrix is separate;
+   function Permute (Mat : in Matrix;
+		     P   : in Int_Array;
+		     By  : in Permute_By_Type := Column) return Matrix is separate;
+   
+   function Norm2_RV (X : in Real_Vector) return Real is separate;
+   function Norm_RV (X : in Real_Vector) return Real is separate;
+   
+   
+   function BiCGSTAB (A	 : in Matrix;
+   		      B	 : in Real_Vector;
+   		      X0 : in Real_Vector) return Real_Vector is separate;
 
+   
 begin
    null;
 end Sparse_Package;
