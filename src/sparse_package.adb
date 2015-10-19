@@ -166,9 +166,12 @@ package body Sparse_Package is
    function Norm_RV (X : in Real_Vector) return Real is separate;
    
    
-   function BiCGSTAB (A	 : in Matrix;
-   		      B	 : in Real_Vector;
-   		      X0 : in Real_Vector) return Real_Vector is separate;
+   function BiCGSTAB (A   : in     Matrix;
+		      B   : in     Real_Vector;
+		      X0  : in     Real_Vector;
+		      Err :    out Real;
+		      Tol : in     Real	    := 1.0e-10) 
+		     return Real_Vector is separate;
 
    
 begin

@@ -1,12 +1,14 @@
 separate (Sparse_Package)
 
-function BiCGSTAB (A	 : in Matrix;
-		   B	 : in Real_Vector;
-		   X0 : in Real_Vector) return Real_Vector is
+function BiCGSTAB (A   : in     Matrix;
+		   B   : in     Real_Vector;
+		   X0  : in     Real_Vector;
+		   Err :    out Real;
+		   Tol : in     Real	    := 1.0e-10) return Real_Vector is
    use RV_Package;
    R0, R, V, P, S, T, Res, X : Real_Vector;
    ρ, α, β, ω : Real := 1.0;
-   Tmp, Err : Real;
+   Tmp : Real;
 begin
    pragma Assert (A.N_Col = Nat (B.Length));
    X   := X0;
@@ -15,7 +17,7 @@ begin
    V   := To_Vector (0.0, B.Length);
    P   := V;
    Err := Norm2 (R);
-   while Err > 1.0e-20 loop
+   while Err > Tol loop
       Tmp := Dot_Product (R, R0);
       β   := (α / ω) * (Tmp / ρ);
       ρ   := Tmp;

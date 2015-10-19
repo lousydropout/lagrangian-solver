@@ -107,15 +107,14 @@ package Sparse_Package is
    function Permute (Mat : in Matrix;
 		     P   : in Int_Array;
 		     By  : in Permute_By_Type := Column) return Matrix;
+   procedure Transposed (Mat : in out Matrix);
+   
 
-   
-   
    ---------- In Binary Form -----------------------------------------------
    function "+" (Left, Right : in Matrix) return Matrix renames Plus;
    function "-" (Left, Right : in Matrix) return Matrix renames Minus;
    function "*" (Left, Right : in Matrix) return Matrix renames Mult;
-   function "*" (Left, Right : in Int_Array) return Boolean 
-     renames Mult_Int_Array;
+   function "*" (Left, Right : in Int_Array) return Boolean renames Mult_Int_Array;
    function "and" (Left, Right : in Matrix) return Matrix renames Kronecker;
    function "or" (Left, Right : in Matrix) return Matrix renames Direct_Sum;
    function "*" (Left  : in Real;
@@ -125,21 +124,21 @@ package Sparse_Package is
    function "-" (Left, Right : in Real_Vector) return Real_Vector renames Minus_RV_RV;
    function "+" (Left, Right : in Real_Vector) return Real_Vector renames Add_RV_RV;
    
-   
+
    
 private
    
-   function BiCGSTAB (A	 : in Matrix;
-   		      B	 : in Real_Vector;
-   		      X0 : in Real_Vector) return Real_Vector;
-
-   procedure Transposed (Mat : in out Matrix);
+   function BiCGSTAB (A   : in     Matrix;
+		      B   : in     Real_Vector;
+		      X0  : in     Real_Vector;
+		      Err :    out Real;
+		      Tol : in     Real	    := 1.0e-10) return Real_Vector;
+   
 
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    -------- Essential Tools -----------------------------------------
    function  Cumulative_Sum (Item : in Int_Array) return Int_Array;
-   --  procedure Transposed (Mat : in out Matrix) with Inline => True;
    procedure Remove_Duplicates (Mat : in out Matrix);
    procedure Compress (Mat : in out Matrix);
    -- Convert : goes from CSR to CSC or the reverse
