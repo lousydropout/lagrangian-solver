@@ -8,12 +8,13 @@ procedure Convert (Mat : in out Matrix) is
    N          : constant Nat := Nat'Max (Mat.N_Col, Mat.N_Row);
    Row, Count : Int_Array (1 .. N + 1) := (others => 0);
    Index      : Int := 1;
-   TRANSPOSE_EXCEPTION : exception;
+   
+   Transpose_Exception : exception;
 begin
    case Mat.Format is
       when CSC => Mat.Format := CSR;
       when CSR => Mat.Format := CSC;
-      when Triplet => raise TRANSPOSE_EXCEPTION;
+      when Triplet => raise Transpose_Exception;
    end case;
    
    for K of Mat.I loop
@@ -33,7 +34,7 @@ begin
    case Mat.Format is
       when CSC => Mat.P := Vectorize (Count (1 .. Mat.N_Col + 1)); 
       when CSR => Mat.P := Vectorize (Count (1 .. Mat.N_Row + 1)); 
-      when others => raise TRANSPOSE_EXCEPTION;
+      when others => raise Transpose_Exception;
    end case;
    Mat.I := Vectorize (I); Mat.X := Vectorize (X);
 end Convert;

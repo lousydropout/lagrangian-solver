@@ -30,8 +30,23 @@ procedure Sparse_Test is
    
    Result : Sparse_Ptr;
    
+   use Real_Ptrs;
+   function Create (I : in Int) return Pointer
+     with Import => True, Convention => C, External_Name => "dvec";
+   P : Pointer := Create (5);
+   
+   
+   
+   --  Ar : Real_Array := Value (P, 5);
+   Ar : array (1 .. 5) of aliased Real
+     with Convention => C, Address => P.all'Address;
 begin
-
+   Put_Line (Real'Image (P.all));
+   for K in 1 .. 5 loop
+      Put_Line (Real'Image (Ar (K)));
+      --  Put_Line (Real'Image (Value (P, 5) (K)));
+   end loop;
+   New_Line;
    
    Left.Print;
    New_Line;
