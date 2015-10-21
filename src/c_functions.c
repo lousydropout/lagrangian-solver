@@ -20,11 +20,16 @@ cs *from_arrays(int *ivec, int *jvec, double *xvec, int nz)
 
 cs *to_cs (int m, int n, int nzmax, int *ivec, int *pvec, double *xvec) {
   cs *A;
-  int k;
-  A = cs_spalloc (m, n, nzmax, 1, 0);
-  for (k = 0; k <= n; k++)    A->p[k] = pvec[k];
-  for (k = 0; k < nzmax; k++) A->i[k] = ivec[k];
-  for (k = 0; k < nzmax; k++) A->x[k] = xvec[k];
+
+  A = cs_spalloc (m, n, 0, 1, 0);
+  A->nzmax = nzmax;
+  A->m = m;
+  A->n = n;
+  A->i = ivec;
+  A->p = pvec;
+  A->x = xvec; 
+
+  /* for (k = 0; k < nzmax; k++) printf ("%g   %g\n", xvec [k], A->x [k]); */
   return A;
 }
 
