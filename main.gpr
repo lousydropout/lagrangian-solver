@@ -19,7 +19,8 @@ Project Main is
   
   
   package Linker is
-     for Default_Switches ("C") use ("-lm");
+     for Default_Switches ("Ada") use ("-lm", "-lcxsparse");
+     for Default_Switches ("C") use ("-lm", "-lcxsparse");
   end Linker;
   
 end Main;

@@ -16,8 +16,8 @@ package Sparse_Package is
    subtype Nat is Pos     range 1 .. Pos'Last;
    
    -------- Define array types
-   type Real_Array is array (Nat range <>) of Real;
-   type Int_Array  is array (Nat range <>) of Int;
+   type Real_Array is array (Nat range <>) of aliased Real with Convention => C;
+   type Int_Array  is array (Nat range <>) of aliased Int  with Convention => C;
    
    ------- Define Real_Vector and Int_Vector ------------------------
    package IV_Package is new Ada.Containers.Vectors (Nat, Int, "=");
@@ -25,9 +25,22 @@ package Sparse_Package is
    subtype Int_Vector  is IV_Package.Vector;
    subtype Real_Vector is RV_Package.Vector;
    
-   ------- Define Matrix --------------------------------------------
-   type Matrix is tagged private;
+   ------- Define pointer packages ----------------------------------
+   package Real_Ptrs is new C.Pointers (Index              => Nat,
+					Element            => Real,
+					Element_Array      => Real_Array,
+					Default_Terminator => 0.0);
+   package Int_Ptrs is new C.Pointers (Index              => Nat,
+				       Element            => Int,
+				       Element_Array      => Int_Array,
+				       Default_Terminator => 0);
    
+   ------- Define Matrix --------------------------------------------
+   type Matrix        is tagged private;
+   type LU_Type       is tagged private;
+   type Sparse_Type   is private; type Sparse_Ptr   is private;
+   type Symbolic_Type is private; type Symbolic_Ptr is private;
+   type Numeric_Type  is private; type Numeric_Ptr  is private;
    --- Print procedure
    procedure Print (Mat : in Matrix);  -- The only public procedure
    
@@ -48,6 +61,9 @@ package Sparse_Package is
    function Abs_Max (Item : in Real_Array) return Real renames Abs_Max_RA;
    function Norm2 (X : in Real_Vector) return Real renames Norm2_RV;
    function Norm (X : in Real_Vector) return Real renames Norm_RV;
+   
+   function Length (X : in Real_Vector) return Int;
+   function Number_Of_Elements (X : in Matrix) return Int;
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    ------- Functions for Creating Sparse Matrices -------------------
@@ -124,7 +140,17 @@ package Sparse_Package is
    function "-" (Left, Right : in Real_Vector) return Real_Vector renames Minus_RV_RV;
    function "+" (Left, Right : in Real_Vector) return Real_Vector renames Add_RV_RV;
    
-
+   
+   
+   
+   ----------------- Ada wrappers of C functions -------------------------------
+   procedure Matrix_To_Sparse (Mat    : in     Matrix;
+			       Sparse :    out Sparse_Ptr);
+   
+   
+   
+   procedure Print_Sparse (Sparse : in Sparse_Ptr)
+     with Import => True, Convention => C, External_Name => "print_cs";
    
 private
    
@@ -165,4 +191,53 @@ private
 	 P      : Int_Vector;
       end record;
    
+   ---- Define CS type -----------------------------------------
+   
+   type Sparse_Type is
+      record
+   	 Nzmax, M, N, Nz : Nat;
+   	 P, I : Int_Ptrs.Pointer;
+   	 X : Real_Ptrs.Pointer;
+      end record with Convention => C;
+   type Symbolic_Type is
+      record
+	 Pinv, Q, Parent, Cp, Leftmost : Int_Ptrs.Pointer;
+	 M2 : Int;
+	 Lnz, Unz : Real;
+      end record with Convention => C;
+   type Numeric_Type is
+      record
+	 L, U : Sparse_Ptr;
+	 Pinv : Int_Ptrs.Pointer;
+	 B : Real_Ptrs.Pointer;
+      end record with Convention => C;
+   
+   type LU_Type is tagged
+      record
+	 Symbolic : Symbolic_Ptr;
+	 Numeric  : Numeric_Ptr;
+	 NCol     : Pos;
+      end record;
+   
+   type Sparse_Ptr   is access Sparse_Type   with Convention => C;
+   type Symbolic_Ptr is access Symbolic_Type with Convention => C;
+   type Numeric_Ptr  is access Numeric_Type  with Convention => C;
+   
+   
+   
+   ------------ C functions -------------------------------------------------
+   function From_Arrays (I     : in Int_Array;
+			 J     : in Int_Array;
+			 X     : in Real_Array;
+			 Nzmax : in Int) return Sparse_Ptr
+     with Import => True, Convention => C, External_Name => "from_arrays";
+   
+   function To_CS (M	 : in Int;
+		   N	 : in Int;
+		   Nzmax : in Int;
+		   I	 : in Int_Array;
+		   P	 : in Int_Array;
+		   X	 : in Real_Array) return Sparse_Ptr
+     with Import => True, Convention => C, External_Name => "to_cs";
+		   
 end Sparse_Package;

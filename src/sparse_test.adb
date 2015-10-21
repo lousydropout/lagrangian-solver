@@ -6,7 +6,7 @@ procedure Sparse_Test is
    
    I1 : Int_Array  := (3,   2,   1);
    J1 : Int_Array  := (1,   3,   2);
-   X1 : Real_Array := (1.0, 2.0, 2.0);
+   X1 : Real_Array := (1.234, 2.345, 2.789);
    Left : Matrix := Triplet_To_Matrix (I1, J1, X1, 3, 3);
    
    
@@ -26,10 +26,16 @@ procedure Sparse_Test is
    Right2 : Matrix := Triplet_To_Matrix (I3, J3, X3, 6, 9);
    
    X : Real_Array (1 .. N) := (others => 0.0);
-   Result : Matrix;
    Vec, X0 : Real_Vector;
    
+   Result : Sparse_Ptr;
+   
 begin
+
    
    Left.Print;
+   New_Line;
+   Put_Line ("Number of Elements = " & Int'Image (Number_Of_Elements (Left)));
+   Matrix_To_Sparse (Left, Result);
+   Print_Sparse (Result);
 end Sparse_Test;
