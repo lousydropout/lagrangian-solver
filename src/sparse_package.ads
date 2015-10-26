@@ -37,10 +37,8 @@ package Sparse_Package is
    
    ------- Define Matrix --------------------------------------------
    type Matrix        is tagged private;
-   type LU_Type       is tagged private;
+   type LU_Type       is private;
    type Sparse_Type   is private; type Sparse_Ptr   is private;
-   type Symbolic_Type is private; type Symbolic_Ptr is private;
-   type Numeric_Type  is private; type Numeric_Ptr  is private;
    --- Print procedure
    procedure Print (Mat : in Matrix);  -- The only public procedure
    
@@ -143,12 +141,15 @@ package Sparse_Package is
    
    
    
+   
+   function LU_Decomposition (Mat : in Matrix;
+			      Tol : in Real   := 1.0e-12) return LU_Type;
+   function Solve (LU : in LU_Type;
+		   B  : in Real_Ptrs.Pointer) return Real_Ptrs.Pointer;
    ----------------- Ada wrappers of C functions -------------------------------
+   function To_Sparse (Mat : in Matrix) return Sparse_Ptr;
    procedure Matrix_To_Sparse (Mat    : in     Matrix;
 			       Sparse :    out Sparse_Ptr);
-   
-   
-   
    procedure Print_Sparse (Sparse : in Sparse_Ptr)
      with Import => True, Convention => C, External_Name => "print_cs";
    
@@ -195,9 +196,10 @@ private
    
    type Sparse_Type is
       record
-   	 Nzmax, M, N, Nz : Nat;
+   	 Nzmax, M, N : Pos;
    	 P, I : Int_Ptrs.Pointer;
    	 X : Real_Ptrs.Pointer;
+	 Nz : Pos;
       end record with Convention => C;
    type Symbolic_Type is
       record
@@ -211,8 +213,10 @@ private
 	 Pinv : Int_Ptrs.Pointer;
 	 B : Real_Ptrs.Pointer;
       end record with Convention => C;
+   type Symbolic_Ptr is access Symbolic_Type with Convention => C;
+   type Numeric_Ptr  is access Numeric_Type  with Convention => C;
    
-   type LU_Type is tagged
+   type LU_Type is
       record
 	 Symbolic : Symbolic_Ptr;
 	 Numeric  : Numeric_Ptr;
@@ -220,8 +224,6 @@ private
       end record;
    
    type Sparse_Ptr   is access Sparse_Type   with Convention => C;
-   type Symbolic_Ptr is access Symbolic_Type with Convention => C;
-   type Numeric_Ptr  is access Numeric_Type  with Convention => C;
    
    
    
@@ -241,5 +243,25 @@ private
 		   P	 : in Int_Array;
 		   X	 : in Real_Array) return Sparse_Ptr
      with Import => True, Convention => C, External_Name => "to_cs";
-		   
+   
+   function CS_Sqr (A	 : in Int    := 0;
+		    Prob : in Sparse_Ptr;
+		    B	 : in Int    := 0) return Symbolic_Ptr
+     with Import => True, Convention => C, External_Name => "cs_dl_sqr";
+   function CS_LU (Prob	: in Sparse_Ptr;
+		   S	: in Symbolic_Ptr;
+		   Tol	: in Real    := 1.0e-15) return Numeric_Ptr
+     with Import => True, Convention => C, External_Name => "cs_dl_lu";
+   function Solve_CS (N_Col : in Int;
+   		      S : in Symbolic_Ptr;
+   		      N : in Numeric_Ptr;
+   		      B : in Real_Ptrs.Pointer) return Real_Ptrs.Pointer
+     with Import => True, Convention => C, External_Name => "solve_cs";
+   
+   function Free (Sparse : in Sparse_Ptr) return Sparse_Ptr
+      with Import => True, Convention => C, External_Name => "cs_dl_spfree";
+   function Free (Symbolic : in Symbolic_Ptr) return Symbolic_Ptr
+      with Import => True, Convention => C, External_Name => "cs_dl_sfree";
+   function Free (Numeric : in Numeric_Ptr) return Numeric_Ptr
+      with Import => True, Convention => C, External_Name => "cs_dl_nfree";
 end Sparse_Package;

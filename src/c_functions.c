@@ -10,7 +10,7 @@ double *dvec (long n) {
   return result;
 }
 
-cs_dl *from_arrays(long m, long n, long nz, long *i, long *j, double *x)
+cs_dl *from_arrays (long m, long n, long nz, long *i, long *j, double *x)
 {
   cs_dl *T, *A;
   long k;
@@ -71,46 +71,46 @@ cs_dl *load (FILE *f)
 
 
 /* cs_dl_demo2: read a matrix and solve a linear system */
-cs_dl *get_cs_dl_prob(FILE *f)
+cs_dl *get_cs_dl_prob (FILE *f)
 {
   cs_dl *T, *A;
   /* long m, n, mn, nz1, nz2; */
-  T = load(f);
-  A = cs_dl_compress(T);
+  T = load (f);
+  A = cs_dl_compress (T);
   
-  cs_dl_spfree(T);
+  cs_dl_spfree (T);
   return A;
 }
 
-void print_cs(cs_dl *A)
+void print_cs (cs_dl *A)
 {
   long j;
   long m, n, nz, nzmax;
   m=A->m; n=A->n; nz=A->nz; nzmax=A->nzmax;
-  printf("A.nz= %ld\n",nz);
-  printf("A.m= %ld\n",m);
-  printf("A.n= %ld\n",n);
-  printf("A.nzmax= %ld\n",nzmax);
+  printf ("A.nz= %ld\n",nz);
+  printf ("A.m= %ld\n",m);
+  printf ("A.n= %ld\n",n);
+  printf ("A.nzmax= %ld\n",nzmax);
 
-  printf("Printing the values of matrix A\n");
-  printf("---------- jcol ------------\n");
-  for(j=0; j<A->n+1; j++)
-    printf("%ld, ",A->p[j]);
-  printf("\b\b\n---------- i ------------\n");
-  for(j=0; j<nzmax; j++)
-    printf("%ld, ",A->i[j]);
-  printf("\b\b\n---------- x ------------\n");
-  for(j=0; j<A->nzmax; j++)
-    printf("%g, ",A->x[j]);
-  printf("\b\b\n----------------------------\n");
+  printf ("Printing the values of matrix A\n");
+  printf ("---------- jcol ------------\n");
+  for (j = 0; j < A->n + 1; j++)
+    printf ("%ld, ",A->p [j]);
+  printf ("\b\b\n---------- i ------------\n");
+  for (j = 0; j < nzmax; j++)
+    printf ("%ld, ",A->i [j]);
+  printf ("\b\b\n---------- x ------------\n");
+  for (j = 0; j < A->nzmax; j++)
+    printf ("%g, ",A->x [j]);
+  printf ("\b\b\n----------------------------\n");
 }
 
-void print_sol(cs_dl *Prob, double *x) {
+void print_sol (cs_dl *Prob, double *x) {
   long m = Prob->m;
   long i;
-  printf("Solution \n");
-  for(i=0; i<m; i++)
-    printf("%g\n",x[i]);
+  printf ("Solution \n");
+  for (i = 0; i < m; i++)
+    printf ("%g\n",x [i]);
 }
 
 
@@ -118,7 +118,7 @@ double *solve_cs(long n, cs_dls *S, cs_dln *N, double *b)
 {
   double *x, *y;
   long ok;
-  y = cs_dl_malloc(n, sizeof(double)); //work space
+  y = cs_dl_malloc (n, sizeof (double)); //work space
   
   ok = (S && N && y);
   if (ok)
@@ -131,7 +131,7 @@ double *solve_cs(long n, cs_dls *S, cs_dln *N, double *b)
     }
   else
     {
-      printf("\n\nError in Solve_CS\n\n");
+      printf ("\n\nError in Solve_CS\n\n");
     }
   return x;
 }
@@ -140,10 +140,9 @@ double *solve_cs(long n, cs_dls *S, cs_dln *N, double *b)
 
 cs_dl *get_prob()
 {
-  FILE *f = fopen("t1","r");
-  //FILE *f = fopen(name,"r");
-  cs_dl *Prob = get_cs_dl_prob(f);
-  fclose(f);
+  FILE *f = fopen ("t1","r");
+  cs_dl *Prob = get_cs_dl_prob (f);
+  fclose (f);
   return Prob;
 }
 

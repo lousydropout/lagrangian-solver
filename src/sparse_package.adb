@@ -175,18 +175,27 @@ package body Sparse_Package is
 
    procedure Matrix_To_Sparse (Mat    : in     Matrix;
 			       Sparse :    out Sparse_Ptr) is separate;
+   function Number_Of_Elements (X : in Matrix) return Int is (Int (X.X.Length));
+   function Length (X : in Real_Vector) return Int is (Int (X.Length));
+   function To_Sparse (Mat : in Matrix) return Sparse_Ptr is separate;
    
-   
-   function Number_Of_Elements (X : in Matrix) return Int is
+   function LU_Decomposition (Mat : in Matrix;
+			      Tol : in Real   := 1.0e-12) return LU_Type is
+      Sparse : Sparse_Ptr := Mat.To_Sparse;
+      LU     : LU_Type;
    begin
-      return Int (X.X.Length);
-   end Number_Of_Elements;
+      LU.Symbolic := CS_Sqr (Prob => Sparse);
+      LU.Numeric  := CS_LU (Sparse, LU.Symbolic, Tol);
+      LU.NCol     := Sparse.N;
+      Sparse      := Free (Sparse);
+      return LU;
+   end LU_Decomposition;
    
-   function Length (X : in Real_Vector) return Int is
-   begin
-      return Int (X.Length);
-   end Length;
    
+   function Solve (LU : in LU_Type;
+		   B  : in Real_Ptrs.Pointer) return Real_Ptrs.Pointer is
+      (Solve_CS (LU.NCol, LU.Symbolic, LU.Numeric, B));
+
 begin
    null;
 end Sparse_Package;
