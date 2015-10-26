@@ -12,15 +12,14 @@ Project Main is
        use ("-gnata",                   -- assertions
 	    "-s",                       -- if switches change
 	    "-gnaty3aCefiklnprstM100",  -- various style checks
-	    "-gnatW8",
-	    "-gnato3");                  -- overflow
-     --  for Default_Switches ("C") use ("-Wall");
+	    "-gnatW8",                  -- allow wide characters (e.g. π)
+	    "-gnato3");                 -- overflow (mode : Eliminated)
+     for Default_Switches ("C") use ("-Wall");
   end Compiler;
   
   
   package Linker is
      for Default_Switches ("Ada") use ("-lm", "-lcxsparse");
-     for Default_Switches ("C") use ("-lm", "-lcxsparse");
   end Linker;
   
 end Main;
