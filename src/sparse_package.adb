@@ -4,7 +4,7 @@ package body Sparse_Package is
    package Real_Functions is
       new Ada.Numerics.Generic_Elementary_Functions (Real);
    package Real_Arrays is new Ada.Numerics.Generic_Real_Arrays (Real);
-   package Int_IO is new Ada.Text_IO.Integer_IO (Integer);
+   package Int_IO is new Ada.Text_IO.Integer_IO (Int);
    package Real_IO is new Ada.Text_IO.Float_IO (Real);
    package Matrix_Format_IO is new Ada.Text_IO.Enumeration_IO (Matrix_Format);
    
@@ -56,7 +56,7 @@ package body Sparse_Package is
       Offset : constant Int := Item'First - 1;
    begin
       Vector.Set_Length (Item'Length);
-      for K in 1 .. Item'Length loop
+      for K in 1 .. Int (Item'Length) loop
    	 Vector (K) := Item (K + Offset);
       end loop;
       return Vector;
@@ -67,7 +67,7 @@ package body Sparse_Package is
       Offset : constant Int := Item'First - 1;
    begin
       Vector.Set_Length (Item'Length);
-      for K in 1 .. Item'Length loop
+      for K in 1 .. Int (Item'Length) loop
    	 Vector (K) := Item (K + Offset);
       end loop;
       return Vector;

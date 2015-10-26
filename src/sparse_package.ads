@@ -11,7 +11,7 @@ package Sparse_Package is
    
    -------- Define types (Real, Int, Pos, Nat) ----------------------
    type Real is new C.double range C.double'First .. C.double'Last;
-   subtype Int is Integer range Integer'First .. Integer'Last;
+   type Int  is new C.long range C.long'First .. C.long'Last;
    subtype Pos is Int     range 0 .. Int'Last;
    subtype Nat is Pos     range 1 .. Pos'Last;
    
@@ -226,10 +226,12 @@ private
    
    
    ------------ C functions -------------------------------------------------
-   function From_Arrays (I     : in Int_Array;
-			 J     : in Int_Array;
-			 X     : in Real_Array;
-			 Nzmax : in Int) return Sparse_Ptr
+   function From_Arrays (M  : in Int;
+			 N  : in Int;
+			 Nz : in Int;
+			 I  : in Int_Array;
+			 J  : in Int_Array;
+			 X  : in Real_Array) return Sparse_Ptr
      with Import => True, Convention => C, External_Name => "from_arrays";
    
    function To_CS (M	 : in Int;

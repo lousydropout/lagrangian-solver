@@ -13,8 +13,8 @@ Project Main is
 	    "-s",                       -- if switches change
 	    "-gnaty3aCefiklnprstM100",  -- various style checks
 	    "-gnatW8",
-	    "-gnato");                  -- overflow
-     for Default_Switches ("C") use ("-Wall");
+	    "-gnato3");                  -- overflow
+     --  for Default_Switches ("C") use ("-Wall");
   end Compiler;
   
   

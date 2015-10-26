@@ -2,40 +2,45 @@
 #include <stdio.h>
 
 
-double *dvec (int n) {
-  int i;
+double *dvec (long n) {
+  long i;
   double *result;
   result = (double *) malloc (n * sizeof (double));
   for (i = 0; i < n; i++) result [i] = 0.314159 + (double) i;
   return result;
 }
 
-cs *from_arrays(int *ivec, int *jvec, double *xvec, int nz)
+cs_dl *from_arrays(long m, long n, long nz, long *i, long *j, double *x)
 {
-  cs *T, *A;
-  int k;
-  T = cs_spalloc(0, 0, 1, 1, 1);
-  for ( k = 0; k < nz; k++)
-    {
-      if (!cs_entry (T, ivec[k], jvec[k], xvec[k]))
-	return (cs_spfree (T)) ;
-    }
-  A = cs_compress(T);
-  cs_dupl(A);
-  cs_dropzeros(A);
+  cs_dl *T, *A;
+  long k;
+
+  T = cs_dl_spalloc (m, n, nz, 1, 1);
+  T->m = m; T->n = n; T->nz = nz; T->nzmax = nz;
+  for (k = 0; k < nz; k++) {
+    T->i [k] = i [k] - 1;  // C is zero-based
+    T->p [k] = j [k] - 1;
+    T->x [k] = x [k];
+  }
+
+  A = cs_dl_compress (T);  // create csc A
+  cs_dl_spfree (T);        // free triplet T
+  cs_dl_dupl (A);          // remove duplicate entries from A
+  cs_dl_dropzeros (A);     // drop zeros from A
+
   return A;
 }
 
-cs *to_cs (int m, int n, int nzmax, int *ivec, int *pvec, double *xvec) {
-  cs *A;
-  int k;
-  A = cs_spalloc (m, n, nzmax, 1, 0);
+cs_dl *to_cs (long m, long n, long nzmax, long *ivec, long *pvec, double *xvec) {
+  cs_dl *A;
+  long k;
+  A = cs_dl_spalloc (m, n, nzmax, 1, 0);
   for (k = 0; k <= n; k++)    A->p [k] = pvec [k] - 1;
   for (k = 0; k < nzmax; k++) A->i [k] = ivec [k] - 1;
   for (k = 0; k < nzmax; k++) A->x [k] = xvec [k];
 
   /** Not safe when inputs are local!
-      A = cs_spalloc (m, n, 0, 1, 0);
+      A = cs_dl_spalloc (m, n, 0, 1, 0);
       A->nzmax = nzmax;
       A->m = m;
       A->n = n;
@@ -49,80 +54,80 @@ cs *to_cs (int m, int n, int nzmax, int *ivec, int *pvec, double *xvec) {
 }
 
 
-cs *load (FILE *f)
+cs_dl *load (FILE *f)
 {
-  int i, j ;   /* use double for integers to avoid csi conflicts */
+  long i, j ;   /* use double for integers to avoid csi conflicts */
   double x ;
-  cs *T ;
+  cs_dl *T ;
   if (!f) return (NULL) ;                             /* check inputs */
-  T = cs_spalloc (0, 0, 1, 1, 1) ;                    /* allocate result */
-  while (fscanf (f, "%d %d %lg\n", &i, &j, &x) == 3)
+  T = cs_dl_spalloc (0, 0, 1, 1, 1) ;                    /* allocate result */
+  while (fscanf (f, "%ld %ld %lg\n", &i, &j, &x) == 3)
     {
-      /* printf("%d %d %lg\n", i, j, x); */
-      if (!cs_entry (T, i, j, x)) return (cs_spfree (T)) ;
+      /* printf("%ld %ld %lg\n", i, j, x); */
+      if (!cs_dl_entry (T, i, j, x)) return (cs_dl_spfree (T)) ;
     }
   return (T) ;
 }
 
 
-/* cs_demo2: read a matrix and solve a linear system */
-cs *get_cs_prob(FILE *f)
+/* cs_dl_demo2: read a matrix and solve a linear system */
+cs_dl *get_cs_dl_prob(FILE *f)
 {
-  cs *T, *A;
-  /* int m, n, mn, nz1, nz2; */
+  cs_dl *T, *A;
+  /* long m, n, mn, nz1, nz2; */
   T = load(f);
-  A = cs_compress(T);
+  A = cs_dl_compress(T);
   
-  cs_spfree(T);
+  cs_dl_spfree(T);
   return A;
 }
 
-void print_cs(cs *A)
+void print_cs(cs_dl *A)
 {
-  int j;
-  int m, n, nz, nzmax;
+  long j;
+  long m, n, nz, nzmax;
   m=A->m; n=A->n; nz=A->nz; nzmax=A->nzmax;
-  printf("A.nz= %d\n",nz);
-  printf("A.m= %d\n",m);
-  printf("A.n= %d\n",n);
-  printf("A.nzmax= %d\n",nzmax);
+  printf("A.nz= %ld\n",nz);
+  printf("A.m= %ld\n",m);
+  printf("A.n= %ld\n",n);
+  printf("A.nzmax= %ld\n",nzmax);
 
   printf("Printing the values of matrix A\n");
   printf("---------- jcol ------------\n");
   for(j=0; j<A->n+1; j++)
-    printf("%d, ",A->p[j]);
+    printf("%ld, ",A->p[j]);
   printf("\b\b\n---------- i ------------\n");
   for(j=0; j<nzmax; j++)
-    printf("%d, ",A->i[j]);
+    printf("%ld, ",A->i[j]);
   printf("\b\b\n---------- x ------------\n");
   for(j=0; j<A->nzmax; j++)
     printf("%g, ",A->x[j]);
   printf("\b\b\n----------------------------\n");
 }
 
-void print_sol(cs *Prob, double *x) {
-  int m = Prob->m;
-  int i;
+void print_sol(cs_dl *Prob, double *x) {
+  long m = Prob->m;
+  long i;
   printf("Solution \n");
   for(i=0; i<m; i++)
     printf("%g\n",x[i]);
 }
 
 
-double *solve_cs(int n, css *S, csn *N, double *b)
+double *solve_cs(long n, cs_dls *S, cs_dln *N, double *b)
 {
   double *x, *y;
-  int ok;
-  y = cs_malloc(n, sizeof(double)); //work space
+  long ok;
+  y = cs_dl_malloc(n, sizeof(double)); //work space
   
   ok = (S && N && y);
   if (ok)
     {
       x = b; 
-      cs_ipvec (N->pinv, x, y, n) ;       /*    y = r(p) */
-      cs_lsolve (N->L, y) ;               /*    y = L\y  */
-      cs_usolve (N->U, y) ;               /*    y = U\y  */
-      cs_ipvec (S->q, y, x, n) ;          /* r(q) = y    */
+      cs_dl_ipvec (N->pinv, x, y, n) ;       /*    y = r(p) */
+      cs_dl_lsolve (N->L, y) ;               /*    y = L\y  */
+      cs_dl_usolve (N->U, y) ;               /*    y = U\y  */
+      cs_dl_ipvec (S->q, y, x, n) ;          /* r(q) = y    */
     }
   else
     {
@@ -133,11 +138,11 @@ double *solve_cs(int n, css *S, csn *N, double *b)
 
 
 
-cs *get_prob()
+cs_dl *get_prob()
 {
   FILE *f = fopen("t1","r");
   //FILE *f = fopen(name,"r");
-  cs *Prob = get_cs_prob(f);
+  cs_dl *Prob = get_cs_dl_prob(f);
   fclose(f);
   return Prob;
 }
