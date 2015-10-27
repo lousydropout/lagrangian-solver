@@ -196,6 +196,14 @@ package body Sparse_Package is
    end Solve;
    
    function Solve (LU : in LU_Type;
+		   B  : in Real_Vector) return Real_Vector is
+   begin
+      pragma Assert (LU.NCol = Pos (B.Length), 
+		     "LU & B are not of compatible sizes");
+      return Vectorize (Solve (LU, To_Array (B)));
+   end Solve;
+      
+   function Solve (LU : in LU_Type;
 		   B  : in Real_Array) return Real_Ptrs.Pointer is
       (Solve_CS (LU.NCol, LU.Symbolic, LU.Numeric, B));
       

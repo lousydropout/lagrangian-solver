@@ -30,8 +30,8 @@ package Sparse_Package is
    subtype Real_Vector is RV_Package.Vector;
    
    ------- Define Matrix --------------------------------------------
-   type Matrix        is tagged private;
-   type LU_Type       is private;
+   type Matrix  is tagged private;
+   type LU_Type is private;
    --- Print procedure
    procedure Print (Mat : in Matrix);  -- The only public procedure
    
@@ -139,7 +139,8 @@ package Sparse_Package is
 			      Tol : in Real   := 1.0e-12) return LU_Type;
    function Solve (LU : in LU_Type;
 		   B  : in Real_Array) return Real_Array;
-   
+   function Solve (LU : in LU_Type;
+		   B  : in Real_Vector) return Real_Vector;
    
 private
    ------- Define pointer packages ----------------------------------
