@@ -1,4 +1,4 @@
-with Ada.Containers.Vectors, Interfaces.C, Interfaces.C.Pointers;
+with Ada.Containers.Vectors, Interfaces.C, Interfaces.C.Pointers, Ada.Text_IO;
 
 package Sparse_Package is
    package C renames Interfaces.C;
@@ -19,7 +19,11 @@ package Sparse_Package is
    type Real_Array is array (Nat range <>) of aliased Real with Convention => C;
    type Int_Array  is array (Nat range <>) of aliased Int  with Convention => C;
    
-   ------- Define Real_Vector and Int_Vector ------------------------
+   ------- Define Real_IO and Int_IO packages ------------------------
+   package Int_IO is new Ada.Text_IO.Integer_IO (Int);
+   package Real_IO is new Ada.Text_IO.Float_IO (Real);
+   package Matrix_Format_IO is new Ada.Text_IO.Enumeration_IO (Matrix_Format);
+   ------- Define Real_Vector and Int_Vector packages ------------------------
    package IV_Package is new Ada.Containers.Vectors (Nat, Int, "=");
    package RV_Package is new Ada.Containers.Vectors (Nat, Real, "=");
    subtype Int_Vector  is IV_Package.Vector;
@@ -145,7 +149,10 @@ package Sparse_Package is
    function LU_Decomposition (Mat : in Matrix;
 			      Tol : in Real   := 1.0e-12) return LU_Type;
    function Solve (LU : in LU_Type;
-		   B  : in Real_Ptrs.Pointer) return Real_Ptrs.Pointer;
+		   B  : in Real_Array) return Real_Ptrs.Pointer;
+   function Solve (LU : in LU_Type;
+		   B  : in Real_Array) return Real_Array;
+   
    ----------------- Ada wrappers of C functions -------------------------------
    function To_Sparse (Mat : in Matrix) return Sparse_Ptr;
    procedure Print_Sparse (Sparse : in Sparse_Ptr)
@@ -253,7 +260,7 @@ private
    function Solve_CS (N_Col : in Int;
    		      S : in Symbolic_Ptr;
    		      N : in Numeric_Ptr;
-   		      B : in Real_Ptrs.Pointer) return Real_Ptrs.Pointer
+   		      B : in Real_Array) return Real_Ptrs.Pointer
      with Import => True, Convention => C, External_Name => "solve_cs";
    
    function Free (Sparse : in Sparse_Ptr) return Sparse_Ptr

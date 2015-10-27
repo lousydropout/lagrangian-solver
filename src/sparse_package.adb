@@ -4,9 +4,6 @@ package body Sparse_Package is
    package Real_Functions is
       new Ada.Numerics.Generic_Elementary_Functions (Real);
    package Real_Arrays is new Ada.Numerics.Generic_Real_Arrays (Real);
-   package Int_IO is new Ada.Text_IO.Integer_IO (Int);
-   package Real_IO is new Ada.Text_IO.Float_IO (Real);
-   package Matrix_Format_IO is new Ada.Text_IO.Enumeration_IO (Matrix_Format);
    
 
    procedure Print (Mat : in Matrix) is separate;
@@ -191,9 +188,22 @@ package body Sparse_Package is
    
    
    function Solve (LU : in LU_Type;
-		   B  : in Real_Ptrs.Pointer) return Real_Ptrs.Pointer is
+		   B  : in Real_Array) return Real_Array is
+      X : Real_Ptrs.Pointer := Solve (LU, B);
+      Ar : array (B'Range) of aliased Real with Convention => C, Address => X.all'Address;
+      Result : Real_Array (B'Range) := (others => 0.0);
+   begin
+      for I in B'Range loop
+      	 Result (I) := Ar (I);
+      end loop;
+      return Result;
+   end Solve;
+   
+   function Solve (LU : in LU_Type;
+		   B  : in Real_Array) return Real_Ptrs.Pointer is
       (Solve_CS (LU.NCol, LU.Symbolic, LU.Numeric, B));
-
+      
+   
 begin
    null;
 end Sparse_Package;
