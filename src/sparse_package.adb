@@ -24,12 +24,12 @@ package body Sparse_Package is
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    ------- Functions for Creating Sparse Matrices -------------------
-   function Triplet_To_Matrix (I      : Int_Array;
-			       J      : Int_Array;
-			       X      : Real_Array;
-			       N_Row  : Pos := 0;
-			       N_Col  : Pos := 0;
-			       Format : Matrix_Format := CSC) 
+   function Triplet_To_Matrix (I      : in Int_Array;
+			       J      : in Int_Array;
+			       X      : in Real_Array;
+			       N_Row  : in Pos := 0;
+			       N_Col  : in Pos := 0;
+			       Format : in Matrix_Format := CSC) 
 			      return Matrix is separate;
    
    ------------------------------------------------------------------
@@ -162,7 +162,6 @@ package body Sparse_Package is
    function Norm2_RV (X : in Real_Vector) return Real is separate;
    function Norm_RV (X : in Real_Vector) return Real is separate;
    
-   
    function BiCGSTAB (A   : in     Matrix;
 		      B   : in     Real_Vector;
 		      X0  : in     Real_Vector;
@@ -196,18 +195,26 @@ package body Sparse_Package is
    end Solve;
    
    function Solve (LU : in LU_Type;
+		   B  : in Real_Vector) return Real_Array is 
+      (Solve (LU, To_Array (B)));
+      
+   function Solve (LU : in LU_Type;
 		   B  : in Real_Vector) return Real_Vector is
-   begin
-      pragma Assert (LU.NCol = Pos (B.Length), 
-		     "LU & B are not of compatible sizes");
-      return Vectorize (Solve (LU, To_Array (B)));
-   end Solve;
+      (Vectorize (Solve (LU, To_Array (B))));
       
    function Solve (LU : in LU_Type;
 		   B  : in Real_Array) return Real_Ptrs.Pointer is
       (Solve_CS (LU.NCol, LU.Symbolic, LU.Numeric, B));
       
+   function Is_Valid (P	: in Real_Ptrs.Pointer;
+		      N	: in Pos) return Boolean is
+      X : Real_Array (1 .. N) with Convention => C, Address => P.all'Address;
+   begin
+      return (for all Y of X => Y'Valid);
+   end Is_Valid;
    
+   function N_Col (LU : in LU_Type) return Pos is (LU.NCol);
+      
 begin
    null;
 end Sparse_Package;

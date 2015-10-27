@@ -32,8 +32,10 @@ package Sparse_Package is
    ------- Define Matrix --------------------------------------------
    type Matrix  is tagged private;
    type LU_Type is private;
-   --- Print procedure
-   procedure Print (Mat : in Matrix);  -- The only public procedure
+   function N_Col (LU : in LU_Type) return Pos;
+   
+   --- Print procedure ----------------------------------------------
+   procedure Print (Mat : in Matrix); 
    
    ------- Basic Getter Functions -----------------------------------
    function Norm2 (Item : in Matrix) return Real;
@@ -79,7 +81,9 @@ package Sparse_Package is
    function Is_Col_Vector (A : in Matrix) return Boolean;
    function Is_Square_Matrix (A : in Matrix) return Boolean;
    function Has_Same_Dimensions (Left, Right : in Matrix) return Boolean;
-   
+   function Is_Valid (P	: in Real_Ptrs.Pointer;
+		      N	: in Pos) return Boolean;
+
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    ------- Matrix operations -----------------------------------
@@ -138,9 +142,14 @@ package Sparse_Package is
    function LU_Decomposition (Mat : in Matrix;
 			      Tol : in Real   := 1.0e-12) return LU_Type;
    function Solve (LU : in LU_Type;
-		   B  : in Real_Array) return Real_Array;
+		   B  : in Real_Array) return Real_Array
+     with Pre => N_Col (LU) = B'Length;
    function Solve (LU : in LU_Type;
-		   B  : in Real_Vector) return Real_Vector;
+		   B  : in Real_Vector) return Real_Array
+     with Pre => N_Col (LU) = Pos (B.Length);
+   function Solve (LU : in LU_Type;
+		   B  : in Real_Vector) return Real_Vector
+     with Pre => N_Col (LU) = Pos (B.Length);
    
 private
    ------- Define pointer packages ----------------------------------
@@ -152,8 +161,6 @@ private
 				       Element            => Int,
 				       Element_Array      => Int_Array,
 				       Default_Terminator => 0);
-   
-
    function BiCGSTAB (A   : in     Matrix;
 		      B   : in     Real_Vector;
 		      X0  : in     Real_Vector;
@@ -176,10 +183,6 @@ private
    function To_Array (Item : in Real_Vector) return Real_Array;
    function To_Array (Item : in Int_Vector) return Int_Array;
    
-
-   
-   
-   
    ---- Define Matrix type -----------------------------------------
    type Matrix is tagged
       record
@@ -192,7 +195,6 @@ private
       end record;
    
    ---- Define CS type -----------------------------------------
-   
    type Sparse_Type is
       record
    	 Nzmax, M, N : Pos;
@@ -201,6 +203,7 @@ private
 	 Nz : Pos;
       end record with Convention => C;
    type Sparse_Ptr   is access Sparse_Type   with Convention => C;
+   
    type Symbolic_Type is
       record
 	 Pinv, Q, Parent, Cp, Leftmost : Int_Ptrs.Pointer;
@@ -208,6 +211,7 @@ private
 	 Lnz, Unz : Real;
       end record with Convention => C;
    type Symbolic_Ptr is access Symbolic_Type with Convention => C;
+   
    type Numeric_Type is
       record
 	 L, U : Sparse_Ptr;
@@ -248,10 +252,12 @@ private
 		    Prob : in Sparse_Ptr;
 		    B	 : in Int    := 0) return Symbolic_Ptr
      with Import => True, Convention => C, External_Name => "cs_dl_sqr";
+   
    function CS_LU (Prob	: in Sparse_Ptr;
 		   S	: in Symbolic_Ptr;
 		   Tol	: in Real    := 1.0e-15) return Numeric_Ptr
      with Import => True, Convention => C, External_Name => "cs_dl_lu";
+   
    function Solve_CS (N_Col : in Int;
    		      S : in Symbolic_Ptr;
    		      N : in Numeric_Ptr;
@@ -260,14 +266,20 @@ private
    
    function Free (Sparse : in Sparse_Ptr) return Sparse_Ptr
       with Import => True, Convention => C, External_Name => "cs_dl_spfree";
+   
    function Free (Symbolic : in Symbolic_Ptr) return Symbolic_Ptr
       with Import => True, Convention => C, External_Name => "cs_dl_sfree";
+   
    function Free (Numeric : in Numeric_Ptr) return Numeric_Ptr
       with Import => True, Convention => C, External_Name => "cs_dl_nfree";
+   
    procedure Print_Sparse (Sparse : in Sparse_Ptr)
      with Import => True, Convention => C, External_Name => "print_cs";
+   
    function To_Sparse (Mat : in Matrix) return Sparse_Ptr;
+   
    function Solve (LU : in LU_Type;
-		   B  : in Real_Array) return Real_Ptrs.Pointer;
+		   B  : in Real_Array) return Real_Ptrs.Pointer
+     with Post => Is_Valid (Solve'Result, B'Length);
    
 end Sparse_Package;

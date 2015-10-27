@@ -1,13 +1,12 @@
 separate (Sparse_Package)
 
 procedure Convert (Mat : in out Matrix) is
-   X          : Real_Array (1 .. Nat (Mat.X.Length)) 
-     := (others => 0.0);
-   I          : Int_Array (1 .. Nat (Mat.I.Length))  
-     := (others => 0);
-   N          : constant Nat := Nat'Max (Mat.N_Col, Mat.N_Row);
-   Row, Count : Int_Array (1 .. N + 1) := (others => 0);
-   Index      : Int := 1;
+   N     : constant Nat := Nat'Max (Mat.N_Col, Mat.N_Row);
+   X     : Real_Array (1 .. Nat (Mat.X.Length)) := (others => 0.0);
+   I     : Int_Array (1 .. Nat (Mat.I.Length))  := (others => 0);
+   Row   : Int_Array (1 .. N + 1)               := (others => 0);
+   Count : Int_Array (1 .. N + 1)               := (others => 0);
+   Index : Int := 1;
    
    Transpose_Exception : exception;
 begin
