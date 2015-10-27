@@ -114,13 +114,17 @@ void print_sol (cs_dl *Prob, double *x) {
 }
 
 
-double *solve_cs(long n, cs_dls *S, cs_dln *N, double *b)
+double *solve_cs(long n, cs_dls *S, cs_dln *N, double *b, int err)
 {
   double *x, *y;
   long ok;
+  err = 0;
   y = cs_dl_malloc (n, sizeof (double)); //work space
   
   ok = (S && N && y);
+  if (!S) {err = 1; printf ("Error in Symbolic type");}
+  if (!N) {err = 1; printf ("Error in Numeric type");}
+  if (!y) {err = 1; printf ("Error: cannot allocate workspace");}
   if (ok)
     {
       x = b; 

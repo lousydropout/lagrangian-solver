@@ -1,8 +1,6 @@
-with Ada.Text_IO, Ada.Numerics.Generic_Elementary_Functions, Ada.Numerics.Generic_Real_Arrays; 
+with Ada.Text_IO, Ada.Numerics.Generic_Real_Arrays; 
 
 package body Sparse_Package is
-   package Real_Functions is
-      new Ada.Numerics.Generic_Elementary_Functions (Real);
    package Real_Arrays is new Ada.Numerics.Generic_Real_Arrays (Real);
    
 
@@ -179,11 +177,17 @@ package body Sparse_Package is
       LU     : LU_Type;
    begin
       LU.Symbolic := CS_Sqr (Prob => Sparse);
+      pragma Assert (LU.Symbolic /= null,
+		     "ERROR: Problem with LU.Symbolic from CS_Sqr");
       LU.Numeric  := CS_LU (Sparse, LU.Symbolic, Tol);
+      pragma Assert (LU.Numeric /= null,
+		     "ERROR: Problem with LU.Numeric from CS_LU");
       LU.NCol     := Sparse.N;
       Sparse      := Free (Sparse);
       return LU;
    end LU_Decomposition;
+   
+   
    
    
    function Solve (LU : in LU_Type;
@@ -204,7 +208,14 @@ package body Sparse_Package is
       
    function Solve (LU : in LU_Type;
 		   B  : in Real_Array) return Real_Ptrs.Pointer is
-      (Solve_CS (LU.NCol, LU.Symbolic, LU.Numeric, B));
+      use C;
+      Err : C.int;
+      X : Real_Ptrs.Pointer;
+   begin
+      X := Solve_CS (LU.NCol, LU.Symbolic, LU.Numeric, B, Err);
+      pragma Assert (Err /= 1, "ERROR from Solve_CS");
+      return X;
+   end Solve;
       
    function Is_Valid (P	: in Real_Ptrs.Pointer;
 		      N	: in Pos) return Boolean is
@@ -213,8 +224,145 @@ package body Sparse_Package is
       return (for all Y of X => Y'Valid);
    end Is_Valid;
    
+   function Is_Valid (Mat : in Matrix) return Boolean is
+      use IV_Package, RV_Package;
+   begin
+      if Mat.I = IV_Package.Empty_Vector 
+	or else Mat.P = IV_Package.Empty_Vector
+	or else Mat.X = RV_Package.Empty_Vector 
+	or else Mat.N_Row = 0 or else Mat.N_Col = 0 
+      then
+	 return False;
+      end if;
+      return True;
+   end Is_Valid;
+   
    function N_Col (LU : in LU_Type) return Pos is (LU.NCol);
+   
+   function Max (X : in Int_Vector) return Int is
+      Result : Int;
+   begin
+      case X.Length is
+	 when 0 => return 0;
+	 when 1 => return X (1);
+	 when others =>
+	    Result := X (1);
+	    for I in 2 .. Int (X.Length) loop
+	       if X (I) > Result then Result := X (I); end if;
+	    end loop;
+	    return Result;
+      end case;
+   end Max;
+   
+   function Max (X : in Real_Vector) return Real is
+      Result : Real;
+   begin
+      case X.Length is
+	 when 0 => return 0.0;
+	 when 1 => return X (1);
+	 when others =>
+	    Result := X (1);
+	    for I in 2 .. Int (X.Length) loop
+	       if X (I) > Result then Result := X (I); end if;
+	    end loop;
+	    return Result;
+      end case;
+   end Max;
+   
+   function Triplet_To_Matrix (I      : in Int_Vector;
+			       J      : in Int_Vector;
+			       X      : in Real_Vector;
+			       N_Row  : in Pos		 := 0;
+			       N_Col  : in Pos		 := 0;
+			       Format : in Matrix_Format := CSC) return Matrix is
+      Result : Matrix;
+   begin
+      Result.N_Row  := (if N_Row = 0 then Max (I) else N_Row);
+      Result.N_Col  := (if N_Col = 0 then Max (J) else N_Col);
       
+      Result.Format := Triplet;
+      Result.I := I; Result.P := J; Result.X := X;
+      case Format is
+	 when CSC     => 
+	    Result.Compress;
+	 when CSR     => 
+	    Result.Compress; 
+	    Result.Convert;
+	 when Triplet => 
+	    null;
+      end case;
+      return Result;
+   end Triplet_To_Matrix;
+   
+   function Read_Sparse_Triplet (File_Name : in String;
+				 Offset	   : in Int    := 0)
+				return Matrix is
+      use Ada.Text_IO, Ada.Containers, Real_IO, Int_IO;
+      N_Lines : Int := 0;
+      I_Vec : Int_Vector;
+      J_Vec : Int_Vector;
+      X_Vec : Real_Vector;
+      Int_Input : Int;
+      Real_Input : Real;
+      File : File_Type;
+   begin
+      Open (File => File, Mode => In_File, Name => File_Name);
+      --- Count number of lines
+      while not End_Of_File (File) loop 
+	 Skip_Line (File); N_Lines := N_Lines + 1;
+      end loop;
+      Reset (File); -- Jump back to beginning of input file
+      
+      -- Set lengths of vectors
+      I_Vec.Set_Length (Count_Type (N_Lines));
+      J_Vec.Set_Length (Count_Type (N_Lines));
+      X_Vec.Set_Length (Count_Type (N_Lines));
+      
+      for K in 1 .. N_Lines loop
+	 Get (File, Int_Input); I_Vec (K)  := Int_Input + 1 - Offset;
+	 Get (File, Int_Input); J_Vec (K)  := Int_Input + 1 - Offset;
+	 Get (File, Real_Input); X_Vec (K) := Real_Input;
+      end loop;
+      Close (File);
+      
+      return Triplet_To_Matrix (I_Vec, J_Vec, X_Vec);
+   end Read_Sparse_Triplet;
+   
+   
+   function Basis_Vector (I, N : in Int) return Real_Vector is
+      use Ada.Containers;
+      Result : Real_Vector;
+   begin
+      Result.Set_Length (Count_Type (N));
+      Result (I) := 1.0;
+      return Result;
+   end Basis_Vector;
+   
+   procedure Print (V : in Real_Vector) is
+      use Real_IO, Ada.Text_IO;
+   begin
+      for X of V loop
+	 Put (X); New_Line;
+      end loop;
+   end Print;
+   
+   
+   procedure Set_Length (V : in out Real_Vector;
+			 N : in     Int) is
+      use Ada.Containers;
+   begin
+      V.Set_Length (Count_Type (N));
+   end Set_Length;
+   
+   
+   function Abs_Max (Item : in Real_Vector) return Real is
+      Result : Real := 0.0;
+   begin
+      for X of Item loop
+	 if abs (X) > Result then Result := X; end if;
+      end loop;
+      return Result;
+   end Abs_Max;
 begin
    null;
 end Sparse_Package;

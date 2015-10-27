@@ -1,5 +1,5 @@
 with Sparse_Package; use Sparse_Package; 
-
+with Ada.Text_IO; use Ada.Text_IO;
 procedure Sparse_Test is
    N : Int := 2;
    

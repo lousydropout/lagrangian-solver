@@ -1,5 +1,5 @@
 with Ada.Containers.Vectors, Interfaces.C, Interfaces.C.Pointers, Ada.Text_IO;
-
+with Ada.Numerics.Generic_Elementary_Functions;
 package Sparse_Package is
    package C renames Interfaces.C;
    
@@ -18,15 +18,17 @@ package Sparse_Package is
    -------- Define array types
    type Real_Array is array (Nat range <>) of aliased Real with Convention => C;
    type Int_Array  is array (Nat range <>) of aliased Int  with Convention => C;
+   package Real_Functions is new Ada.Numerics.Generic_Elementary_Functions (Real);
    
    ------- Define Real_IO and Int_IO packages ------------------------
    package Int_IO is new Ada.Text_IO.Integer_IO (Int);
    package Real_IO is new Ada.Text_IO.Float_IO (Real);
    package Matrix_Format_IO is new Ada.Text_IO.Enumeration_IO (Matrix_Format);
-   procedure New_Line (Spacing : in Ada.Text_IO.Positive_Count := 1) 
-     renames Ada.Text_IO.New_Line;
-   procedure Put_Line (Item : in String) renames Ada.Text_IO.Put_Line;
-   procedure Put (Item : in String) renames Ada.Text_IO.Put;
+   
+   --  procedure New_Line (Spacing : in Ada.Text_IO.Positive_Count := 1) 
+   --    renames Ada.Text_IO.New_Line;
+   --  procedure Put_Line (Item : in String) renames Ada.Text_IO.Put_Line;
+   --  procedure Put (Item : in String) renames Ada.Text_IO.Put;
    ------- Define Real_Vector and Int_Vector packages ------------------------
    package IV_Package is new Ada.Containers.Vectors (Nat, Int, "=");
    package RV_Package is new Ada.Containers.Vectors (Nat, Real, "=");
@@ -37,7 +39,11 @@ package Sparse_Package is
    function Vectorize (Item : in Int_Array)  return Int_Vector;
    function To_Array (Item : in Real_Vector) return Real_Array;
    function To_Array (Item : in Int_Vector) return Int_Array;
-   
+   ----- Vector and Array functions
+   function Basis_Vector (I, N : in Int) return Real_Vector;
+   procedure Print (V : in Real_Vector);
+   procedure Set_Length (V : in out Real_Vector;
+			 N : in     Int);
    ------- Define Matrix --------------------------------------------
    type Matrix  is tagged private;
    type LU_Type is private;
@@ -56,11 +62,13 @@ package Sparse_Package is
    function Abs_Max_IA (Item : in Int_Array) return Int with Inline => True;
    function Max_Real_Array (Item : in Real_Array) return Real with Inline => True;
    function Abs_Max_RA (Item : in Real_Array) return Real with Inline => True;
-
    function Max (Item : in Int_Array) return Int renames Max_Int_Array;
    function Max (Item : in Real_Array) return Real renames Max_Real_Array;
+   function Max (X : in Int_Vector) return Int;
+   function Max (X : in Real_Vector) return Real;
    function Abs_Max (Item : in Int_Array) return Int renames Abs_Max_IA;
    function Abs_Max (Item : in Real_Array) return Real renames Abs_Max_RA;
+   function Abs_Max (Item : in Real_Vector) return Real;
    function Norm2 (X : in Real_Vector) return Real renames Norm2_RV;
    function Norm (X : in Real_Vector) return Real renames Norm_RV;
    
@@ -76,7 +84,12 @@ package Sparse_Package is
 			       N_Col  : in Pos := 0;
 			       Format : in Matrix_Format := CSC) return Matrix
      with Pre => I'Length = J'Length and I'Length = X'Length;
-   
+   function Triplet_To_Matrix (I      : in Int_Vector;
+			       J      : in Int_Vector;
+			       X      : in Real_Vector;
+			       N_Row  : in Pos		 := 0;
+			       N_Col  : in Pos		 := 0;
+			       Format : in Matrix_Format := CSC) return Matrix;
    function Convert (Mat : in Matrix) return Matrix;
    function Vectorize (I : in Int_Array;
    		       X : in Real_Array) return Matrix
@@ -116,7 +129,7 @@ package Sparse_Package is
 		       Right : in Real_Vector) return Real_Vector;
    function Mult_M_RV (Left  : in Matrix;
 		       Right : in Real_Vector) return Real_Vector
-     with Pre => N_Row (Left) = Pos (Right.Length);
+     with Pre => N_Col (Left) = Pos (Right.Length);
    function Add_RV_RV (Left, Right : in Real_Vector) return Real_Vector;
    function Minus_RV_RV (Left, Right : in Real_Vector) return Real_Vector;
    function Permute_By_Col (Mat : in Matrix;
@@ -142,11 +155,12 @@ package Sparse_Package is
    function "+" (Left, Right : in Real_Vector) return Real_Vector renames Add_RV_RV;
    
    
-   
+   function Is_Valid (Mat : in Matrix) return Boolean;
    
    
    function LU_Decomposition (Mat : in Matrix;
-			      Tol : in Real   := 1.0e-12) return LU_Type;
+			      Tol : in Real   := 1.0e-12) return LU_Type
+     with Pre => Is_Valid (Mat) and Is_Square_Matrix (Mat);
    function Solve (LU : in LU_Type;
 		   B  : in Real_Array) return Real_Array
      with Pre => N_Col (LU) = B'Length;
@@ -157,6 +171,11 @@ package Sparse_Package is
 		   B  : in Real_Vector) return Real_Vector
      with Pre => N_Col (LU) = Pos (B.Length);
    
+   
+   
+   function Read_Sparse_Triplet (File_Name : in String;
+				 Offset	   : in Int    := 0) return Matrix;
+				
 private
    ------- Define pointer packages ----------------------------------
    package Real_Ptrs is new C.Pointers (Index              => Nat,
@@ -187,8 +206,8 @@ private
    type Matrix is tagged
       record
 	 Format : Matrix_Format;
-	 N_Row  : Nat;
-	 N_Col  : Nat;
+	 N_Row  : Pos := 0;
+	 N_Col  : Pos := 0;
 	 X      : Real_Vector;
 	 I      : Int_Vector;
 	 P      : Int_Vector;
@@ -261,10 +280,11 @@ private
 		   Tol	: in Real    := 1.0e-15) return Numeric_Ptr
      with Import => True, Convention => C, External_Name => "cs_dl_lu";
    
-   function Solve_CS (N_Col : in Int;
-   		      S : in Symbolic_Ptr;
-   		      N : in Numeric_Ptr;
-   		      B : in Real_Array) return Real_Ptrs.Pointer
+   function Solve_CS (N_Col : in     Int;
+		      S	    : in     Symbolic_Ptr;
+		      N	    : in     Numeric_Ptr;
+		      B	    : in     Real_Array;
+		      Err   :    out C.int) return Real_Ptrs.Pointer
      with Import => True, Convention => C, External_Name => "solve_cs";
    
    function Free (Sparse : in Sparse_Ptr) return Sparse_Ptr

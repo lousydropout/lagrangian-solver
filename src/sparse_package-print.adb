@@ -15,19 +15,19 @@ begin
    
    Put ("I: ");
    for I of Mat.I loop
-      Put (", "); Put (I, Width => 6);
+      Put (", "); Put (I, Width => 4);
    end loop;
    New_Line; 
    
    Put ("P: ");
    for P of Mat.P loop
-      Put (", "); Put (P, Width => 6);
+      Put (", "); Put (P, Width => 4);
    end loop;
    New_Line; 
    
    Put ("X: ");
    for X of Mat.X loop 
-      Put (", "); Put (X, Aft => 1, Exp => 2, Fore => 3);
+      Put (", "); Put (X, Aft => 3, Exp => 2, Fore => 3);
    end loop;
    New_Line;
    

@@ -1,23 +1,58 @@
 with Sparse_Package; use Sparse_Package;
+with Ada.Text_IO; use Ada.Text_IO;
+with Ada.Numerics.Float_Random; use Ada.Numerics.Float_Random;
+with Ada.Numerics; use Ada.Numerics; 
+with Ada.Containers; use Ada.Containers;
 
 procedure Linear_Solver_Test is
-
-   I1 : Int_Array  := (1, 2);
-   J1 : Int_Array  := (1, 2);
-   X1 : Real_Array := (1.234, 2.345);
-   Mat : Matrix := Triplet_To_Matrix (I1, J1, X1, 2, 2);
+   use Real_IO, Int_IO, Real_Functions;
+   Gen : Generator;
    
-   LU : LU_Type := LU_Decomposition (Mat);
-   Res : Real_Vector := Vectorize ((1.0, 2.0));
+   function Rand return Real is (Real (Random (Gen)));
+   
+   Mat : Matrix;
+   LU  : LU_Type;
+   X   : Real_Vector;
+   B   : Real_Vector;
+   Dir : String      := "matrices/sparse-triplet/zero-based/";
+   Res : Real;
+
 begin
-
-   Mat.Print;
-   New_Line;
-   Res := Solve (LU, Res);
-   Res := Mat * Res;
+   Put ("Read Matrix . . .");
    
-   for X of Res loop
-      Real_IO.Put (X); New_Line;
+   --  Mat := Read_Sparse_Triplet (Dir & "a5by5_st.txt");     -- 611B
+   --  Mat := Read_Sparse_Triplet (Dir & "bcsstk01_st.txt");  -- 4.9K
+   --  Mat := Read_Sparse_Triplet (Dir & "bcsstk16_st.txt");  -- 3.7M
+   Mat := Read_Sparse_Triplet (Dir & "fs_183_1_st.txt");  -- 24K
+   --  Mat := Read_Sparse_Triplet (Dir & "kershaw_st.txt");   -- 564
+   --  Mat := Read_Sparse_Triplet (Dir & "west0067_st.txt");  -- 3.9K
+   --  Mat := Read_Sparse_Triplet (Dir & "t1_st.txt");        -- 80
+   Put_Line ("finished");
+   
+   ----- Print matrix' info --------------
+   Put ("Size of matrix: "); 
+   Put (Mat.N_Row, 0); Put (" x "); Put (Mat.N_Col, 0); New_Line;
+   Put ("Number of entries: "); Put (Mat.Number_Of_Elements, 0); New_Line;
+   
+   ----- Set size of vectors X and B ----
+   Set_Length (B, Mat.N_Col); Set_Length (X, Mat.N_Col);
+
+   ----- Begin LU Decomposition ---------
+   Put ("LU Decomposition . . .");
+   LU  := Mat.LU_Decomposition;
+   Put_Line ("finished");
+   
+   ------ Begin tests ------------------------
+   Put_Line ("Begin testing . . .");
+   Reset (Gen);
+   for K in 1 .. Int (10) loop
+      Put ("Trial "); Put (K, Width => 2); Put (": "); 
+      for I of X loop I := (10.0 * Rand) ** 5 * Sin (10.0 * Rand); end loop;
+      B   := Mat * X;
+      Res := Norm (B - Mat * X) / Norm (X);
+      Put ("  Norm (Res) =   "); Put (Res, Fore => 1, Aft => 1, Exp => 3);
+      if Res > 1.0e-10 then Put ("******"); end if;
+      New_Line;
    end loop;
-   null;
+   Put_Line ("tests completed");
 end Linear_Solver_Test;
