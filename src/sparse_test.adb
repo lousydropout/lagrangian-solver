@@ -51,6 +51,6 @@ begin
    Left.Print;
    New_Line;
    Put_Line ("Number of Elements = " & Int'Image (Number_Of_Elements (Left)));
-   Matrix_To_Sparse (Left, Result);
+   Result := To_Sparse (Left);
    Print_Sparse (Result);
 end Sparse_Test;

@@ -148,8 +148,6 @@ package Sparse_Package is
 		   B  : in Real_Ptrs.Pointer) return Real_Ptrs.Pointer;
    ----------------- Ada wrappers of C functions -------------------------------
    function To_Sparse (Mat : in Matrix) return Sparse_Ptr;
-   procedure Matrix_To_Sparse (Mat    : in     Matrix;
-			       Sparse :    out Sparse_Ptr);
    procedure Print_Sparse (Sparse : in Sparse_Ptr)
      with Import => True, Convention => C, External_Name => "print_cs";
    

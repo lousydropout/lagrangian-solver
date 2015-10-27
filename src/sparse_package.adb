@@ -173,8 +173,6 @@ package body Sparse_Package is
 		      Tol : in     Real	    := 1.0e-10) 
 		     return Real_Vector is separate;
 
-   procedure Matrix_To_Sparse (Mat    : in     Matrix;
-			       Sparse :    out Sparse_Ptr) is separate;
    function Number_Of_Elements (X : in Matrix) return Int is (Int (X.X.Length));
    function Length (X : in Real_Vector) return Int is (Int (X.Length));
    function To_Sparse (Mat : in Matrix) return Sparse_Ptr is separate;
