@@ -1,6 +1,6 @@
 separate (Sparse_Package)
 
-procedure Remove_Duplicates (Mat : in out Matrix) is
+procedure Remove_Duplicates (Mat : in out Sparse_Matrix) is
    N, Iter : Pos := 0;
    J : Int_Array  (1 .. Nat (Mat.P.Length)) := (others => 0);
    I : Int_Array  (1 .. Nat (Mat.I.Length));

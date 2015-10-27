@@ -5,8 +5,8 @@ function Triplet_To_Matrix (I      : in Int_Array;
 			    X      : in Real_Array;
 			    N_Row  : in Pos := 0;
 			    N_Col  : in Pos := 0;
-			    Format : in Matrix_Format := CSC) return Matrix is
-   Result : Matrix;
+			    Format : in Sparse_Matrix_Format := CSC) return Sparse_Matrix is
+   Result : Sparse_Matrix;
 begin
    Result.N_Row  := (if N_Row = 0 then Max (I) else N_Row);
    Result.N_Col  := (if N_Col = 0 then Max (J) else N_Col);

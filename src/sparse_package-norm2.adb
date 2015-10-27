@@ -1,6 +1,6 @@
 separate (Sparse_Package)
 
-function Norm2 (Item : in Matrix) return Real is
+function Norm2 (Item : in Sparse_Matrix) return Real is
    Sum, Result : Real := 0.0;
    X : Real_Vector renames Item.X;
    P : Int_Vector renames Item.P;

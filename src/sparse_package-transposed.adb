@@ -1,6 +1,6 @@
 separate (Sparse_Package)
 
-procedure Transposed (Mat : in out Matrix) is
+procedure Transposed (Mat : in out Sparse_Matrix) is
    Tmp : Pos;
 begin
    

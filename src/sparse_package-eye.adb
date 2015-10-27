@@ -1,7 +1,7 @@
 separate (Sparse_Package)
 
-function Eye (N : in Nat) return Matrix is
-   Result : Matrix;
+function Eye (N : in Nat) return Sparse_Matrix is
+   Result : Sparse_Matrix;
    use Ada.Containers;
 begin
    Result.Format := CSC;

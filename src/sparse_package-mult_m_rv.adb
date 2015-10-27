@@ -1,9 +1,9 @@
 separate (Sparse_Package)
 
-function Mult_M_RV (Left  : in Matrix;
+function Mult_M_RV (Left  : in Sparse_Matrix;
 		    Right : in Real_Vector) return Real_Vector is
    Vec : Real_Vector;
-   Mat : Matrix;
+   Mat : Sparse_Matrix;
    Tmp : Real;
    Index : Nat;
 begin

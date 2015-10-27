@@ -1,8 +1,8 @@
 separate (Sparse_Package)
 
-procedure Print (Mat : in Matrix) is
+procedure Print (Mat : in Sparse_Matrix) is
    
-   use Ada.Text_IO, Matrix_Format_IO, Int_IO, Real_IO;
+   use Ada.Text_IO, Sparse_Matrix_Format_IO, Int_IO, Real_IO;
    
 begin
    

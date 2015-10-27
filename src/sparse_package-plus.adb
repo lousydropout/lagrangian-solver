@@ -1,10 +1,10 @@
 separate (Sparse_Package)
 
-function Plus (Left  : in Matrix;
-	      Right : in Matrix) return Matrix is
+function Plus (Left  : in Sparse_Matrix;
+	      Right : in Sparse_Matrix) return Sparse_Matrix is
    N_Col  : Nat renames Left.N_Col;
    N_Row  : Nat renames Left.N_Row;
-   Result : Matrix;
+   Result : Sparse_Matrix;
    Sum    : Pos;
    Value  : Real_Array (1 .. N_Row);
    Exist  : Int_Array  (1 .. N_Row);

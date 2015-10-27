@@ -1,6 +1,6 @@
 separate (Sparse_Package)
 
-function Has_Same_Dimensions (Left, Right : in Matrix) return Boolean is
+function Has_Same_Dimensions (Left, Right : in Sparse_Matrix) return Boolean is
    Result : Boolean := True;
 begin
    if Left.N_Row /= Right.N_Row or else Left.N_Col /= Right.N_Col then

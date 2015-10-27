@@ -1,6 +1,6 @@
 separate (Sparse_Package)
 
-function BiCGSTAB (A   : in     Matrix;
+function BiCGSTAB (A   : in     Sparse_Matrix;
 		   B   : in     Real_Vector;
 		   X0  : in     Real_Vector;
 		   Err :    out Real;

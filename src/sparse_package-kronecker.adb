@@ -1,7 +1,7 @@
 separate (Sparse_Package)
 
-function Kronecker (Left, Right : in Matrix) return Matrix is
-   Result : Matrix;
+function Kronecker (Left, Right : in Sparse_Matrix) return Sparse_Matrix is
+   Result : Sparse_Matrix;
    N_Col : Nat := Right.N_Col;
    N_Row : Nat := Right.N_Row;
    Al : Int_Array (1 .. Nat (Left.P.Length) - 1);

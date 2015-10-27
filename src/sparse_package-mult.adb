@@ -1,8 +1,8 @@
 separate (Sparse_Package)
 
-function Mult (Left, Right : in Matrix) return Matrix is
-   Result : Matrix;
-   Tmp    : Matrix := Convert (Left);
+function Mult (Left, Right : in Sparse_Matrix) return Sparse_Matrix is
+   Result : Sparse_Matrix;
+   Tmp    : Sparse_Matrix := Convert (Left);
    
    Left_I  : Int_Array  := To_Array (Tmp.I);
    Right_J : Int_Array  := To_Array (Right.I);

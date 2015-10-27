@@ -1,8 +1,8 @@
 separate (Sparse_Package)
 
-function Permute (Mat : in Matrix;
+function Permute (Mat : in Sparse_Matrix;
 		  P   : in Int_Array;
-		  By  : in Permute_By_Type := Column) return Matrix is
+		  By  : in Permute_By_Type := Column) return Sparse_Matrix is
 begin
    pragma Assert (Mat.Format = CSC);
    

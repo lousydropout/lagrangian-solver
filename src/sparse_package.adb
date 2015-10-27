@@ -4,15 +4,15 @@ package body Sparse_Package is
    package Real_Arrays is new Ada.Numerics.Generic_Real_Arrays (Real);
    
 
-   procedure Print (Mat : in Matrix) is separate;
+   procedure Print (Mat : in Sparse_Matrix) is separate;
    
    
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    ------- Basic Getter Functions -----------------------------------
-   function Norm2 (Item : in Matrix) return Real is separate;
-   function N_Row (Mat : in Matrix) return Pos is separate;
-   function N_Col (Mat : in Matrix) return Pos is separate;
+   function Norm2 (Item : in Sparse_Matrix) return Real is separate;
+   function N_Row (Mat : in Sparse_Matrix) return Pos is separate;
+   function N_Col (Mat : in Sparse_Matrix) return Pos is separate;
    function Max_Int_Array (Item : in Int_Array) return Int is separate;
    function Max_Real_Array (Item : in Real_Array) return Real is separate;
    function Abs_Max_IA (Item : in Int_Array) return Int is separate;
@@ -27,18 +27,18 @@ package body Sparse_Package is
 			       X      : in Real_Array;
 			       N_Row  : in Pos := 0;
 			       N_Col  : in Pos := 0;
-			       Format : in Matrix_Format := CSC) 
-			      return Matrix is separate;
+			       Format : in Sparse_Matrix_Format := CSC) 
+			      return Sparse_Matrix is separate;
    
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    -------- Essential Tools -----------------------------------------
    function Cumulative_Sum (Item : in Int_Array) return Int_Array is separate;
-   procedure Remove_Duplicates (Mat : in out Matrix) is separate;
-   procedure Compress (Mat : in out Matrix) is separate;
-   procedure Convert (Mat : in out Matrix) is separate;
-   function Convert (Mat : in Matrix) return Matrix is
-      Result : Matrix := Mat;
+   procedure Remove_Duplicates (Mat : in out Sparse_Matrix) is separate;
+   procedure Compress (Mat : in out Sparse_Matrix) is separate;
+   procedure Convert (Mat : in out Sparse_Matrix) is separate;
+   function Convert (Mat : in Sparse_Matrix) return Sparse_Matrix is
+      Result : Sparse_Matrix := Mat;
    begin
       Result.Convert;
       return Result;
@@ -88,8 +88,8 @@ package body Sparse_Package is
 
    
    function Vectorize (I : in Int_Array;
-		       X : in Real_Array) return Matrix is
-      Result   : Matrix;
+		       X : in Real_Array) return Sparse_Matrix is
+      Result   : Sparse_Matrix;
       Offset_I : constant Int := I'First - 1;
       Offset_X : constant Int := X'First - 1;
    begin
@@ -119,9 +119,9 @@ package body Sparse_Package is
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    ------- Testing Functions -----------------------------------
-   function Is_Col_Vector (A : in Matrix) return Boolean is separate;
-   function Is_Square_Matrix (A : in Matrix) return Boolean is separate;
-   function Has_Same_Dimensions (Left, Right : in Matrix) return Boolean is separate;   
+   function Is_Col_Vector (A : in Sparse_Matrix) return Boolean is separate;
+   function Is_Square_Matrix (A : in Sparse_Matrix) return Boolean is separate;
+   function Has_Same_Dimensions (Left, Right : in Sparse_Matrix) return Boolean is separate;   
    
    
    
@@ -129,49 +129,49 @@ package body Sparse_Package is
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    ------- Matrix Operations -----------------------------------
-   function Eye (N : in Nat) return Matrix is separate;
-   function Zero_Vector (N : in Nat) return Matrix is separate;
+   function Eye (N : in Nat) return Sparse_Matrix is separate;
+   function Zero_Vector (N : in Nat) return Sparse_Matrix is separate;
    function Dot_Product (Left_I, Right_J : in Int_Array;
 			 Left_X, Right_Y : in Real_Array) return Real is separate;
    function Dot_Product_RV (X, Y : in Real_Vector) return Real is separate;
 
-   procedure Transposed (Mat : in out Matrix) is separate;
-   function Transpose (Mat : in Matrix) return Matrix is separate;
-   function Mult (Left, Right : in Matrix) return Matrix is separate;
+   procedure Transposed (Mat : in out Sparse_Matrix) is separate;
+   function Transpose (Mat : in Sparse_Matrix) return Sparse_Matrix is separate;
+   function Mult (Left, Right : in Sparse_Matrix) return Sparse_Matrix is separate;
    function Mult_Int_Array (Left, Right : in Int_Array) return Boolean is separate;
-   function Plus (Left  : in Matrix;
-		  Right : in Matrix) return Matrix is separate;
-   function Minus (Left  : in Matrix;
-		   Right : in Matrix) return Matrix is separate;
-   function Kronecker (Left, Right : in Matrix) return Matrix is separate;
-   function Direct_Sum (Left, Right : in Matrix) return Matrix is separate;
+   function Plus (Left  : in Sparse_Matrix;
+		  Right : in Sparse_Matrix) return Sparse_Matrix is separate;
+   function Minus (Left  : in Sparse_Matrix;
+		   Right : in Sparse_Matrix) return Sparse_Matrix is separate;
+   function Kronecker (Left, Right : in Sparse_Matrix) return Sparse_Matrix is separate;
+   function Direct_Sum (Left, Right : in Sparse_Matrix) return Sparse_Matrix is separate;
    function Mult_R_RV (Left  : in Real;
 		       Right : in Real_Vector) return Real_Vector is separate;
-   function Mult_M_RV (Left  : in Matrix;
+   function Mult_M_RV (Left  : in Sparse_Matrix;
 		       Right : in Real_Vector) return Real_Vector is separate;
    function Add_RV_RV (Left, Right : in Real_Vector) return Real_Vector is separate;
    function Minus_RV_RV (Left, Right : in Real_Vector) return Real_Vector is separate;
-   function Permute_By_Col (Mat : in Matrix;
-			    P   : in Int_Array) return Matrix is separate;
-   function Permute (Mat : in Matrix;
+   function Permute_By_Col (Mat : in Sparse_Matrix;
+			    P   : in Int_Array) return Sparse_Matrix is separate;
+   function Permute (Mat : in Sparse_Matrix;
 		     P   : in Int_Array;
-		     By  : in Permute_By_Type := Column) return Matrix is separate;
+		     By  : in Permute_By_Type := Column) return Sparse_Matrix is separate;
    
    function Norm2_RV (X : in Real_Vector) return Real is separate;
    function Norm_RV (X : in Real_Vector) return Real is separate;
    
-   function BiCGSTAB (A   : in     Matrix;
+   function BiCGSTAB (A   : in     Sparse_Matrix;
 		      B   : in     Real_Vector;
 		      X0  : in     Real_Vector;
 		      Err :    out Real;
 		      Tol : in     Real	    := 1.0e-10) 
 		     return Real_Vector is separate;
 
-   function Number_Of_Elements (X : in Matrix) return Int is (Int (X.X.Length));
+   function Number_Of_Elements (X : in Sparse_Matrix) return Int is (Int (X.X.Length));
    function Length (X : in Real_Vector) return Int is (Int (X.Length));
-   function To_Sparse (Mat : in Matrix) return Sparse_Ptr is separate;
+   function To_Sparse (Mat : in Sparse_Matrix) return Sparse_Ptr is separate;
    
-   function LU_Decomposition (Mat : in Matrix;
+   function LU_Decomposition (Mat : in Sparse_Matrix;
 			      Tol : in Real   := 1.0e-12) return LU_Type is
       Sparse : Sparse_Ptr := Mat.To_Sparse;
       LU     : LU_Type;
@@ -224,7 +224,7 @@ package body Sparse_Package is
       return (for all Y of X => Y'Valid);
    end Is_Valid;
    
-   function Is_Valid (Mat : in Matrix) return Boolean is
+   function Is_Valid (Mat : in Sparse_Matrix) return Boolean is
       use IV_Package, RV_Package;
    begin
       if Mat.I = IV_Package.Empty_Vector 
@@ -274,8 +274,8 @@ package body Sparse_Package is
 			       X      : in Real_Vector;
 			       N_Row  : in Pos		 := 0;
 			       N_Col  : in Pos		 := 0;
-			       Format : in Matrix_Format := CSC) return Matrix is
-      Result : Matrix;
+			       Format : in Sparse_Matrix_Format := CSC) return Sparse_Matrix is
+      Result : Sparse_Matrix;
    begin
       Result.N_Row  := (if N_Row = 0 then Max (I) else N_Row);
       Result.N_Col  := (if N_Col = 0 then Max (J) else N_Col);
@@ -296,7 +296,7 @@ package body Sparse_Package is
    
    function Read_Sparse_Triplet (File_Name : in String;
 				 Offset	   : in Int    := 0)
-				return Matrix is
+				return Sparse_Matrix is
       use Ada.Text_IO, Ada.Containers, Real_IO, Int_IO;
       N_Lines : Int := 0;
       I_Vec : Int_Vector;

@@ -1,8 +1,8 @@
 separate (Sparse_Package)
 
-function Permute_By_Col (Mat : in Matrix;
-			 P   : in Int_Array) return Matrix is
-   Result : Matrix;
+function Permute_By_Col (Mat : in Sparse_Matrix;
+			 P   : in Int_Array) return Sparse_Matrix is
+   Result : Sparse_Matrix;
    Ind    : Pos := 1;
    Tmp    : Nat := 1;
    use Ada.Text_IO;

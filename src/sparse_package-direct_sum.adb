@@ -1,7 +1,7 @@
 separate (Sparse_Package)
 
-function Direct_Sum (Left, Right : in Matrix) return Matrix is
-   Result : Matrix;
+function Direct_Sum (Left, Right : in Sparse_Matrix) return Sparse_Matrix is
+   Result : Sparse_Matrix;
    NRow : Pos := Pos (Left.N_Row);
    CounterI : Pos := Pos (Left.I.Length);
    CounterP : Pos := Pos (Left.P.Length);

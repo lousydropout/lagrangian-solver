@@ -10,7 +10,7 @@ procedure Linear_Solver_Test is
    
    function Rand return Real is (Real (Random (Gen)));
    
-   Mat : Matrix;
+   Mat : Sparse_Matrix;
    LU  : LU_Type;
    X   : Real_Vector;
    B   : Real_Vector;

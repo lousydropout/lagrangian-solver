@@ -1,8 +1,8 @@
 separate (Sparse_Package)
 
-function Minus (Left  : in Matrix;
-	      Right : in Matrix) return Matrix is
-   Result : Matrix := Right;
+function Minus (Left  : in Sparse_Matrix;
+	      Right : in Sparse_Matrix) return Sparse_Matrix is
+   Result : Sparse_Matrix := Right;
 begin
    for X of Result.X loop
       X := -X;

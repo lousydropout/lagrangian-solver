@@ -1,6 +1,6 @@
 separate (Sparse_Package)
 
-procedure Compress (Mat : in out Matrix) is
+procedure Compress (Mat : in out Sparse_Matrix) is
    X          : Real_Array (1 .. Int (Mat.X.Length)) := (others => 0.0);
    I          : Int_Array  (1 .. Int (Mat.X.Length)) := (others => 0);
    Col, Count : Int_Array  (1 .. Mat.N_Col + 1)          := (others => 0);

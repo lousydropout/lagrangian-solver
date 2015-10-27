@@ -6,7 +6,7 @@ procedure Sparse_Test is
    I1 : Int_Array  := (3,   2,   1);
    J1 : Int_Array  := (1,   3,   2);
    X1 : Real_Array := (1.234, 2.345, 2.789);
-   Left : Matrix := Triplet_To_Matrix (I1, J1, X1, 3, 3);
+   Left : Sparse_Matrix := Triplet_To_Matrix (I1, J1, X1, 3, 3);
    
    X : Real_Array (1 .. N) := (others => 0.0);
    Vec, X0 : Real_Vector;

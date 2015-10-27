@@ -1,6 +1,6 @@
 separate (Sparse_Package)
 
-procedure Convert (Mat : in out Matrix) is
+procedure Convert (Mat : in out Sparse_Matrix) is
    N     : constant Nat := Nat'Max (Mat.N_Col, Mat.N_Row);
    X     : Real_Array (1 .. Nat (Mat.X.Length)) := (others => 0.0);
    I     : Int_Array (1 .. Nat (Mat.I.Length))  := (others => 0);

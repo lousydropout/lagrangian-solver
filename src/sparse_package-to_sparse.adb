@@ -1,5 +1,5 @@
 separate (Sparse_Package)
-function To_Sparse (Mat : in Matrix) return Sparse_Ptr is
+function To_Sparse (Mat : in Sparse_Matrix) return Sparse_Ptr is
 begin
    return To_CS (M     => Mat.N_Row, 
 		 N     => Mat.N_Col, 
