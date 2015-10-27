@@ -29,16 +29,6 @@ package Sparse_Package is
    subtype Int_Vector  is IV_Package.Vector;
    subtype Real_Vector is RV_Package.Vector;
    
-   ------- Define pointer packages ----------------------------------
-   package Real_Ptrs is new C.Pointers (Index              => Nat,
-					Element            => Real,
-					Element_Array      => Real_Array,
-					Default_Terminator => 0.0);
-   package Int_Ptrs is new C.Pointers (Index              => Nat,
-				       Element            => Int,
-				       Element_Array      => Int_Array,
-				       Default_Terminator => 0);
-   
    ------- Define Matrix --------------------------------------------
    type Matrix        is tagged private;
    type LU_Type       is private;
@@ -148,12 +138,20 @@ package Sparse_Package is
    function LU_Decomposition (Mat : in Matrix;
 			      Tol : in Real   := 1.0e-12) return LU_Type;
    function Solve (LU : in LU_Type;
-		   B  : in Real_Array) return Real_Ptrs.Pointer;
-   function Solve (LU : in LU_Type;
 		   B  : in Real_Array) return Real_Array;
    
    
 private
+   ------- Define pointer packages ----------------------------------
+   package Real_Ptrs is new C.Pointers (Index              => Nat,
+					Element            => Real,
+					Element_Array      => Real_Array,
+					Default_Terminator => 0.0);
+   package Int_Ptrs is new C.Pointers (Index              => Nat,
+				       Element            => Int,
+				       Element_Array      => Int_Array,
+				       Default_Terminator => 0);
+   
 
    function BiCGSTAB (A   : in     Matrix;
 		      B   : in     Real_Vector;
@@ -268,5 +266,7 @@ private
    procedure Print_Sparse (Sparse : in Sparse_Ptr)
      with Import => True, Convention => C, External_Name => "print_cs";
    function To_Sparse (Mat : in Matrix) return Sparse_Ptr;
+   function Solve (LU : in LU_Type;
+		   B  : in Real_Array) return Real_Ptrs.Pointer;
    
 end Sparse_Package;

@@ -190,13 +190,9 @@ package body Sparse_Package is
    function Solve (LU : in LU_Type;
 		   B  : in Real_Array) return Real_Array is
       X : Real_Ptrs.Pointer := Solve (LU, B);
-      Ar : array (B'Range) of aliased Real with Convention => C, Address => X.all'Address;
-      Result : Real_Array (B'Range) := (others => 0.0);
+      Y : Real_Array (B'Range) with Convention => C, Address => X.all'Address;
    begin
-      for I in B'Range loop
-      	 Result (I) := Ar (I);
-      end loop;
-      return Result;
+      return Y;
    end Solve;
    
    function Solve (LU : in LU_Type;
