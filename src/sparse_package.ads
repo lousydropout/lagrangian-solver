@@ -42,7 +42,6 @@ package Sparse_Package is
    ------- Define Matrix --------------------------------------------
    type Matrix        is tagged private;
    type LU_Type       is private;
-   type Sparse_Type   is private; type Sparse_Ptr   is private;
    --- Print procedure
    procedure Print (Mat : in Matrix);  -- The only public procedure
    
@@ -153,13 +152,9 @@ package Sparse_Package is
    function Solve (LU : in LU_Type;
 		   B  : in Real_Array) return Real_Array;
    
-   ----------------- Ada wrappers of C functions -------------------------------
-   function To_Sparse (Mat : in Matrix) return Sparse_Ptr;
-   procedure Print_Sparse (Sparse : in Sparse_Ptr)
-     with Import => True, Convention => C, External_Name => "print_cs";
    
 private
-   
+
    function BiCGSTAB (A   : in     Matrix;
 		      B   : in     Real_Vector;
 		      X0  : in     Real_Vector;
@@ -206,19 +201,20 @@ private
    	 X : Real_Ptrs.Pointer;
 	 Nz : Pos;
       end record with Convention => C;
+   type Sparse_Ptr   is access Sparse_Type   with Convention => C;
    type Symbolic_Type is
       record
 	 Pinv, Q, Parent, Cp, Leftmost : Int_Ptrs.Pointer;
 	 M2 : Int;
 	 Lnz, Unz : Real;
       end record with Convention => C;
+   type Symbolic_Ptr is access Symbolic_Type with Convention => C;
    type Numeric_Type is
       record
 	 L, U : Sparse_Ptr;
 	 Pinv : Int_Ptrs.Pointer;
 	 B : Real_Ptrs.Pointer;
       end record with Convention => C;
-   type Symbolic_Ptr is access Symbolic_Type with Convention => C;
    type Numeric_Ptr  is access Numeric_Type  with Convention => C;
    
    type LU_Type is
@@ -228,7 +224,7 @@ private
 	 NCol     : Pos;
       end record;
    
-   type Sparse_Ptr   is access Sparse_Type   with Convention => C;
+   
    
    
    
@@ -269,4 +265,8 @@ private
       with Import => True, Convention => C, External_Name => "cs_dl_sfree";
    function Free (Numeric : in Numeric_Ptr) return Numeric_Ptr
       with Import => True, Convention => C, External_Name => "cs_dl_nfree";
+   procedure Print_Sparse (Sparse : in Sparse_Ptr)
+     with Import => True, Convention => C, External_Name => "print_cs";
+   function To_Sparse (Mat : in Matrix) return Sparse_Ptr;
+   
 end Sparse_Package;

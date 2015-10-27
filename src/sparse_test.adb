@@ -22,8 +22,6 @@ procedure Sparse_Test is
    X : Real_Array (1 .. N) := (others => 0.0);
    Vec, X0 : Real_Vector;
    
-   Result : Sparse_Ptr;
-   
 begin
    Put_Line (Real'Image (P.all));
    for K of Ar loop
@@ -34,6 +32,5 @@ begin
    Left.Print;
    New_Line;
    Put_Line ("Number of Elements = " & Int'Image (Number_Of_Elements (Left)));
-   Result := To_Sparse (Left);
-   Print_Sparse (Result);
+
 end Sparse_Test;
