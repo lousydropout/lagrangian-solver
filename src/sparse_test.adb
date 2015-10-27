@@ -1,4 +1,3 @@
-with Ada.Text_IO; use Ada.Text_IO;
 with Sparse_Package; use Sparse_Package; 
 
 procedure Sparse_Test is

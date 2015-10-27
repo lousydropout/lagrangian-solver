@@ -23,11 +23,20 @@ package Sparse_Package is
    package Int_IO is new Ada.Text_IO.Integer_IO (Int);
    package Real_IO is new Ada.Text_IO.Float_IO (Real);
    package Matrix_Format_IO is new Ada.Text_IO.Enumeration_IO (Matrix_Format);
+   procedure New_Line (Spacing : in Ada.Text_IO.Positive_Count := 1) 
+     renames Ada.Text_IO.New_Line;
+   procedure Put_Line (Item : in String) renames Ada.Text_IO.Put_Line;
+   procedure Put (Item : in String) renames Ada.Text_IO.Put;
    ------- Define Real_Vector and Int_Vector packages ------------------------
    package IV_Package is new Ada.Containers.Vectors (Nat, Int, "=");
    package RV_Package is new Ada.Containers.Vectors (Nat, Real, "=");
    subtype Int_Vector  is IV_Package.Vector;
    subtype Real_Vector is RV_Package.Vector;
+   -- Vectorize & To_Array are needed in Triplet_To_Matrix
+   function Vectorize (Item : in Real_Array) return Real_Vector;
+   function Vectorize (Item : in Int_Array)  return Int_Vector;
+   function To_Array (Item : in Real_Vector) return Real_Array;
+   function To_Array (Item : in Int_Vector) return Int_Array;
    
    ------- Define Matrix --------------------------------------------
    type Matrix  is tagged private;
@@ -70,7 +79,7 @@ package Sparse_Package is
    
    function Convert (Mat : in Matrix) return Matrix;
    function Vectorize (I : in Int_Array;
-		       X : in Real_Array) return Matrix
+   		       X : in Real_Array) return Matrix
      with Pre => I'Length = X'Length;
    
    
@@ -81,9 +90,6 @@ package Sparse_Package is
    function Is_Col_Vector (A : in Matrix) return Boolean;
    function Is_Square_Matrix (A : in Matrix) return Boolean;
    function Has_Same_Dimensions (Left, Right : in Matrix) return Boolean;
-   function Is_Valid (P	: in Real_Ptrs.Pointer;
-		      N	: in Pos) return Boolean;
-
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    ------- Matrix operations -----------------------------------
@@ -177,12 +183,6 @@ private
    -- Convert : goes from CSR to CSC or the reverse
    procedure Convert (Mat : in out Matrix);
    
-   -- Vectorize & To_Array are needed in Triplet_To_Matrix
-   function Vectorize (Item : in Real_Array) return Real_Vector;
-   function Vectorize (Item : in Int_Array)  return Int_Vector;
-   function To_Array (Item : in Real_Vector) return Real_Array;
-   function To_Array (Item : in Int_Vector) return Int_Array;
-   
    ---- Define Matrix type -----------------------------------------
    type Matrix is tagged
       record
@@ -227,7 +227,10 @@ private
 	 NCol     : Pos;
       end record;
    
-   
+   ----------- Testing functions -------------------------------------------
+   function Is_Valid (P	: in Real_Ptrs.Pointer;
+		      N	: in Pos) return Boolean;
+
    
    
    
