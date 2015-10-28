@@ -1,0 +1,119 @@
+package Numerics.Sparse_Matrices is
+   
+   
+   -------- Define Enumeration types --------------------------------
+   type Permute_By_Type is (Row, Column);
+   type Sparse_Matrix_Format   is (CSR, CSC, Triplet);
+   
+   ------- Define Matrix --------------------------------------------
+   type Sparse_Matrix  is tagged private;
+   
+   
+   --- Print procedure ----------------------------------------------
+   procedure Print (Mat : in Sparse_Matrix); 
+   
+   ------- Basic Getter Functions -----------------------------------
+   function Norm2 (Item : in Sparse_Matrix) return Real;
+   function N_Row (Mat : in Sparse_Matrix) return Pos with Inline => True;
+   function N_Col (Mat : in Sparse_Matrix) return Pos with Inline => True;
+   function Number_Of_Elements (X : in Sparse_Matrix) return Int;
+   ------------------------------------------------------------------
+   ------------------------------------------------------------------
+   ------- Functions for Creating Sparse Matrices -------------------
+   function Triplet_To_Matrix (I      : in Int_Array;
+			       J      : in Int_Array;
+			       X      : in Real_Array;
+			       N_Row  : in Pos := 0;
+			       N_Col  : in Pos := 0;
+			       Format : in Sparse_Matrix_Format := CSC) return Sparse_Matrix
+     with Pre => I'Length = J'Length and I'Length = X'Length;
+   function Triplet_To_Matrix (I      : in Int_Vector;
+			       J      : in Int_Vector;
+			       X      : in Real_Vector;
+			       N_Row  : in Pos		 := 0;
+			       N_Col  : in Pos		 := 0;
+			       Format : in Sparse_Matrix_Format := CSC) return Sparse_Matrix;
+   function Convert (Mat : in Sparse_Matrix) return Sparse_Matrix;
+   function Vectorize (I : in Int_Array;
+   		       X : in Real_Array) return Sparse_Matrix
+     with Pre => I'Length = X'Length;
+   
+   
+   ------------------------------------------------------------------
+   ------------------------------------------------------------------
+   ------- Testing Functions -----------------------------------
+   function Is_Col_Vector (A : in Sparse_Matrix) return Boolean;
+   function Is_Square_Matrix (A : in Sparse_Matrix) return Boolean;
+   function Has_Same_Dimensions (Left, Right : in Sparse_Matrix) return Boolean;
+   
+      ------------------------------------------------------------------
+   ------------------------------------------------------------------
+   ------- Matrix operations -----------------------------------
+   function Eye (N : in Nat) return Sparse_Matrix;
+   function Zero_Vector (N : in Nat) return Sparse_Matrix;
+   function Transpose (Mat : in Sparse_Matrix) return Sparse_Matrix;
+   function Plus (Left  : in Sparse_Matrix;
+		  Right : in Sparse_Matrix) return Sparse_Matrix
+     with Pre => Has_Same_Dimensions (Left, Right);
+   function Minus (Left  : in Sparse_Matrix;
+		   Right : in Sparse_Matrix) return Sparse_Matrix
+     with Pre => Has_Same_Dimensions (Left, Right);
+   function Mult (Left, Right : in Sparse_Matrix) return Sparse_Matrix
+     with Pre => N_Col (Left) = N_Row (Right);
+   function Kronecker (Left, Right : in Sparse_Matrix) return Sparse_Matrix;
+   function Direct_Sum (Left, Right : in Sparse_Matrix) return Sparse_Matrix;
+   function Mult_M_RV (Left  : in Sparse_Matrix;
+		       Right : in Real_Vector) return Real_Vector
+     with Pre => N_Col (Left) = Pos (Right.Length);
+   function Permute_By_Col (Mat : in Sparse_Matrix;
+			    P   : in Int_Array) return Sparse_Matrix;
+   function Permute (Mat : in Sparse_Matrix;
+		     P   : in Int_Array;
+		     By  : in Permute_By_Type := Column) return Sparse_Matrix;
+   procedure Transposed (Mat : in out Sparse_Matrix);
+   
+
+   ---------- In Binary Form -----------------------------------------------
+   function "+" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Plus;
+   function "-" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Minus;
+   function "*" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Mult;
+   function "and" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Kronecker;
+   function "or" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Direct_Sum;
+   function "*" (Left  : in Sparse_Matrix;
+		 Right : in Real_Vector) return Real_Vector renames Mult_M_RV;
+   
+   
+   function Is_Valid (Mat : in Sparse_Matrix) return Boolean;
+   
+   function Read_Sparse_Triplet (File_Name : in String;
+				 Offset	   : in Int    := 0) return Sparse_Matrix;
+   
+private
+   function BiCGSTAB (A   : in     Sparse_Matrix;
+		      B   : in     Real_Vector;
+		      X0  : in     Real_Vector;
+		      Err :    out Real;
+		      Tol : in     Real	    := 1.0e-10) return Real_Vector;
+   
+   ------------------------------------------------------------------
+   ------------------------------------------------------------------
+   -------- Essential Tools -----------------------------------------
+   function  Cumulative_Sum (Item : in Int_Array) return Int_Array;
+   procedure Remove_Duplicates (Mat : in out Sparse_Matrix);
+   procedure Compress (Mat : in out Sparse_Matrix);
+   -- Convert : goes from CSR to CSC or the reverse
+   procedure Convert (Mat : in out Sparse_Matrix);
+   
+   ---- Define Matrix type -----------------------------------------
+   type Sparse_Matrix is tagged
+      record
+	 Format : Sparse_Matrix_Format;
+	 N_Row  : Pos := 0;
+	 N_Col  : Pos := 0;
+	 X      : Real_Vector;
+	 I      : Int_Vector;
+	 P      : Int_Vector;
+      end record;
+   
+
+end Numerics.Sparse_Matrices;
