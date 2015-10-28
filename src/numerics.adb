@@ -1,8 +1,13 @@
-with Ada.Numerics.Generic_Real_Arrays; 
+with Ada.Numerics.Generic_Real_Arrays;
 package body Numerics is
    
    package Real_Arrays is new Ada.Numerics.Generic_Real_Arrays (Real);
    
+   function Rand return Real is 
+      use Ada.Numerics.Float_Random;
+   begin
+      return Real (Random (Gen));
+   end Rand;
    
    -- Vectorize & To_Array are needed in Triplet_To_Matrix
    function Vectorize (Item : in Real_Array) return Real_Vector is
@@ -135,8 +140,6 @@ package body Numerics is
    
    
    
-   
-   
    -------- Binary Operators ---------------------------
    function Dot_Product (Left_I, Right_J : in Int_Array;
 			 Left_X, Right_Y : in Real_Array) return Real is separate;
@@ -149,5 +152,6 @@ package body Numerics is
    function Minus_RV_RV (Left, Right : in Real_Vector) return Real_Vector is separate;
    
 
-   
+begin
+   Ada.Numerics.Float_Random.Reset (Gen);
 end Numerics;

@@ -1,5 +1,6 @@
 with Ada.Containers.Vectors, Interfaces.C, Interfaces.C.Pointers, Ada.Text_IO;
-with Ada.Numerics.Generic_Elementary_Functions;
+with Ada.Numerics.Generic_Elementary_Functions, Ada.Numerics.Float_Random;
+with Ada.Text_IO;
 package Numerics is
    package C renames Interfaces.C;
    
@@ -9,7 +10,10 @@ package Numerics is
    subtype Pos is Int     range 0 .. Int'Last;
    subtype Nat is Pos     range 1 .. Pos'Last;
    
-   -------- Define array types
+   -------- Define random variable function -----------------------
+   function Rand return Real;
+   
+   -------- Define array types -----------------------------------
    type Real_Array is array (Nat range <>) of aliased Real with Convention => C;
    type Int_Array  is array (Nat range <>) of aliased Int  with Convention => C;
    package Real_Functions is new Ada.Numerics.Generic_Elementary_Functions (Real);
@@ -82,5 +86,9 @@ package Numerics is
    function "-" (Left, Right : in Real_Vector) return Real_Vector renames Minus_RV_RV;
    function "+" (Left, Right : in Real_Vector) return Real_Vector renames Add_RV_RV;
    
+   
+private
+   
+   Gen : Ada.Numerics.Float_Random.Generator;
    
 end Numerics;

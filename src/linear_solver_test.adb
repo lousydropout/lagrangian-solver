@@ -1,16 +1,9 @@
 with Numerics, Numerics.Sparse_Matrices, Numerics.Sparse_Matrices.CSparse;
 use  Numerics, Numerics.Sparse_Matrices, Numerics.Sparse_Matrices.CSparse;
-
 with Ada.Text_IO; use Ada.Text_IO;
-with Ada.Numerics.Float_Random; use Ada.Numerics.Float_Random;
-with Ada.Numerics; use Ada.Numerics; 
-with Ada.Containers; use Ada.Containers;
 
 procedure Linear_Solver_Test is
    use Real_IO, Int_IO, Real_Functions;
-   Gen : Generator;
-   
-   function Rand return Real is (Real (Random (Gen)));
    
    Mat : Sparse_Matrix;
    LU  : LU_Type;
@@ -24,13 +17,14 @@ begin
    
    --  Mat := Read_Sparse_Triplet (Dir & "a5by5_st.txt");     -- 611B
    --  Mat := Read_Sparse_Triplet (Dir & "bcsstk01_st.txt");  -- 4.9K
-   --  Mat := Read_Sparse_Triplet (Dir & "bcsstk16_st.txt");  -- 3.7M
+   Mat := Read_Sparse_Triplet (Dir & "bcsstk16_st.txt");  -- 3.7M
    --  Mat := Read_Sparse_Triplet (Dir & "fs_183_1_st.txt");  -- 24K
    --  Mat := Read_Sparse_Triplet (Dir & "kershaw_st.txt");   -- 564
    --  Mat := Read_Sparse_Triplet (Dir & "west0067_st.txt");  -- 3.9K
-   Mat := Read_Sparse_Triplet (Dir & "t1_st.txt");        -- 80
+   --  Mat := Read_Sparse_Triplet (Dir & "t1_st.txt");        -- 80
    Put_Line ("finished");
    
+
    ----- Print matrix' info --------------
    Put ("Size of matrix: "); 
    Put (Mat.N_Row, 0); Put (" x "); Put (Mat.N_Col, 0); New_Line;
@@ -46,14 +40,12 @@ begin
    
    ------ Begin tests ------------------------
    Put_Line ("Begin testing . . .");
-   Reset (Gen);
    for K in 1 .. Int (10) loop
       Put ("Trial "); Put (K, Width => 2); Put (": "); 
       for I of B loop I := (10.0 * Rand) ** 10 * Sin (10.0 * Rand); end loop;
-      X := Solve (LU, B);
-      Put ("     Norm (X) = "); Put (Norm (X), Fore => 1, Aft => 1, Exp => 3);
-      Res := Norm (B - Mat * X);
-      Put ("     Norm (Res) = "); Put (Res, Fore => 1, Aft => 1, Exp => 3);
+      X   := Solve (LU, B);
+      Res := Norm (B - Mat * X) / (if Norm (X) > 1.0 then Norm (X) else 1.0);
+      Put ("    Norm (Res)  =  "); Put (Res, Fore => 1, Aft => 1, Exp => 3);
       if Res > 1.0e-10 then Put ("  ***"); end if;
       New_Line;
    end loop;
