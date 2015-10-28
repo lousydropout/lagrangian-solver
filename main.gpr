@@ -13,6 +13,8 @@ Project Main is
 	    "-s",                       -- if switches change
 	    "-gnaty3aCefiklnprstM100",  -- various style checks
 	    "-gnatW8",                  -- allow wide characters (e.g. π)
+	    "-gnateF",                  -- check overflow on predefined float types
+	    "-gnateV",                  -- validity checks on subprogram parameters
 	    "-gnato3");                 -- Overflow (mode : Eliminated)
      for Default_Switches ("C") use ("-Wall");
   end Compiler;
