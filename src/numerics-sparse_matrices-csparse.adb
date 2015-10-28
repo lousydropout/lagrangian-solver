@@ -1,9 +1,9 @@
-package body Numerics-Sparse_Matrices.CSparse is
+package body Numerics.Sparse_Matrices.CSparse is
    
    
    function LU_Decomposition (Mat : in Sparse_Matrix;
 			      Tol : in Real   := 1.0e-12) return LU_Type is
-      Sparse : Sparse_Ptr := Mat.To_Sparse;
+      Sparse : Sparse_Ptr := To_Sparse (Mat);
       LU     : LU_Type;
    begin
       LU.Symbolic := CS_Sqr (Prob => Sparse);
@@ -58,7 +58,7 @@ package body Numerics-Sparse_Matrices.CSparse is
    function N_Col (LU : in LU_Type) return Pos is (LU.NCol);
    
    
-
+   function To_Sparse (Mat : in Sparse_Matrix) return Sparse_Ptr is separate;
    
-   
-end package Numerics;
+      
+end Numerics.Sparse_Matrices.CSparse;

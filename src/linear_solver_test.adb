@@ -1,4 +1,6 @@
-with Sparse_Package; use Sparse_Package;
+with Numerics, Numerics.Sparse_Matrices, Numerics.Sparse_Matrices.CSparse;
+use  Numerics, Numerics.Sparse_Matrices, Numerics.Sparse_Matrices.CSparse;
+
 with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Numerics.Float_Random; use Ada.Numerics.Float_Random;
 with Ada.Numerics; use Ada.Numerics; 
@@ -39,7 +41,7 @@ begin
 
    ----- Begin LU Decomposition ---------
    Put ("LU Decomposition . . .");
-   LU  := Mat.LU_Decomposition;
+   LU  := LU_Decomposition (Mat);
    Put_Line ("finished");
    
    ------ Begin tests ------------------------

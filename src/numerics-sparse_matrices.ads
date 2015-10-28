@@ -4,9 +4,11 @@ package Numerics.Sparse_Matrices is
    -------- Define Enumeration types --------------------------------
    type Permute_By_Type is (Row, Column);
    type Sparse_Matrix_Format   is (CSR, CSC, Triplet);
+   package Sparse_Matrix_Format_IO is new Ada.Text_IO.Enumeration_IO (Sparse_Matrix_Format);
    
    ------- Define Matrix --------------------------------------------
    type Sparse_Matrix  is tagged private;
+   
    
    
    --- Print procedure ----------------------------------------------

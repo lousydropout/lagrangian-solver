@@ -8,6 +8,7 @@ package body Numerics.Sparse_Matrices is
    ------- Basic Getter Functions -----------------------------------
    function Norm2 (Item : in Sparse_Matrix) return Real is separate;
    function N_Row (Mat : in Sparse_Matrix) return Pos is separate;
+   function N_Col (Mat : in Sparse_Matrix) return Pos is separate;
    
    ------------------------------------------------------------------
    ------------------------------------------------------------------
@@ -108,8 +109,6 @@ package body Numerics.Sparse_Matrices is
 
    function Number_Of_Elements (X : in Sparse_Matrix) return Int is (Int (X.X.Length));
    
-   function To_Sparse (Mat : in Sparse_Matrix) return Sparse_Ptr is separate;
-   
    function Is_Valid (Mat : in Sparse_Matrix) return Boolean is
       use IV_Package, RV_Package;
    begin
@@ -183,4 +182,4 @@ package body Numerics.Sparse_Matrices is
       return Triplet_To_Matrix (I_Vec, J_Vec, X_Vec);
    end Read_Sparse_Triplet;
    
-end package Numerics.Sparse_Matrices;
+end Numerics.Sparse_Matrices;

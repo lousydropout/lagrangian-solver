@@ -88,7 +88,6 @@ package body Numerics is
    
    -------- Max and Abs_Max functions ------------------
    
-   function N_Col (Mat : in Sparse_Matrix) return Pos is separate;
    function Max_Int_Array (Item : in Int_Array) return Int is separate;
    function Max_Real_Array (Item : in Real_Array) return Real is separate;
    function Abs_Max_IA (Item : in Int_Array) return Int is separate;
