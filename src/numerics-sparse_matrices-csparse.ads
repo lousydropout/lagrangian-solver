@@ -23,6 +23,8 @@ package Numerics.Sparse_Matrices.CSparse is
      with Pre => N_Col (LU) = Pos (B.Length);
    
    
+   
+   procedure Free (LU : in out LU_Type);
 private
    ------- Define pointer packages ----------------------------------
    package Real_Ptrs is new C.Pointers (Index              => Nat,
@@ -71,8 +73,6 @@ private
    function Is_Valid (P	: in Real_Ptrs.Pointer;
 		      N	: in Pos) return Boolean;
 
-   
-   
    
    ------------ C functions -------------------------------------------------
    function From_Arrays (M  : in Int;

@@ -18,8 +18,6 @@ package body Numerics.Sparse_Matrices.CSparse is
    end LU_Decomposition;
    
    
-   
-   
    function Solve (LU : in LU_Type;
 		   B  : in Real_Array) return Real_Array is
       X : Real_Ptrs.Pointer := Solve (LU, B);
@@ -60,5 +58,12 @@ package body Numerics.Sparse_Matrices.CSparse is
    
    function To_Sparse (Mat : in Sparse_Matrix) return Sparse_Ptr is separate;
    
-      
+   
+   
+   procedure Free (LU : in out LU_Type) is
+   begin
+      LU.Symbolic := Free (LU.Symbolic);
+      LU.Numeric  := Free (LU.Numeric);
+      LU.NCol     := 0;
+   end Free;
 end Numerics.Sparse_Matrices.CSparse;

@@ -25,10 +25,10 @@ begin
    --  Mat := Read_Sparse_Triplet (Dir & "a5by5_st.txt");     -- 611B
    --  Mat := Read_Sparse_Triplet (Dir & "bcsstk01_st.txt");  -- 4.9K
    --  Mat := Read_Sparse_Triplet (Dir & "bcsstk16_st.txt");  -- 3.7M
-   Mat := Read_Sparse_Triplet (Dir & "fs_183_1_st.txt");  -- 24K
+   --  Mat := Read_Sparse_Triplet (Dir & "fs_183_1_st.txt");  -- 24K
    --  Mat := Read_Sparse_Triplet (Dir & "kershaw_st.txt");   -- 564
    --  Mat := Read_Sparse_Triplet (Dir & "west0067_st.txt");  -- 3.9K
-   --  Mat := Read_Sparse_Triplet (Dir & "t1_st.txt");        -- 80
+   Mat := Read_Sparse_Triplet (Dir & "t1_st.txt");        -- 80
    Put_Line ("finished");
    
    ----- Print matrix' info --------------
@@ -49,12 +49,17 @@ begin
    Reset (Gen);
    for K in 1 .. Int (10) loop
       Put ("Trial "); Put (K, Width => 2); Put (": "); 
-      for I of X loop I := (10.0 * Rand) ** 5 * Sin (10.0 * Rand); end loop;
-      B   := Mat * X;
-      Res := Norm (B - Mat * X) / Norm (X);
-      Put ("  Norm (Res) =   "); Put (Res, Fore => 1, Aft => 1, Exp => 3);
-      if Res > 1.0e-10 then Put ("******"); end if;
+      for I of B loop I := (10.0 * Rand) ** 10 * Sin (10.0 * Rand); end loop;
+      X := Solve (LU, B);
+      Put ("     Norm (X) = "); Put (Norm (X), Fore => 1, Aft => 1, Exp => 3);
+      Res := Norm (B - Mat * X);
+      Put ("     Norm (Res) = "); Put (Res, Fore => 1, Aft => 1, Exp => 3);
+      if Res > 1.0e-10 then Put ("  ***"); end if;
       New_Line;
    end loop;
    Put_Line ("tests completed");
+   
+   ---- Free memory allocated by LU : LU_Type -------
+   Free (LU);
+   
 end Linear_Solver_Test;
