@@ -14,14 +14,18 @@ procedure Linear_Solver_Test is
 
 begin
    Put ("Read Matrix . . .");
-   
-   --  Mat := Read_Sparse_Triplet (Dir & "a5by5_st.txt");     -- 611B
+   ------ Rectangular Matrices -----------------
+   Mat := Read_Sparse_Triplet (Dir & "ash219_st.txt");       -- 3.6K
+   Mat := Transpose (Mat) * Mat;
+
+   ------ Square Matrices ----------------------
+   --  Mat := Read_Sparse_Triplet (Dir & "a5by5_st.txt");     -- 611
    --  Mat := Read_Sparse_Triplet (Dir & "bcsstk01_st.txt");  -- 4.9K
-   Mat := Read_Sparse_Triplet (Dir & "bcsstk16_st.txt");  -- 3.7M
+   --  Mat := Read_Sparse_Triplet (Dir & "bcsstk16_st.txt");  -- 3.7M
    --  Mat := Read_Sparse_Triplet (Dir & "fs_183_1_st.txt");  -- 24K
    --  Mat := Read_Sparse_Triplet (Dir & "kershaw_st.txt");   -- 564
-   --  Mat := Read_Sparse_Triplet (Dir & "west0067_st.txt");  -- 3.9K
    --  Mat := Read_Sparse_Triplet (Dir & "t1_st.txt");        -- 80
+   --  Mat := Read_Sparse_Triplet (Dir & "west0067_st.txt");  -- 3.9K
    Put_Line ("finished");
    
 
