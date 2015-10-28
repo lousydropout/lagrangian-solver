@@ -39,34 +39,43 @@ private
    ---- Define CS type -----------------------------------------
    type Sparse_Type is
       record
-   	 Nzmax, M, N : Pos;
-   	 P, I : Int_Ptrs.Pointer;
-   	 X : Real_Ptrs.Pointer;
-	 Nz : Pos;
+   	 Nzmax	: Pos	:= 0;
+	 M	: Pos	:= 0;
+	 N	: Pos	:= 0;
+   	 I	: Int_Ptrs.Pointer;
+   	 P	: Int_Ptrs.Pointer;
+   	 X	: Real_Ptrs.Pointer;
+	 Nz	: Pos	:= 0;
       end record with Convention => C;
-   type Sparse_Ptr is access Sparse_Type   with Convention => C;
+   type Sparse_Ptr is access Sparse_Type with Convention => C;
    
    type Symbolic_Type is
       record
-	 Pinv, Q, Parent, Cp, Leftmost : Int_Ptrs.Pointer;
-	 M2 : Int;
-	 Lnz, Unz : Real;
+	 Pinv		: Int_Ptrs.Pointer;
+	 Q		: Int_Ptrs.Pointer;
+	 Parent		: Int_Ptrs.Pointer;
+	 Cp		: Int_Ptrs.Pointer;
+	 Leftmost	: Int_Ptrs.Pointer;
+	 M2		: Int;
+	 Lnz		: Real;
+	 Unz		: Real;
       end record with Convention => C;
    type Symbolic_Ptr is access Symbolic_Type with Convention => C;
    
    type Numeric_Type is
       record
-	 L, U : Sparse_Ptr;
-	 Pinv : Int_Ptrs.Pointer;
-	 B : Real_Ptrs.Pointer;
+	 L	: Sparse_Ptr;
+	 U	: Sparse_Ptr;
+	 Pinv	: Int_Ptrs.Pointer;
+	 B	: Real_Ptrs.Pointer;
       end record with Convention => C;
-   type Numeric_Ptr  is access Numeric_Type  with Convention => C;
+   type Numeric_Ptr  is access Numeric_Type with Convention => C;
    
    type LU_Type is
       record
 	 Symbolic : Symbolic_Ptr;
 	 Numeric  : Numeric_Ptr;
-	 NCol     : Pos;
+	 NCol     : Pos := 0;
       end record;
    
    ----------- Testing functions -------------------------------------------
