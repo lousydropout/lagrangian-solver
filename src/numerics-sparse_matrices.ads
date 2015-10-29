@@ -86,6 +86,16 @@ package Numerics.Sparse_Matrices is
 		 Right : in Real_Vector) return Real_Vector renames Mult_M_RV;
    
    
+   function "and" (Left  : in Sparse_Matrix;
+		   Right : in Real_Matrix) return Sparse_Matrix is (Left and Sparse (Right));
+   function "or" (Left : in Sparse_Matrix;
+		  Right : in Real_Matrix) return Sparse_Matrix is (Left or Sparse (Right));
+   function "and" (Left  : in Real_Matrix;
+		   Right : in Sparse_Matrix) return Sparse_Matrix is (Sparse (Left) and Right);
+   function "or" (Left : in Real_Matrix;
+		  Right : in Sparse_Matrix) return Sparse_Matrix is (Sparse (Left) or Right);
+
+   
    function Is_Valid (Mat : in Sparse_Matrix) return Boolean;
    
    function Read_Sparse_Triplet (File_Name : in String;
