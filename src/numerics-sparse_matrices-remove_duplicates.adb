@@ -21,7 +21,7 @@ begin
       end loop;
    end loop;
    J := Cumulative_Sum (J);
-   Mat.I := Vectorize (I (1 .. N)); 
-   Mat.X := Vectorize (X (1 .. N)); 
-   Mat.P := Vectorize (J);
+   Set (Mat.I, I (1 .. N));
+   Set (Mat.X, X (1 .. N));
+   Set (Mat.P, J);
 end Remove_Duplicates;

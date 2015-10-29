@@ -31,9 +31,10 @@ begin
    end loop;
    
    case Mat.Format is
-      when CSC => Mat.P := Vectorize (Count (1 .. Mat.N_Col + 1)); 
-      when CSR => Mat.P := Vectorize (Count (1 .. Mat.N_Row + 1)); 
+      when CSC => Set (Mat.P, Count (1 .. Mat.N_Col + 1)); 
+      when CSR => Set (Mat.P, Count (1 .. Mat.N_Row + 1)); 
       when others => raise Transpose_Exception;
    end case;
-   Mat.I := Vectorize (I); Mat.X := Vectorize (X);
+   Set (Mat.I, I); 
+   Set (Mat.X, X);
 end Convert;

@@ -10,11 +10,11 @@ function Triplet_To_Matrix (I      : in Int_Array;
 begin
    Result.N_Row  := (if N_Row = 0 then Max (I) else N_Row);
    Result.N_Col  := (if N_Col = 0 then Max (J) else N_Col);
-
    Result.Format := Triplet;
-   Result.I      := Vectorize (I);
-   Result.P      := Vectorize (J);
-   Result.X      := Vectorize (X);
+   
+   Set (X => Result.I, To => I);
+   Set (X => Result.P, To => J);
+   Set (X => Result.X, To => X);
    
    case Format is
       when CSC => Compress (Result);

@@ -51,7 +51,7 @@ begin
    end loop;
    P := Cumulative_Sum (P);
    
-   Result.P := Vectorize (P);
+   Set (Result.P, P);
    Result.X.Set_Length (Count_Type (Sum));
    Result.I.Set_Length (Count_Type (Sum));
    

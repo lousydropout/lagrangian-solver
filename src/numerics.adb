@@ -10,6 +10,26 @@ package body Numerics is
    end Rand;
    
    -- Vectorize & To_Array are needed in Triplet_To_Matrix
+   procedure Set (X  : in out Real_Vector;
+		  To : in     Real_Array) is
+      Offset : constant Int := To'First - 1;
+   begin
+      X.Set_Length (To'Length);
+      for K in 1 .. Int (To'Length) loop
+	 X (K) := To (K + Offset);
+      end loop;
+   end Set;
+   
+   procedure Set (X  : in out Int_Vector;
+		  To : in     Int_Array) is
+      Offset : constant Int := To'First - 1;
+   begin
+      X.Set_Length (To'Length);
+      for K in 1 .. Int (To'Length) loop
+	 X (K) := To (K + Offset);
+      end loop;
+   end Set;
+   
    function Vectorize (Item : in Real_Array) return Real_Vector is
       Vector : Real_Vector;
       Offset : constant Int := Item'First - 1;

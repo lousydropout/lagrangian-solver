@@ -28,12 +28,17 @@ package Numerics is
    --  procedure Put (Item : in String) renames Ada.Text_IO.Put;
    
    ------- Define Real_Vector and Int_Vector packages ------------------------
-   package IV_Package is new Ada.Containers.Vectors (Nat, Int, "=");
+   package IV_Package is new Ada.Containers.Vectors (Nat, Int,  "=");
    package RV_Package is new Ada.Containers.Vectors (Nat, Real, "=");
    subtype Int_Vector  is IV_Package.Vector;
    subtype Real_Vector is RV_Package.Vector;
    
    -- Vectorize & To_Array are needed in Triplet_To_Matrix
+   procedure Set (X  : in out Real_Vector;
+		  To : in     Real_Array);
+   procedure Set (X  : in out Int_Vector;
+		  To : in     Int_Array);
+
    function Vectorize (Item : in Real_Array) return Real_Vector;
    function Vectorize (Item : in Int_Array)  return Int_Vector;
    function To_Array (Item : in Real_Vector) return Real_Array;
