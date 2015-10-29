@@ -1,7 +1,7 @@
 separate (Numerics.Sparse_Matrices)
 
 function Plus (Left  : in Sparse_Matrix;
-	      Right : in Sparse_Matrix) return Sparse_Matrix is
+	       Right : in Sparse_Matrix) return Sparse_Matrix is
    N_Col  : Nat renames Left.N_Col;
    N_Row  : Nat renames Left.N_Row;
    Result : Sparse_Matrix;

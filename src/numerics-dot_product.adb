@@ -5,7 +5,9 @@ function Dot_Product (Left_I, Right_J : in Int_Array;
    Result : Real     := 0.0;
    I      : Int  := Left_I'First;
    J      : Int  := Right_J'First;
+   
 begin
+   
    while I <= Left_I'Last and J <= Right_J'Last loop
       if Left_I (I) = Right_J (J) then 
 	 Result := Result + Left_X (I) * Right_Y (J);
@@ -24,5 +26,6 @@ begin
 	 end loop;
       end if;
    end loop;
+
    return Result;
 end Dot_Product;

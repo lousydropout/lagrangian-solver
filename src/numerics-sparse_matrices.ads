@@ -129,5 +129,10 @@ private
 	 P      : Int_Vector;
       end record;
    
+   function Dot_Product (A, B : in Sparse_Matrix;
+			 L1, L2, R1, R2 : in Pos) return Real;
+   function Overlap (A, B : in Sparse_Matrix;
+		     L1, L2, R1, R2 : in Pos) return Boolean;
+
 
 end Numerics.Sparse_Matrices;
