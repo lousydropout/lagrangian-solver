@@ -11,12 +11,15 @@ procedure Linear_Solver_Test is
    B   : Real_Vector;
    Dir : String      := "matrices/sparse-triplet/zero-based/";
    Res : Real;
-
+   A   : Real_Matrix := ((1.0, 2.0),
+			 (3.0, 4.0));
 begin
    Put ("Read Matrix . . .");
+   Mat := Sparse (A);
+   Mat.Print;
    ------ Rectangular Matrices -----------------
-   Mat := Read_Sparse_Triplet (Dir & "ash219_st.txt");       -- 3.6K
-   Mat := Transpose (Mat) * Mat;
+   --  Mat := Read_Sparse_Triplet (Dir & "ash219_st.txt");       -- 3.6K
+   --  Mat := Transpose (Mat) * Mat;
 
    ------ Square Matrices ----------------------
    --  Mat := Read_Sparse_Triplet (Dir & "a5by5_st.txt");     -- 611

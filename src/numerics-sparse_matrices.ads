@@ -22,6 +22,7 @@ package Numerics.Sparse_Matrices is
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    ------- Functions for Creating Sparse Matrices -------------------
+   function Sparse (X : in Real_Matrix) return Sparse_Matrix;
    function Triplet_To_Matrix (I      : in Int_Array;
 			       J      : in Int_Array;
 			       X      : in Real_Array;

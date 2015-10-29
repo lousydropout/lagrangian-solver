@@ -16,6 +16,7 @@ package Numerics is
    -------- Define array types -----------------------------------
    type Real_Array is array (Nat range <>) of aliased Real with Convention => C;
    type Int_Array  is array (Nat range <>) of aliased Int  with Convention => C;
+   type Real_Matrix is array (Nat range <>, Nat range <>) of aliased Real with Convention => C;
    package Real_Functions is new Ada.Numerics.Generic_Elementary_Functions (Real);
    
    ------- Define Real_IO and Int_IO packages ------------------------

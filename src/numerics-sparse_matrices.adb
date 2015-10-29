@@ -13,6 +13,28 @@ package body Numerics.Sparse_Matrices is
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    ------- Functions for Creating Sparse Matrices -------------------
+   function Sparse (X : in Real_Matrix) return Sparse_Matrix is
+      use Ada.Containers;
+      Result : Sparse_Matrix;
+      N : Int := X'Length (1) * X'Length (2);
+   begin
+      Result.N_Row := X'Length (1);
+      Result.N_Col := X'Length (2);
+      Result.Format := Triplet;
+      Result.I.Set_Length (Count_Type (N));
+      Result.P.Set_Length (Count_Type (N));
+      Result.X.Set_Length (Count_Type (N));
+      N := 1;
+      for I in 1 .. Int (X'Length (1)) loop
+	 for J in 1 .. Int (X'Length (2)) loop
+	    Result.I (N) := I; Result.P (N) := J; Result.X (N) := X (I, J);
+	    N := N + 1;
+	 end loop;
+      end loop;
+      Compress (Result);
+      return Result;
+   end Sparse;
+      
    function Triplet_To_Matrix (I      : in Int_Array;
 			       J      : in Int_Array;
 			       X      : in Real_Array;
