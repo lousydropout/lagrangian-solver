@@ -9,8 +9,6 @@ package Numerics.Sparse_Matrices is
    ------- Define Matrix --------------------------------------------
    type Sparse_Matrix  is tagged private;
    
-   
-   
    --- Print procedure ----------------------------------------------
    procedure Print (Mat : in Sparse_Matrix); 
    
@@ -19,6 +17,7 @@ package Numerics.Sparse_Matrices is
    function N_Row (Mat : in Sparse_Matrix) return Pos with Inline => True;
    function N_Col (Mat : in Sparse_Matrix) return Pos with Inline => True;
    function Number_Of_Elements (X : in Sparse_Matrix) return Int;
+   
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    ------- Functions for Creating Sparse Matrices -------------------
@@ -44,14 +43,16 @@ package Numerics.Sparse_Matrices is
    
    ------------------------------------------------------------------
    ------------------------------------------------------------------
-   ------- Testing Functions -----------------------------------
+   ------- Testing Functions ----------------------------------------
    function Is_Col_Vector (A : in Sparse_Matrix) return Boolean;
    function Is_Square_Matrix (A : in Sparse_Matrix) return Boolean;
    function Has_Same_Dimensions (Left, Right : in Sparse_Matrix) return Boolean;
+   function Is_Valid (Mat : in Sparse_Matrix) return Boolean;
    
-      ------------------------------------------------------------------
+   
    ------------------------------------------------------------------
-   ------- Matrix operations -----------------------------------
+   ------------------------------------------------------------------
+   ------- Matrix operations ----------------------------------------
    function Eye (N : in Nat) return Sparse_Matrix;
    function Zero_Vector (N : in Nat) return Sparse_Matrix;
    function Transpose (Mat : in Sparse_Matrix) return Sparse_Matrix;
@@ -80,28 +81,28 @@ package Numerics.Sparse_Matrices is
    function "+" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Plus;
    function "-" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Minus;
    function "*" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Mult;
-   function "and" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Kronecker;
-   function "or" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Direct_Sum;
    function "*" (Left  : in Sparse_Matrix;
 		 Right : in Real_Vector) return Real_Vector renames Mult_M_RV;
    
+   function "and" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Kronecker;
+   function "or"  (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Direct_Sum;
    
    function "and" (Left  : in Sparse_Matrix;
-		   Right : in Real_Matrix) return Sparse_Matrix is (Left and Sparse (Right));
-   function "or" (Left : in Sparse_Matrix;
-		  Right : in Real_Matrix) return Sparse_Matrix is (Left or Sparse (Right));
+		   Right : in Real_Matrix)   return Sparse_Matrix is (Left and Sparse (Right));
    function "and" (Left  : in Real_Matrix;
 		   Right : in Sparse_Matrix) return Sparse_Matrix is (Sparse (Left) and Right);
-   function "or" (Left : in Real_Matrix;
-		  Right : in Sparse_Matrix) return Sparse_Matrix is (Sparse (Left) or Right);
+   function "or" (Left  : in Sparse_Matrix;
+		  Right : in Real_Matrix)    return Sparse_Matrix is (Left or Sparse (Right));
+   function "or" (Left  : in Real_Matrix;
+		  Right : in Sparse_Matrix)  return Sparse_Matrix is (Sparse (Left) or Right);
 
    
-   function Is_Valid (Mat : in Sparse_Matrix) return Boolean;
-   
+   ------- File Readers ---------------------------------------------------
    function Read_Sparse_Triplet (File_Name : in String;
 				 Offset	   : in Int    := 0) return Sparse_Matrix;
    
 private
+   
    function BiCGSTAB (A   : in     Sparse_Matrix;
 		      B   : in     Real_Vector;
 		      X0  : in     Real_Vector;
