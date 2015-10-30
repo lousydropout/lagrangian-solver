@@ -28,13 +28,11 @@ begin
    --  Mat := Read_Sparse_Triplet (Dir & "kershaw_st.txt");   -- 564
    --  Mat := Read_Sparse_Triplet (Dir & "t1_st.txt");        -- 80
    --  Mat := Read_Sparse_Triplet (Dir & "west0067_st.txt");  -- 3.9K
-   
-   --  Mat := Transpose (Mat) * Mat;
+   Mat := Transpose (Mat) * Mat;
    --  Mat := Mat + Transpose (Mat);
    --  Mat := Transpose (Mat);
    --  Mat.Transposed;
    Put_Line ("finished");
-   
 
    ----- Print matrix' info --------------
    Put ("Size of matrix: "); 

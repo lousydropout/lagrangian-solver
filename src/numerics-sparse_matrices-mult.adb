@@ -1,58 +1,54 @@
 separate (Numerics.Sparse_Matrices)
 
 function Mult (Left, Right : in Sparse_Matrix) return Sparse_Matrix is
-   Result : Sparse_Matrix;
-   Tmp    : constant Sparse_Matrix := Convert (Left);
+   use Ada.Containers, Ada.Text_IO;
+   A  : Sparse_Matrix renames Left;
+   B  : Sparse_Matrix renames Right;
+   C  : Sparse_Matrix;
+   X  : Real_Array (1 .. A.N_Row) := (others => 0.0);
+   W  : Int_Array (1 .. A.N_Row)  := (others => 0);
+   Nz : Pos := 1;
    
-   Left_I  : constant Int_Array  := To_Array (Tmp.I);
-   Right_J : constant Int_Array  := To_Array (Right.I);
-   Left_X  : constant Real_Array := To_Array (Tmp.X);
-   Right_Y : constant Real_Array := To_Array (Right.X);
-   
-   P : Int_Array (1 .. Nat (Right.P.Length)) := (others => 0);
-   
-   Sum    : Pos;
-   L1, L2 : Pos;
-   R1, R2 : Pos;
-   use Ada.Containers;
-begin
-   pragma Assert (Left.Format = CSC);
-   pragma Assert (Right.Format = CSC);
-   
-   Result.Format := CSC;
-   Result.N_Row  := Left.N_Row;
-   Result.N_Col  := Right.N_Col;
-   
-   -----------------------------------------------------------------------
-   Result.X.Reserve_Capacity (Left.X.Length + Right.X.Length);
-   Result.I.Reserve_Capacity (Left.X.Length + Right.X.Length);
-   Result.P.Set_Length (Right.P.Length);
-   
-   for I in 1 .. Nat (Right.P.Length - 1) loop
-      R1 := Right.P (I);   
-      R2 := Right.P (I + 1) - 1;
-      
-      Sum := 0;
-      for J in 1 .. Nat (Tmp.P.Length - 1) loop
-	 L1 := Tmp.P (J);     
-	 L2 := Tmp.P (J + 1) - 1;
-	 
-	 
-	 if Left_I (L1 .. L2) * Right_J (R1 .. R2) then
-	    Sum := Sum + 1;
-	    Result.I.Append (J);
-	    Result.X.Append (Dot_Product (Left_I (L1 .. L2), Right_J (R1 .. R2),
-					  Left_X (L1 .. L2), Right_Y (R1 .. R2)));
+   procedure Scatter (A	   : in     Sparse_Matrix;
+		      J	   : in     Int;
+		      β	   : in     Real;
+		      W	   : in out Int_Array;
+		      X	   : in out Real_Array;
+		      Mark : in     Int;
+		      C	   : in out Sparse_Matrix;
+		      Nz   : in out Int) is
+      I : Int;
+   begin
+      for P in A.P (J) .. A.P (J + 1) - 1 loop
+	 I := A.I (P);
+	 if W (I) < Mark then
+	    W (I) := Mark;
+	    C.I.Append (I);
+	    Nz := Nz + 1;
+	    X (I) := β * A.X (P);
+	 else
+	    X (I) := X (I) + β * A.X (P);
 	 end if;
       end loop;
-      P (I) := Sum;
-   end loop;
-   P := Cumulative_Sum (P);
-   for I in P'Range loop 
-      Result.P (I) := P (I); 
-   end loop;
-   Result.I.Reserve_Capacity (Result.I.Length);
-   Result.X.Reserve_Capacity (Result.I.Length);
+   end Scatter;
    
-   return Result;
+begin
+   C.Format := CSC; C.N_Row := A.N_Row; C.N_Col := B.N_Col;
+   C.P.Reserve_Capacity (Count_Type (B.N_Col) + 1);
+   
+   for J in 1 .. B.N_Col loop
+      C.P.Append (Nz);
+      for K in B.P (J) .. B.P (J + 1) - 1 loop
+	 Scatter (A, B.I (K), B.X (K), W, X, J, C, Nz);
+      end loop;
+      
+      for P in C.P (J) .. Nz - 1 loop
+	 C.X.Append (X (C.I (P)));
+      end loop;
+   end loop;
+   C.P.Append (Nz);
+   
+   C.Convert; 
+   C.Convert;
+   return C;
 end Mult;

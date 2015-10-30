@@ -5,18 +5,24 @@ with Ada.Text_IO; use Ada.Text_IO;
 procedure Sparse_Test is
    N : Int := 2;
    
-   I1 : Int_Array  := (3,   2,   1);
-   J1 : Int_Array  := (1,   3,   2);
-   X1 : Real_Array := (1.234, 2.345, 2.789);
-   Left : Sparse_Matrix := Triplet_To_Matrix (I1, J1, X1, 3, 3);
+   I1 : Int_Array  := (2,   3,   1,  2);
+   J1 : Int_Array  := (1,   3,   2,  3);
+   X1 : Real_Array := (1.234, 2.345, 2.789, 1.2);
    
-   X : Real_Array (1 .. N) := (others => 0.0);
-   Vec, X0 : Real_Vector;
+   A  : Sparse_Matrix := Triplet_To_Matrix (I1, J1, X1);
+   B  : Sparse_Matrix := Triplet_To_Matrix (J1, I1, X1);
    
+   C : Sparse_Matrix;
 begin
-   
-   Left.Print;
+   --  A.Print;
+   --  B.Transposed;
+   --  B.Print;
+   --  C.Print;
+   C := A * A;
+   C.Print;
+   C := Transpose (B * B);
+   C.Print;
    New_Line;
-   Put_Line ("Number of Elements = " & Int'Image (Number_Of_Elements (Left)));
+   Put_Line ("Number of Elements = " & Int'Image (Number_Of_Elements (C)));
 
 end Sparse_Test;
