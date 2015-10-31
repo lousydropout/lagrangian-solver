@@ -9,12 +9,17 @@ Project Main is
   
   package Compiler is
      for Default_Switches ("Ada")
-       use ("-gnata",                   -- assertions
+       use ("-O2",                      -- optimize
+	    "-gnata",                   -- assertions
+	    "-fno-inline",              -- turn off inline for smaller executable
+	    "-gnatVa",                  -- turn on all validity checking options
 	    "-s",                       -- if switches change
 	    "-gnaty3aCefiklnprstM100",  -- various style checks
+	    "-gnateA",                  -- aliasing checks on subprogram parameters
 	    "-gnatW8",                  -- allow wide characters (e.g. π)
 	    "-gnateF",                  -- check overflow on predefined float types
 	    "-gnateV",                  -- validity checks on subprogram parameters
+	    "-gnatm5",                  -- don't list > 5 errors/warnings
 	    "-gnato3");                 -- Overflow (mode : Eliminated)
      for Default_Switches ("C") use ("-Wall");
   end Compiler;

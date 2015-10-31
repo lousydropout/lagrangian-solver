@@ -54,7 +54,7 @@ begin
       Put ("Trial "); Put (K, Width => 2); Put (": "); 
       for I of B loop I := (10.0 * Rand) ** 10 * Sin (10.0 * Rand); end loop;
       X   := Solve (LU, B);
-      Res := Norm (B - Mat * X) / (if Norm (X) > 1.0 then Norm (X) else 1.0);
+      Res := Norm (B - Mat * X) / Real'Max (1.0, Norm (B));
       Put ("    Norm (Res)  =  "); Put (Res, Fore => 1, Aft => 1, Exp => 3);
       if Res > 1.0e-10 then Put ("  ***"); end if;
       New_Line;

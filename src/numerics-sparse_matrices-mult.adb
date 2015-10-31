@@ -19,34 +19,40 @@ function Mult (Left, Right : in Sparse_Matrix) return Sparse_Matrix is
 		      Mark : in     Int;
 		      C	   : in out Sparse_Matrix;
 		      Nz   : in out Int) is
-      I : Int;
+      use IV_Package;
+      I    : Int;
+      Cur  : Cursor;
+      L, R : Pos;
    begin
-      for P in A.P (J) .. A.P (J + 1) - 1 loop
+      Cur := To_Cursor (A.P, J);
+      L   := A.P (Cur); Next (Cur); R := A.P (Cur) - 1;
+      for P in L .. R loop
 	 I := A.I (P);
 	 if W (I) < Mark then
 	    C.I.Append (I);
-	    W (I) := Mark;
 	    X (I) := β * A.X (P);
 	    Nz    := Nz + 1;
+	    W (I) := Mark;
 	 else
 	    X (I) := X (I) + β * A.X (P);
 	 end if;
       end loop;
    end Scatter;
-
+   
 begin
+   
    C.Format := CSC; C.N_Row := A.N_Row; C.N_Col := B.N_Col;
    C.P.Reserve_Capacity (Count_Type (B.N_Col) + 1);
    C.I.Reserve_Capacity (N_Res);
    C.X.Reserve_Capacity (N_Res);
    
    for J in 1 .. B.N_Col loop
-      if C.I.Capacity < C.I.Length + N_Row then
-      	 C.I.Reserve_Capacity (C.I.Capacity + N_Row);
+      if C.X.Capacity < C.X.Length + N_Row then
+      	 C.I.Reserve_Capacity (C.X.Capacity + N_Row);
       	 C.X.Reserve_Capacity (C.X.Capacity + N_Row);
       end if;
-      
       C.P.Append (Nz);
+      
       for K in B.P (J) .. B.P (J + 1) - 1 loop
 	 Scatter (A, B.I (K), B.X (K), W, X, J, C, Nz);
       end loop;
