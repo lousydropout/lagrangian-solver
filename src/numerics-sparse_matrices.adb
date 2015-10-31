@@ -177,7 +177,7 @@ package body Numerics.Sparse_Matrices is
 				 Offset	   : in Int    := 0)
 				return Sparse_Matrix is
       use Ada.Text_IO, Ada.Containers, Real_IO, Int_IO;
-      N_Lines : Int := 0;
+      N_Lines : Count_Type := 0;
       I_Vec : Int_Vector;
       J_Vec : Int_Vector;
       X_Vec : Real_Vector;
@@ -186,23 +186,18 @@ package body Numerics.Sparse_Matrices is
       File : File_Type;
    begin
       Open (File => File, Mode => In_File, Name => File_Name);
-      --- Count number of lines
+
       while not End_Of_File (File) loop 
-	 Skip_Line (File); N_Lines := N_Lines + 1;
-      end loop;
-      Reset (File); -- Jump back to beginning of input file
-      
-      -- Set lengths of vectors
-      I_Vec.Set_Length (Count_Type (N_Lines));
-      J_Vec.Set_Length (Count_Type (N_Lines));
-      X_Vec.Set_Length (Count_Type (N_Lines));
-      
-      for K in 1 .. N_Lines loop
-	 Get (File, Int_Input); I_Vec (K)  := Int_Input + 1 - Offset;
-	 Get (File, Int_Input); J_Vec (K)  := Int_Input + 1 - Offset;
-	 Get (File, Real_Input); X_Vec (K) := Real_Input;
+	 Get (File, Int_Input);  I_Vec.Append (Int_Input + 1 - Offset);
+	 Get (File, Int_Input);  J_Vec.Append (Int_Input + 1 - Offset);
+	 Get (File, Real_Input); X_Vec.Append (Real_Input);
+	 N_Lines := N_Lines + 1;
       end loop;
       Close (File);
+      
+      I_Vec.Reserve_Capacity (N_Lines);
+      J_Vec.Reserve_Capacity (N_Lines);
+      X_Vec.Reserve_Capacity (N_Lines);
       
       return Triplet_To_Matrix (I_Vec, J_Vec, X_Vec);
    end Read_Sparse_Triplet;
