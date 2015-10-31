@@ -2,24 +2,17 @@ separate (Numerics.Sparse_Matrices)
 
 function Mult_M_RV (Left  : in Sparse_Matrix;
 		    Right : in Real_Vector) return Real_Vector is
-   Vec   : Real_Vector;
-   Mat   : Sparse_Matrix;
-   Tmp   : Real;
-   Index : Nat;
+   use Ada.Containers; 
+   Vec   : Real_Vector := RV_Package.To_Vector (0.0, Count_Type (Left.N_Row));
+   I     : Nat;
 begin
-   pragma Assert (Left.Format = CSC or Left.Format = CSR);
+   pragma Assert (Left.Format = CSC);
 
-   Vec.Set_Length (Right.Length);
-   
-   Mat := (if Left.Format = CSC then Convert (Left) else Left);
-   
-   for K in 1 .. Left.N_Row loop
-      Tmp := 0.0;
-      for J in Mat.P (K) .. Mat.P (K + 1) - 1 loop
-	 Index := Mat.I (J);
-	 Tmp   := Tmp + Mat.X (J) * Right (Index);
+   for K in 1 .. Left.N_Col loop
+      for J in Left.P (K) .. Left.P (K + 1) - 1 loop
+	 I       := Left.I (J);
+	 Vec (I) := Vec (I) + Left.X (J) * Right (K);
       end loop;
-      Vec (K) := Tmp;
    end loop;
    return Vec;
 end Mult_M_RV;

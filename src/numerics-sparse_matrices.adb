@@ -15,24 +15,24 @@ package body Numerics.Sparse_Matrices is
    ------- Functions for Creating Sparse Matrices -------------------
    function Sparse (X : in Real_Matrix) return Sparse_Matrix is
       use Ada.Containers;
-      Result : Sparse_Matrix;
-      N : constant Int := X'Length (1) * X'Length (2);
+      Y : Sparse_Matrix;
+      N : constant Count_Type := Count_Type (X'Length (1) * X'Length (2));
    begin
-      Result.N_Row := X'Length (1);
-      Result.N_Col := X'Length (2);
-      Result.Format := Triplet;
-      Result.I.Reserve_Capacity (Count_Type (N));
-      Result.P.Reserve_Capacity (Count_Type (N));
-      Result.X.Reserve_Capacity (Count_Type (N));
+      Y.N_Row := X'Length (1);
+      Y.N_Col := X'Length (2);
+      Y.Format := Triplet;
+      Y.I.Reserve_Capacity (N);
+      Y.P.Reserve_Capacity (N);
+      Y.X.Reserve_Capacity (N);
       for I in 1 .. Int (X'Length (1)) loop
 	 for J in 1 .. Int (X'Length (2)) loop
-	    Result.I.Append (I); 
-	    Result.P.Append (J);
-	    Result.X.Append (X (I, J));
+	    Y.I.Append (I); 
+	    Y.P.Append (J);
+	    Y.X.Append (X (I, J));
 	 end loop;
       end loop;
-      Compress (Result);
-      return Result;
+      Y.Compress;
+      return Y;
    end Sparse;
       
    function Triplet_To_Matrix (I      : in Int_Array;
@@ -68,15 +68,17 @@ package body Numerics.Sparse_Matrices is
       Result.Format := CSC;
       Result.N_Row := I (I'Last);
       Result.N_Col := 1;
-      Result.P.Set_Length (2); 
-      Result.I.Set_Length (I'Length);
-      Result.X.Set_Length (X'Length);
+      Result.P.Reserve_Capacity (2); 
+      Result.I.Reserve_Capacity (I'Length);
+      Result.X.Reserve_Capacity (X'Length);
       
-      Result.P (1) := 1; 
-      Result.P (2) := Nat (X'Length) + 1;
-      for K in I'Range loop
-	 Result.I (K) := I (K + Offset_I);
-	 Result.X (K) := X (K + Offset_X);
+      Result.P.Append (1);
+      Result.P.Append (X'Length + 1);
+      for Y of I loop
+	 Result.I.Append (Y);
+      end loop;
+      for Y of X loop
+	 Result.X.Append (Y);
       end loop;
       return Result;
    end Vectorize;
@@ -112,8 +114,8 @@ package body Numerics.Sparse_Matrices is
 		  Right : in Sparse_Matrix) return Sparse_Matrix is separate;
    function Minus (Left  : in Sparse_Matrix;
 		   Right : in Sparse_Matrix) return Sparse_Matrix is separate;
-   function Kronecker (Left, Right : in Sparse_Matrix) return Sparse_Matrix is separate;
-   function Direct_Sum (Left, Right : in Sparse_Matrix) return Sparse_Matrix is separate;
+   function Kronecker (A, B : in Sparse_Matrix) return Sparse_Matrix is separate;
+   function Direct_Sum (A, B : in Sparse_Matrix) return Sparse_Matrix is separate;
    function Mult_M_RV (Left  : in Sparse_Matrix;
 		       Right : in Real_Vector) return Real_Vector is separate;
    function Permute_By_Col (Mat : in Sparse_Matrix;

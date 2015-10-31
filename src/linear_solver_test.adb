@@ -30,7 +30,7 @@ begin
    --  Mat := Read_Sparse_Triplet (Dir & "west0067_st.txt");  -- 3.9K
    --  Mat := Transpose (Mat) * Mat;
    --  Mat := Mat + Mat;
-   --  Mat := Transpose (Mat) * Mat;
+   Mat := Transpose (Mat) * Mat;
    --  Mat.Transposed;
    --  Put_Line ("finished");
 

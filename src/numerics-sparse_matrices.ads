@@ -64,8 +64,8 @@ package Numerics.Sparse_Matrices is
      with Pre => Has_Same_Dimensions (Left, Right);
    function Mult (Left, Right : in Sparse_Matrix) return Sparse_Matrix
      with Pre => N_Col (Left) = N_Row (Right);
-   function Kronecker (Left, Right : in Sparse_Matrix) return Sparse_Matrix;
-   function Direct_Sum (Left, Right : in Sparse_Matrix) return Sparse_Matrix;
+   function Kronecker (A, B : in Sparse_Matrix) return Sparse_Matrix;
+   function Direct_Sum (A, B : in Sparse_Matrix) return Sparse_Matrix;
    function Mult_M_RV (Left  : in Sparse_Matrix;
 		       Right : in Real_Vector) return Real_Vector
      with Pre => N_Col (Left) = Pos (Right.Length);

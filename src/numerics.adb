@@ -12,60 +12,64 @@ package body Numerics is
    -- Vectorize & To_Array are needed in Triplet_To_Matrix
    procedure Set (X  : in out Real_Vector;
 		  To : in     Real_Array) is
-      Offset : constant Int := To'First - 1;
    begin
-      X.Set_Length (To'Length);
-      for K in 1 .. Int (To'Length) loop
-	 X (K) := To (K + Offset);
+      X.Reserve_Capacity (To'Length);
+      X.Set_Length (0);
+      for Y of To loop
+	 X.Append (Y);
       end loop;
    end Set;
    
    procedure Set (X  : in out Int_Vector;
 		  To : in     Int_Array) is
-      Offset : constant Int := To'First - 1;
    begin
-      X.Set_Length (To'Length);
-      for K in 1 .. Int (To'Length) loop
-	 X (K) := To (K + Offset);
+      X.Reserve_Capacity (To'Length);
+      X.Set_Length (0);
+      for Y of To loop
+	 X.Append (Y);
       end loop;
    end Set;
    
    function Vectorize (Item : in Real_Array) return Real_Vector is
-      Vector : Real_Vector;
-      Offset : constant Int := Item'First - 1;
+      X : Real_Vector;
    begin
-      Vector.Set_Length (Item'Length);
-      for K in 1 .. Int (Item'Length) loop
-   	 Vector (K) := Item (K + Offset);
+      X.Reserve_Capacity (Item'Length);
+      X.Set_Length (0);
+      for Y of Item loop
+	 X.Append (Y);
       end loop;
-      return Vector;
+      return X;
    end Vectorize;
    
    function Vectorize (Item : in Int_Array) return Int_Vector is
-      Vector : Int_Vector;
-      Offset : constant Int := Item'First - 1;
+      X : Int_Vector;
    begin
-      Vector.Set_Length (Item'Length);
-      for K in 1 .. Int (Item'Length) loop
-   	 Vector (K) := Item (K + Offset);
+      X.Reserve_Capacity (Item'Length);
+      X.Set_Length (0);
+      for Y of Item loop
+	 X.Append (Y);
       end loop;
-      return Vector;
+      return X;
    end Vectorize;
    
    function To_Array (Item : in Real_Vector) return Real_Array is
       Result : Real_Array (1 .. Nat (Item.Length));
+      I : Nat := 1;
    begin
-      for K in Result'Range loop
-	 Result (K) := Item (K);
+      for Y of Item loop
+	 Result (I) := Y;
+	 I := I + 1;
       end loop;
       return Result;
    end To_Array;
    
    function To_Array (Item : in Int_Vector) return Int_Array is
       Result : Int_Array (1 .. Nat (Item.Length));
+      I : Nat := 1;
    begin
-      for K in Result'Range loop
-	 Result (K) := Item (K);
+      for Y of Item loop
+	 Result (I) := Y;
+	 I := I + 1;
       end loop;
       return Result;
    end To_Array;
@@ -76,27 +80,24 @@ package body Numerics is
    
    function Basis_Vector (I, N : in Int) return Real_Vector is
       use Ada.Containers;
-      Result : Real_Vector;
+      Result : Real_Vector := RV_Package.To_Vector (0.0, Count_Type (N));
    begin
-      Result.Set_Length (Count_Type (N));
       Result (I) := 1.0;
       return Result;
    end Basis_Vector;
    
    procedure Print (V : in Real_Vector) is
-      use Real_IO, Ada.Text_IO;
    begin
       for X of V loop
-	 Put (X); New_Line;
+	 Real_IO.Put (X); Ada.Text_IO.New_Line;
       end loop;
    end Print;
    
    
    procedure Set_Length (V : in out Real_Vector;
 			 N : in     Int) is
-      use Ada.Containers;
    begin
-      V.Set_Length (Count_Type (N));
+      V.Set_Length (Ada.Containers.Count_Type (N));
    end Set_Length;
 
    function Length (X : in Real_Vector) return Int is (Int (X.Length));
