@@ -166,7 +166,6 @@ package body Numerics is
 			 Left_X, Right_Y : in Real_Array) return Real is separate;
    function Dot_Product_RV (X, Y : in Real_Vector) return Real is separate;
 
-   function Mult_Int_Array (Left, Right : in Int_Array) return Boolean is separate;
    function Mult_R_RV (Left  : in Real;
 		       Right : in Real_Vector) return Real_Vector is separate;
    function Add_RV_RV (Left, Right : in Real_Vector) return Real_Vector is separate;

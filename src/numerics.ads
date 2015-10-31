@@ -8,7 +8,7 @@ package Numerics is
    type Real is new C.double range C.double'First .. C.double'Last;
    type Int  is new C.long range C.long'First .. C.long'Last;
    subtype Pos is Int     range 0 .. Int'Last;
-   subtype Nat is Pos     range 1 .. Pos'Last;
+   subtype Nat is Int     range 1 .. Int'Last;
    
    -------- Define random variable function -----------------------
    function Rand return Real;
@@ -58,10 +58,10 @@ package Numerics is
    function Norm (X : in Real_Vector) return Real renames Norm_RV;
    
    -------- Max and Abs_Max functions ------------------
-   function Max_Int_Array (Item : in Int_Array) return Int with Inline => True;
-   function Abs_Max_IA (Item : in Int_Array) return Int with Inline => True;
-   function Max_Real_Array (Item : in Real_Array) return Real with Inline => True;
-   function Abs_Max_RA (Item : in Real_Array) return Real with Inline => True;
+   function Max_Int_Array (Item : in Int_Array) return Int;
+   function Abs_Max_IA (Item : in Int_Array) return Int;
+   function Max_Real_Array (Item : in Real_Array) return Real;
+   function Abs_Max_RA (Item : in Real_Array) return Real;
    function Max (Item : in Int_Array) return Int renames Max_Int_Array;
    function Max (Item : in Real_Array) return Real renames Max_Real_Array;
    function Max (X : in Int_Vector) return Int;
@@ -73,20 +73,24 @@ package Numerics is
    
    ------- Dot Products ---------------------------------
    function Dot_Product (Left_I, Right_J : in Int_Array;
-			 Left_X, Right_Y : in Real_Array) return Real;
-   function Dot_Product_RV (X, Y : in Real_Vector) return Real;
+			 Left_X, Right_Y : in Real_Array) return Real
+     with Pre => Left_I'Length = Left_X'Length
+     and Right_J'Length = Right_Y'Length;
+   function Dot_Product_RV (X, Y : in Real_Vector) return Real
+     with Pre => Pos (X.Length) = Pos (Y.Length);
    function Dot_Product (X, Y : in Real_Vector) return Real 
      renames Dot_Product_RV;
    
    
    
    -------- Binary Operators ---------------------------
-   function Mult_Int_Array (Left, Right : in Int_Array) return Boolean;
+   --  function Mult_Int_Array (Left, Right : in Int_Array) return Boolean;
    function Mult_R_RV (Left  : in Real;
 		       Right : in Real_Vector) return Real_Vector;
-   function Add_RV_RV (Left, Right : in Real_Vector) return Real_Vector;
-   function Minus_RV_RV (Left, Right : in Real_Vector) return Real_Vector;
-   function "*" (Left, Right : in Int_Array) return Boolean renames Mult_Int_Array;
+   function Add_RV_RV (Left, Right : in Real_Vector) return Real_Vector
+     with Pre => Pos (Left.Length) = Pos (Right.Length);
+   function Minus_RV_RV (Left, Right : in Real_Vector) return Real_Vector
+     with Pre => Pos (Left.Length) = Pos (Right.Length);
    function "*" (Left  : in Real;
 		 Right : in Real_Vector) return Real_Vector renames Mult_R_RV;
    function "-" (Left, Right : in Real_Vector) return Real_Vector renames Minus_RV_RV;
