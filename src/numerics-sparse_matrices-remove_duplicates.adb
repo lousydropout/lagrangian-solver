@@ -20,7 +20,7 @@ begin
 	 end if;
       end loop;
    end loop;
-   J := Cumulative_Sum (J);
+   Cumulative_Sum (J);
    Set (Mat.I, I (1 .. N));
    Set (Mat.X, X (1 .. N));
    Set (Mat.P, J);

@@ -112,7 +112,8 @@ private
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    -------- Essential Tools -----------------------------------------
-   function  Cumulative_Sum (Item : in Int_Array) return Int_Array;
+   --  function  Cumulative_Sum (Item : in Int_Array) return Int_Array;
+   procedure Cumulative_Sum (Item : in out Int_Array);
    procedure Remove_Duplicates (Mat : in out Sparse_Matrix);
    procedure Compress (Mat : in out Sparse_Matrix);
    -- Convert : goes from CSR to CSC or the reverse
@@ -129,10 +130,4 @@ private
 	 P      : Int_Vector;
       end record;
    
-   function Dot_Product (A, B : in Sparse_Matrix;
-			 L1, L2, R1, R2 : in Pos) return Real;
-   function Overlap (A, B : in Sparse_Matrix;
-		     L1, L2, R1, R2 : in Pos) return Boolean;
-
-
 end Numerics.Sparse_Matrices;

@@ -16,19 +16,19 @@ package body Numerics.Sparse_Matrices is
    function Sparse (X : in Real_Matrix) return Sparse_Matrix is
       use Ada.Containers;
       Result : Sparse_Matrix;
-      N : Int := X'Length (1) * X'Length (2);
+      N : constant Int := X'Length (1) * X'Length (2);
    begin
       Result.N_Row := X'Length (1);
       Result.N_Col := X'Length (2);
       Result.Format := Triplet;
-      Result.I.Set_Length (Count_Type (N));
-      Result.P.Set_Length (Count_Type (N));
-      Result.X.Set_Length (Count_Type (N));
-      N := 1;
+      Result.I.Reserve_Capacity (Count_Type (N));
+      Result.P.Reserve_Capacity (Count_Type (N));
+      Result.X.Reserve_Capacity (Count_Type (N));
       for I in 1 .. Int (X'Length (1)) loop
 	 for J in 1 .. Int (X'Length (2)) loop
-	    Result.I (N) := I; Result.P (N) := J; Result.X (N) := X (I, J);
-	    N := N + 1;
+	    Result.I.Append (I); 
+	    Result.P.Append (J);
+	    Result.X.Append (X (I, J));
 	 end loop;
       end loop;
       Compress (Result);
@@ -46,7 +46,7 @@ package body Numerics.Sparse_Matrices is
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    -------- Essential Tools -----------------------------------------
-   function Cumulative_Sum (Item : in Int_Array) return Int_Array is separate;
+   --  function Cumulative_Sum (Item : in Int_Array) return Int_Array is separate;
    procedure Remove_Duplicates (Mat : in out Sparse_Matrix) is separate;
    procedure Compress (Mat : in out Sparse_Matrix) is separate;
    procedure Convert (Mat : in out Sparse_Matrix) is separate;
@@ -206,60 +206,6 @@ package body Numerics.Sparse_Matrices is
    end Read_Sparse_Triplet;
    
    
+   procedure Cumulative_Sum (Item : in out Int_Array) is separate;
    
-   function Dot_Product (A, B : in Sparse_Matrix;
-			 L1, L2, R1, R2 : in Pos) return Real is
-      Result : Real := 0.0;
-      I : Int := L1;
-      J : Int := R1; 
-      Last_I : constant Int := L2;
-      Last_J : constant Int := R2;
-   begin
-      
-      while I <= Last_I and J <= Last_J loop
-	 if A.I (I) = B.I (J) then
-	    Result := Result + (A.X (I) * B.X (J));
-	    I := I + 1;
-	 end if;
-	 
-	 if I <= Last_I then
-	    while J <= Last_J and then B.I (J) < A.I (I) loop
-	       J := J + 1;
-	    end loop;
-	 end if;
-	 
-	 if J <= Last_J then
-	    while I <= Last_I and then A.I (I) < B.I (J) loop
-	       I := I + 1;
-	    end loop;
-	 end if;
-      end loop;
-      
-      return Result;
-   end Dot_Product;
-      
-   
-   
-   function Overlap (A, B : in Sparse_Matrix;
-		     L1, L2, R1, R2 : in Pos) return Boolean is
-      I : Int := L1;
-      J : Int := R1;
-   begin
-      while I <= L2 and J <= R2 loop
-	 if A.I (I) = B.I (J) then return True; end if;
-	 
-	 if I <= L2 then
-	    while J <= R2 and then B.I (J) < A.I (I) loop
-	       J := J + 1;
-	    end loop;
-	 end if;
-	 
-	 if J <= R2 then
-	    while I <= L2 and then A.I (I) < B.I (J) loop
-	       I := I + 1;
-	    end loop;
-	 end if;
-      end loop;
-      return False;
-   end Overlap;
 end Numerics.Sparse_Matrices;

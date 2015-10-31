@@ -3,10 +3,10 @@ separate (Numerics.Sparse_Matrices)
 procedure Convert (Mat : in out Sparse_Matrix) is
    N     : constant Nat := Nat'Max (Mat.N_Col, Mat.N_Row);
    X     : Real_Array (1 .. Nat (Mat.X.Length)) := (others => 0.0);
-   I     : Int_Array (1 .. Nat (Mat.I.Length))  := (others => 0);
-   Row   : Int_Array (1 .. N + 1)               := (others => 0);
-   Count : Int_Array (1 .. N + 1)               := (others => 0);
-   Index : Int := 1;
+   I     : Int_Array  (1 .. Nat (Mat.I.Length)) := (others => 0);
+   Row   : Int_Array  (1 .. N + 1)              := (others => 0);
+   Count : Int_Array  (1 .. N + 1)              := (others => 0);
+   Index : Nat                                  := 1;
    
    Transpose_Exception : exception;
 begin
@@ -20,7 +20,8 @@ begin
       Count (K) := Count (K) + 1;
    end loop;
    
-   Row := Cumulative_Sum (Count); Count := Row;
+   Cumulative_Sum (Count); Row := Count;
+
    for K in 1 .. Nat (Mat.P.Length) - 1 loop
       for J in Mat.P (K) .. Mat.P (K + 1) - 1 loop
 	 Index           := Row (Mat.I (J));

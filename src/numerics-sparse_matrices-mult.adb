@@ -8,7 +8,7 @@ function Mult (Left, Right : in Sparse_Matrix) return Sparse_Matrix is
    X  : Real_Array (1 .. A.N_Row) := (others => 0.0);
    W  : Int_Array  (1 .. A.N_Row) := (others => 0);
    Nz : Pos := 1;
-   N_Row : constant Count_Type := Count_Type (A.N_Row) + 1;
+   N_Row : constant Count_Type := Count_Type (A.N_Row + 1);
    N_Res : constant Count_Type := Count_Type (A.N_Row * B.N_Col / 100);
    
    procedure Scatter (A	   : in     Sparse_Matrix;
@@ -36,7 +36,7 @@ function Mult (Left, Right : in Sparse_Matrix) return Sparse_Matrix is
 
 begin
    C.Format := CSC; C.N_Row := A.N_Row; C.N_Col := B.N_Col;
-   C.P.Reserve_Capacity (N_Row);
+   C.P.Reserve_Capacity (Count_Type (B.N_Col) + 1);
    C.I.Reserve_Capacity (N_Res);
    C.X.Reserve_Capacity (N_Res);
    

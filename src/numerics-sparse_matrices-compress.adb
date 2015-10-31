@@ -13,8 +13,8 @@ begin
       Count (K) := Count (K) + 1;
    end loop;
    
-   Col := Cumulative_Sum (Count); Count := Col;
-
+   Cumulative_Sum (Count); Col := Count;
+   
    for K in 1 .. Nat (Mat.X.Length) loop
       Index       := Col (P (K));
       Col (P (K)) := Col (P (K)) + 1;
