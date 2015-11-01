@@ -271,32 +271,36 @@ package body Numerics.Sparse_Matrices is
    
    function Sparse (X	: in Real_Vector;
 		    Tol	: in Real	 := 1.0e-10) return Sparse_Vector is
-      use IV_Package, RV_Package;
+      use IV_Package, RV_Package, Ada.Text_IO;
       Y : Sparse_Vector;
    begin
+      Put_Line ("Reserve cap");
       Y.X.Reserve_Capacity (X.Length);
       Y.I.Reserve_Capacity (X.Length);
+      Put_Line ("begin loop");
       for I in 1 .. Nat (X.Length) loop
-	 if X (I) > Tol then
+	 if abs (X (I)) > Tol then
 	    Y.X.Append (X (I));
 	    Y.I.Append (I);
 	 end if;
       end loop;
+      Put_Line ("finished");
       return Y;
    end Sparse;
    
    
    
    function Sparse (X	: in Real_Array;
+		    N	: in Pos	:= 0;
 		    Tol	: in Real	:= 1.0e-10) return Sparse_Vector is
       use IV_Package, RV_Package, Ada.Containers;
       Y : Sparse_Vector;
    begin
-      Y.NMax := X'Length;
+      Y.NMax := (if N = 0 then X'Length else N);
       Y.X.Reserve_Capacity (Count_Type (X'Length));
       Y.I.Reserve_Capacity (Count_Type (X'Length));
       for I in 1 .. Int (X'Length) loop
-	 if X (I) > Tol then
+	 if abs (X (I)) > Tol then
 	    Y.X.Append (X (I));
 	    Y.I.Append (I);
 	 end if;
@@ -314,27 +318,39 @@ package body Numerics.Sparse_Matrices is
       Al : constant Pos := Pos (A.X.Length);
       Bl : constant Pos := Pos (B.X.Length);
    begin
-      pragma Assert (A.NMax = B.NMax);
+      pragma Assert (A.NMax = B.NMax,
+		     "ERROR: Vectors are not of equal lengths");
       C.NMax := A.NMax;
       C.X.Reserve_Capacity (A.X.Length + B.X.Length);
       C.I.Reserve_Capacity (A.X.Length + B.X.Length);
       
-      while I <= Pos (A.X.Length) and J <= Pos (B.X.Length) loop
+      while I <= Al and J <= Bl loop
 	 Ax := A.X (I); Bx := B.X (J);
 	 Ai := A.I (I); Bi := B.I (J);
+	 
 	 if Ai = Bi then
-	    C.I.Append (Ai);
 	    C.X.Append (Ax + Bx);
-	    I := I + 1; J := J + 1;
-	 elsif I > Al and then J <= Bl then
-	    C.I.Append (Bi);
-	    C.X.Append (Bx);
-	    J := J + 1;
-	 elsif J > Bl and then I <= Al then
 	    C.I.Append (Ai);
+	    I := I + 1; J := J + 1;
+	 elsif Bi < Ai then
+	    C.X.Append (Bx);
+	    C.I.Append (Bi);
+	    J := J + 1;
+	 else
 	    C.X.Append (Ax);
+	    C.I.Append (Ai);
 	    I := I + 1;
 	 end if;
+      end loop;
+      while I <= Al loop
+	 C.X.Append (A.X (I));
+	 C.I.Append (A.I (I));
+	 I := I + 1;
+      end loop;
+      while J <= Bl loop
+	 C.X.Append (B.X (J));
+	 C.I.Append (B.I (J));
+	 J := J + 1;
       end loop;
       C.X.Reserve_Capacity (C.X.Length);
       C.I.Reserve_Capacity (C.X.Length);
@@ -351,4 +367,14 @@ package body Numerics.Sparse_Matrices is
       end loop;
       return C;
    end "*";
+   
+   
+   procedure Print (X : in Sparse_Vector) is
+      use Int_IO, Real_IO, Ada.Text_IO;
+   begin
+      Put ("Length of vector:"); Put (X.NMax); New_Line;
+      for I in 1 .. Pos (X.X.Length) loop
+	 Put (X.I (I)); Put (", "); Put (X.X (I)); New_Line;
+      end loop;
+   end Print;
 end Numerics.Sparse_Matrices;

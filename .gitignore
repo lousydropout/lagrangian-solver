@@ -4,3 +4,4 @@ obj/
 *#*
 sparse_test
 linear_solver_test
+vector_test

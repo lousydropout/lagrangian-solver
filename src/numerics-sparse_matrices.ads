@@ -12,6 +12,7 @@ package Numerics.Sparse_Matrices is
    
    --- Print procedure ----------------------------------------------
    procedure Print (Mat : in Sparse_Matrix); 
+   procedure Print (X : in Sparse_Vector); 
    
    ------- Basic Getter Functions -----------------------------------
    function Norm2 (Item : in Sparse_Matrix) return Real;
@@ -25,6 +26,7 @@ package Numerics.Sparse_Matrices is
    function Sparse (X : in Real_Vector;
 		    Tol	: in Real	:= 1.0e-10) return Sparse_Vector;
    function Sparse (X	: in Real_Array;
+		    N	: in Pos	:= 0;
 		    Tol	: in Real	:= 1.0e-10) return Sparse_Vector;
    function Sparse (X : in Real_Matrix) return Sparse_Matrix;
    function Triplet_To_Matrix (I      : in Int_Array;
