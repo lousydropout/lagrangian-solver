@@ -269,6 +269,86 @@ package body Numerics.Sparse_Matrices is
    end Add;
    
    
+   function Sparse (X	: in Real_Vector;
+		    Tol	: in Real	 := 1.0e-10) return Sparse_Vector is
+      use IV_Package, RV_Package;
+      Y : Sparse_Vector;
+   begin
+      Y.X.Reserve_Capacity (X.Length);
+      Y.I.Reserve_Capacity (X.Length);
+      for I in 1 .. Nat (X.Length) loop
+	 if X (I) > Tol then
+	    Y.X.Append (X (I));
+	    Y.I.Append (I);
+	 end if;
+      end loop;
+      return Y;
+   end Sparse;
    
    
+   
+   function Sparse (X	: in Real_Array;
+		    Tol	: in Real	:= 1.0e-10) return Sparse_Vector is
+      use IV_Package, RV_Package, Ada.Containers;
+      Y : Sparse_Vector;
+   begin
+      Y.NMax := X'Length;
+      Y.X.Reserve_Capacity (Count_Type (X'Length));
+      Y.I.Reserve_Capacity (Count_Type (X'Length));
+      for I in 1 .. Int (X'Length) loop
+	 if X (I) > Tol then
+	    Y.X.Append (X (I));
+	    Y.I.Append (I);
+	 end if;
+      end loop;
+      return Y;
+   end Sparse;
+   
+   
+   function "+" (A, B : in Sparse_Vector) return Sparse_Vector is
+      use IV_Package, RV_Package, Ada.Containers;
+      C : Sparse_Vector;
+      Ax, Bx : Real;
+      Ai, Bi : Pos;
+      I, J : Pos := 1;
+      Al : constant Pos := Pos (A.X.Length);
+      Bl : constant Pos := Pos (B.X.Length);
+   begin
+      pragma Assert (A.NMax = B.NMax);
+      C.NMax := A.NMax;
+      C.X.Reserve_Capacity (A.X.Length + B.X.Length);
+      C.I.Reserve_Capacity (A.X.Length + B.X.Length);
+      
+      while I <= Pos (A.X.Length) and J <= Pos (B.X.Length) loop
+	 Ax := A.X (I); Bx := B.X (J);
+	 Ai := A.I (I); Bi := B.I (J);
+	 if Ai = Bi then
+	    C.I.Append (Ai);
+	    C.X.Append (Ax + Bx);
+	    I := I + 1; J := J + 1;
+	 elsif I > Al and then J <= Bl then
+	    C.I.Append (Bi);
+	    C.X.Append (Bx);
+	    J := J + 1;
+	 elsif J > Bl and then I <= Al then
+	    C.I.Append (Ai);
+	    C.X.Append (Ax);
+	    I := I + 1;
+	 end if;
+      end loop;
+      C.X.Reserve_Capacity (C.X.Length);
+      C.I.Reserve_Capacity (C.X.Length);
+      
+      return C;
+   end "+";
+
+   function "*" (A : in Real;
+		 B : in Sparse_Vector) return Sparse_Vector is
+      C : Sparse_Vector := B;
+   begin
+      for X of C.X loop
+	 X := A * X;
+      end loop;
+      return C;
+   end "*";
 end Numerics.Sparse_Matrices;

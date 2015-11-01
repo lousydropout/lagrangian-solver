@@ -8,6 +8,7 @@ package Numerics.Sparse_Matrices is
    
    ------- Define Matrix --------------------------------------------
    type Sparse_Matrix  is tagged private;
+   type Sparse_Vector  is tagged private;
    
    --- Print procedure ----------------------------------------------
    procedure Print (Mat : in Sparse_Matrix); 
@@ -21,6 +22,10 @@ package Numerics.Sparse_Matrices is
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    ------- Functions for Creating Sparse Matrices -------------------
+   function Sparse (X : in Real_Vector;
+		    Tol	: in Real	:= 1.0e-10) return Sparse_Vector;
+   function Sparse (X	: in Real_Array;
+		    Tol	: in Real	:= 1.0e-10) return Sparse_Vector;
    function Sparse (X : in Real_Matrix) return Sparse_Matrix;
    function Triplet_To_Matrix (I      : in Int_Array;
 			       J      : in Int_Array;
@@ -99,6 +104,16 @@ package Numerics.Sparse_Matrices is
 		  Right : in Sparse_Matrix)  return Sparse_Matrix is (Sparse (Left) or Right);
 
    
+   function "+" (A, B : in Sparse_Vector) return Sparse_Vector;
+   function "*" (A : in Real;
+		 B : in Sparse_Vector) return Sparse_Vector;
+   function "*" (A : in Sparse_Vector;
+		 B : in Real) return Sparse_Vector is (B * A);
+   function "/" (A : in Sparse_Vector;
+		 B : in Real) return Sparse_Vector is ((1.0 / B) * A);
+   function "-" (A : in Sparse_Vector) return Sparse_Vector is ("*"(-1.0, A));
+   function "-" (A, B : in Sparse_Vector) return Sparse_Vector is (A + (-B));
+   
    ------- File Readers ---------------------------------------------------
    function Read_Sparse_Triplet (File_Name : in String;
 				 Offset	   : in Int    := 0) return Sparse_Matrix;
@@ -133,4 +148,9 @@ private
 	 P      : Int_Vector;
       end record;
    
+   type Sparse_Vector is tagged record
+      NMax : Pos := 0;
+      X    : Real_Vector;
+      I    : Int_Vector;
+   end record;
 end Numerics.Sparse_Matrices;
