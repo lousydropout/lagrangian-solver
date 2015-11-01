@@ -39,7 +39,9 @@ package Numerics.Sparse_Matrices is
    function Vectorize (I : in Int_Array;
    		       X : in Real_Array) return Sparse_Matrix
      with Pre => I'Length = X'Length;
-   
+   procedure Add (Mat  : in out Sparse_Matrix;
+		  I, J : in     Nat;
+		  X    : in     Real);
    
    ------------------------------------------------------------------
    ------------------------------------------------------------------
@@ -101,6 +103,8 @@ package Numerics.Sparse_Matrices is
    function Read_Sparse_Triplet (File_Name : in String;
 				 Offset	   : in Int    := 0) return Sparse_Matrix;
    
+   
+   
 private
    
    function BiCGSTAB (A   : in     Sparse_Matrix;
@@ -108,7 +112,6 @@ private
 		      X0  : in     Real_Vector;
 		      Err :    out Real;
 		      Tol : in     Real	    := 1.0e-10) return Real_Vector;
-   
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    -------- Essential Tools -----------------------------------------

@@ -1,7 +1,7 @@
 with Numerics, Numerics.Sparse_Matrices, Numerics.Sparse_Matrices.CSparse;
 use  Numerics, Numerics.Sparse_Matrices, Numerics.Sparse_Matrices.CSparse;
 with Ada.Text_IO; use Ada.Text_IO;
-
+with Ada.Containers; use Ada.Containers;
 procedure Linear_Solver_Test is
    use Real_IO, Int_IO, Real_Functions;
    
@@ -30,7 +30,7 @@ begin
    --  Mat := Read_Sparse_Triplet (Dir & "west0067_st.txt");  -- 3.9K
    --  Mat := Transpose (Mat) * Mat;
    --  Mat := Mat * Mat;
-   Mat := Transpose (Mat) * Mat;
+   --  Mat := Transpose (Mat) * Mat;
    --  Mat.Transposed;
    --  Put_Line ("finished");
 
@@ -41,7 +41,7 @@ begin
    Put ("Number of entries: "); Put (Mat.Number_Of_Elements, 0); New_Line;
    
    ----- Set size of vectors X and B ----
-   Set_Length (B, Mat.N_Col); Set_Length (X, Mat.N_Col);
+   Set_Length (B, Mat.N_Col); Set_Length (X, Mat.N_Col); 
 
    ----- Begin LU Decomposition ---------
    Put ("LU Decomposition . . .");
@@ -53,11 +53,12 @@ begin
    for K in 1 .. Int (10) loop
       Put ("Trial "); Put (K, Width => 2); Put (": "); 
       for I of B loop I := (10.0 * Rand) ** 10 * Sin (10.0 * Rand); end loop;
+
       X   := Solve (LU, B);
       Res := Norm (B - Mat * X) / Real'Max (1.0, Norm (B));
       Put ("    Norm (Res)  =  "); Put (Res, Fore => 1, Aft => 1, Exp => 3);
-      if Res > 1.0e-10 then Put ("  ***"); end if;
-      New_Line;
+      
+      Put_Line (if Res > 1.0e-10 then "  ***" else "");
    end loop;
    Put_Line ("tests completed");
    

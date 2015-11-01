@@ -95,7 +95,10 @@ package Numerics is
 		 Right : in Real_Vector) return Real_Vector renames Mult_R_RV;
    function "-" (Left, Right : in Real_Vector) return Real_Vector renames Minus_RV_RV;
    function "+" (Left, Right : in Real_Vector) return Real_Vector renames Add_RV_RV;
-   
+   function "*" (A : in Real_Vector;
+		 B : in Real) return Real_Vector is (B * A);
+   function "/" (A : in Real_Vector;
+		 B : in Real) return Real_Vector is ((1.0 / B) * A);
    
 private
    

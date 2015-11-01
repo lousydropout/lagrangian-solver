@@ -205,4 +205,70 @@ package body Numerics.Sparse_Matrices is
    
    procedure Cumulative_Sum (Item : in out Int_Array) is separate;
    
+   
+   procedure Add (Mat  : in out Sparse_Matrix;
+		  I, J : in     Nat;
+		  X    : in     Real) is
+      use RV_Package, IV_Package, Ada.Containers;
+      Ind  : Pos;
+      I1, I2 : Pos;
+      X1, X2 : Real;
+      CX : RV_Package.Cursor;
+      CI : IV_Package.Cursor;
+   begin
+      pragma Assert (Mat.Format = CSC);
+      -- Check if Mat (I, J) exists
+      for K in Mat.P (J) .. Mat.P (J + 1) - 1 loop
+	 if Mat.I (K) = I then 
+	    -- If exists, then just add value X to Mat (I, J)
+	    Mat.X (K) := Mat.X (K) + X;
+	    return;
+	 end if;
+      end loop;
+      
+      -- Fix P
+      for P in J + 1 .. Mat.N_Col + 1 loop
+	 Mat.P (P) := Mat.P (P) + 1;
+      end loop;      
+      
+      -- Reserve space for 1 more element
+      Mat.I.Reserve_Capacity (Mat.I.Length + 1);
+      Mat.X.Reserve_Capacity (Mat.X.Length + 1);
+      
+      -- Fix I and X
+      
+      ---- 1. Find index of Mat.I & Mat.X just after (I, J)
+      Ind := Mat.P (J);
+      for P in Mat.P (J) .. Mat.P (J + 1) - 1 loop
+	 if Mat.I (P) < I then Ind := P; end if;
+      end loop;
+      
+      ---- 2. Get cursor for Mat.X at that index &
+      --------- continuously swap value with previous value
+      CX := To_Cursor (Mat.X, Ind);
+      X2 := X;
+      for K in Ind .. Nat (Mat.X.Length) loop
+	 X1         := Mat.X (CX);
+	 Mat.X (CX) := X2;
+	 X2         := X1;
+	 Next (CX);
+      end loop;
+      Mat.X.Append (X2);
+      
+      ---- 3. Repeat step 2 but for Mat.I
+      CI := To_Cursor (Mat.I, Ind);
+      I2 := I; 
+      for K in Ind .. Nat (Mat.I.Length) loop
+	 I1         := Mat.I (CI);
+	 Mat.I (CI) := I2;
+	 I2         := I1;
+	 Next (CI);
+      end loop;
+      Mat.I.Append (I2);
+
+   end Add;
+   
+   
+   
+   
 end Numerics.Sparse_Matrices;

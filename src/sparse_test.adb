@@ -14,17 +14,21 @@ procedure Sparse_Test is
    
    C : Sparse_Matrix;
 begin
-   C := A or B;
+   --  C := A or B;
    --  A := Transpose (A) + Transpose (B);
    A.Print;
+   A.Add (2, 2, -2.0);
+   A.Print;
+   A.Add (1, 2, -1.0);
+   A.Print;
    --  B.Transposed;
-   B.Print;
-   C.Print;
+   --  B.Print;
+   --  C.Print;
    
    --  C.Print;
    --  C := Transpose (B * B);
    --  C.Print;
    New_Line;
-   Put_Line ("Number of Elements = " & Int'Image (Number_Of_Elements (C)));
+   Put_Line ("Number of Elements = " & Int'Image (Number_Of_Elements (A)));
 
 end Sparse_Test;

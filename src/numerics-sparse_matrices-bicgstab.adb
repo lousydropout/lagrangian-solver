@@ -9,6 +9,7 @@ function BiCGSTAB (A   : in     Sparse_Matrix;
    R0, R, V, P, S, T, Res, X : Real_Vector;
    ρ, α, β, ω : Real := 1.0;
    Tmp : Real;
+   I : Int := 1;
 begin
    pragma Assert (A.N_Col = Nat (B.Length));
    X   := X0;
