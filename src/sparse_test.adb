@@ -14,7 +14,7 @@ procedure Sparse_Test is
    
    C : Sparse_Matrix;
 begin
-   C := B and A;
+   C := A or B;
    --  A := Transpose (A) + Transpose (B);
    A.Print;
    --  B.Transposed;
