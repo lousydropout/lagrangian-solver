@@ -10,6 +10,8 @@ package Numerics is
    subtype Pos is Int     range 0 .. Int'Last;
    subtype Nat is Int     range 1 .. Int'Last;
    
+   type Sparse_Vector is tagged private;
+   
    -------- Define random variable function -----------------------
    function Rand return Real;
    
@@ -43,6 +45,31 @@ package Numerics is
    function Vectorize (Item : in Int_Array)  return Int_Vector;
    function To_Array (Item : in Real_Vector) return Real_Array;
    function To_Array (Item : in Int_Vector) return Int_Array;
+   function Sparse (X   : in Real_Vector;
+		    N   : in Pos	:= 0;
+		    Tol	: in Real	:= 1.0e-20) return Sparse_Vector;
+   function Sparse (X	: in Real_Array;
+		    N	: in Pos	:= 0;
+		    Tol	: in Real	:= 1.0e-20) return Sparse_Vector;
+   
+   ------- Sparse_Vector Functions ----------------------------------------
+   procedure Print (X : in Sparse_Vector); 
+   function To_Array (X	  : in Sparse_Vector) return Real_Array;
+   procedure Set_Length (X : in out Sparse_Vector;
+			 N : in     Pos);
+   procedure Set (Item : in out Sparse_Vector;
+   		  I    : in     Nat;
+   		  X    : in     Real);
+   function "+" (A, B : in Sparse_Vector) return Sparse_Vector;
+   function "*" (A : in Real;
+		 B : in Sparse_Vector) return Sparse_Vector;
+   function "*" (A : in Sparse_Vector;
+		 B : in Real) return Sparse_Vector is (B * A);
+   function "/" (A : in Sparse_Vector;
+		 B : in Real) return Sparse_Vector is ((1.0 / B) * A);
+   function "-" (A : in Sparse_Vector) return Sparse_Vector is ("*"(-1.0, A));
+   function "-" (A, B : in Sparse_Vector) return Sparse_Vector is (A + (-B));
+   
    
    ----- Vector and Array functions
    function Basis_Vector (I, N : in Int) return Real_Vector;
@@ -56,6 +83,9 @@ package Numerics is
    function Norm_RV (X : in Real_Vector) return Real;
    function Norm2 (X : in Real_Vector) return Real renames Norm2_RV;
    function Norm (X : in Real_Vector) return Real renames Norm_RV;
+   function Norm (X : in Sparse_Vector) return Real;
+   function Length (X : in Sparse_Vector) return Pos;
+   function Norm (X : in Real_Array) return Real;
    
    -------- Max and Abs_Max functions ------------------
    function Max_Int_Array (Item : in Int_Array) return Int;
@@ -103,5 +133,11 @@ package Numerics is
 private
    
    Gen : Ada.Numerics.Float_Random.Generator;
+   
+   type Sparse_Vector is tagged record
+      NMax : Pos := 0;
+      X    : Real_Vector;
+      I    : Int_Vector;
+   end record;
    
 end Numerics;

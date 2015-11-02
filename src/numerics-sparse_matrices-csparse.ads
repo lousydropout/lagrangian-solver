@@ -21,7 +21,10 @@ package Numerics.Sparse_Matrices.CSparse is
    function Solve (LU : in LU_Type;
 		   B  : in Real_Vector) return Real_Vector
      with Pre => N_Col (LU) = Pos (B.Length);
-   
+   function Solve (LU  : in LU_Type;
+		   B   : in Sparse_Vector;
+		   Tol : in Real	  := 1.0e-20) return Sparse_Vector
+     with Pre => N_Col (LU) = Length (B);
    
    
    procedure Free (LU : in out LU_Type);

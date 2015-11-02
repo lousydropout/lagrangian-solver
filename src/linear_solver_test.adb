@@ -7,7 +7,11 @@ procedure Linear_Solver_Test is
    
    Mat : Sparse_Matrix;
    LU  : LU_Type;
+   SX  : Sparse_Vector;
+   SB  : Sparse_Vector;
+   SY  : Sparse_Vector;
    X   : Real_Vector;
+   Y   : Real_Vector;
    B   : Real_Vector;
    Dir : String      := "matrices/sparse-triplet/zero-based/";
    Res : Real;
@@ -28,7 +32,7 @@ begin
    --  Mat := Read_Sparse_Triplet (Dir & "kershaw_st.txt");   -- 564
    --  Mat := Read_Sparse_Triplet (Dir & "t1_st.txt");        -- 80
    --  Mat := Read_Sparse_Triplet (Dir & "west0067_st.txt");  -- 3.9K
-   --  Mat := Transpose (Mat) * Mat;
+   Mat := Transpose (Mat) * Mat;
    --  Mat := Mat * Mat;
    --  Mat := Transpose (Mat) * Mat;
    --  Mat.Transposed;
@@ -41,8 +45,9 @@ begin
    Put ("Number of entries: "); Put (Mat.Number_Of_Elements, 0); New_Line;
    
    ----- Set size of vectors X and B ----
-   Set_Length (B, Mat.N_Col); Set_Length (X, Mat.N_Col); 
-
+   Set_Length (B, Mat.N_Col);  Set_Length (X, Mat.N_Col); 
+   Set_Length (SB, Mat.N_Col); Set_Length (SX, Mat.N_Col); 
+   
    ----- Begin LU Decomposition ---------
    Put ("LU Decomposition . . .");
    LU  := LU_Decomposition (Mat);
@@ -53,9 +58,16 @@ begin
    for K in 1 .. Int (10) loop
       Put ("Trial "); Put (K, Width => 2); Put (": "); 
       for I of B loop I := (10.0 * Rand) ** 10 * Sin (10.0 * Rand); end loop;
-
+      SB  := Sparse (B); -- , Tol => 0.0);
+      SX  := Solve (LU, SB, Tol => 1.0e-10);
       X   := Solve (LU, B);
-      Res := Norm (B - Mat * X) / Real'Max (1.0, Norm (B));
+      SY  := SB - Mat * SX; -- Sparse (X);
+      Y   := B - Mat * X;
+      --  Res := Norm (Y) / Real'Max (1.0, Norm (B));
+      Res := Norm (SX - Sparse (X)); -- , Tol => 0.0));-- / Real'Max (1.0, Norm (SB));
+      --  Res := Norm (Y); 
+      --  Res := Norm (SY - Sparse (Y));
+      --  Res := Norm (Y) / Real'Max (1.0, Norm (B));
       Put ("    Norm (Res)  =  "); Put (Res, Fore => 1, Aft => 1, Exp => 3);
       
       Put_Line (if Res > 1.0e-10 then "  ***" else "");

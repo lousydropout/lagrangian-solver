@@ -94,11 +94,8 @@ package body Numerics.Sparse_Matrices is
    ------------------------------------------------------------------
    
    ------- Testing Functions -----------------------------------
-   function Is_Col_Vector (A : in Sparse_Matrix) return Boolean is separate;
    function Is_Square_Matrix (A : in Sparse_Matrix) return Boolean is separate;
    function Has_Same_Dimensions (Left, Right : in Sparse_Matrix) return Boolean is separate;   
-   
-   
    
    
    ------------------------------------------------------------------
@@ -269,112 +266,7 @@ package body Numerics.Sparse_Matrices is
    end Add;
    
    
-   function Sparse (X	: in Real_Vector;
-		    Tol	: in Real	 := 1.0e-10) return Sparse_Vector is
-      use IV_Package, RV_Package, Ada.Text_IO;
-      Y : Sparse_Vector;
-   begin
-      Put_Line ("Reserve cap");
-      Y.X.Reserve_Capacity (X.Length);
-      Y.I.Reserve_Capacity (X.Length);
-      Put_Line ("begin loop");
-      for I in 1 .. Nat (X.Length) loop
-	 if abs (X (I)) > Tol then
-	    Y.X.Append (X (I));
-	    Y.I.Append (I);
-	 end if;
-      end loop;
-      Put_Line ("finished");
-      return Y;
-   end Sparse;
-   
-   
-   
-   function Sparse (X	: in Real_Array;
-		    N	: in Pos	:= 0;
-		    Tol	: in Real	:= 1.0e-10) return Sparse_Vector is
-      use IV_Package, RV_Package, Ada.Containers;
-      Y : Sparse_Vector;
-   begin
-      Y.NMax := (if N = 0 then X'Length else N);
-      Y.X.Reserve_Capacity (Count_Type (X'Length));
-      Y.I.Reserve_Capacity (Count_Type (X'Length));
-      for I in 1 .. Int (X'Length) loop
-	 if abs (X (I)) > Tol then
-	    Y.X.Append (X (I));
-	    Y.I.Append (I);
-	 end if;
-      end loop;
-      return Y;
-   end Sparse;
-   
-   
-   function "+" (A, B : in Sparse_Vector) return Sparse_Vector is
-      use IV_Package, RV_Package, Ada.Containers;
-      C : Sparse_Vector;
-      Ax, Bx : Real;
-      Ai, Bi : Pos;
-      I, J : Pos := 1;
-      Al : constant Pos := Pos (A.X.Length);
-      Bl : constant Pos := Pos (B.X.Length);
-   begin
-      pragma Assert (A.NMax = B.NMax,
-		     "ERROR: Vectors are not of equal lengths");
-      C.NMax := A.NMax;
-      C.X.Reserve_Capacity (A.X.Length + B.X.Length);
-      C.I.Reserve_Capacity (A.X.Length + B.X.Length);
       
-      while I <= Al and J <= Bl loop
-	 Ax := A.X (I); Bx := B.X (J);
-	 Ai := A.I (I); Bi := B.I (J);
-	 
-	 if Ai = Bi then
-	    C.X.Append (Ax + Bx);
-	    C.I.Append (Ai);
-	    I := I + 1; J := J + 1;
-	 elsif Bi < Ai then
-	    C.X.Append (Bx);
-	    C.I.Append (Bi);
-	    J := J + 1;
-	 else
-	    C.X.Append (Ax);
-	    C.I.Append (Ai);
-	    I := I + 1;
-	 end if;
-      end loop;
-      while I <= Al loop
-	 C.X.Append (A.X (I));
-	 C.I.Append (A.I (I));
-	 I := I + 1;
-      end loop;
-      while J <= Bl loop
-	 C.X.Append (B.X (J));
-	 C.I.Append (B.I (J));
-	 J := J + 1;
-      end loop;
-      C.X.Reserve_Capacity (C.X.Length);
-      C.I.Reserve_Capacity (C.X.Length);
-      
-      return C;
-   end "+";
-
-   function "*" (A : in Real;
-		 B : in Sparse_Vector) return Sparse_Vector is
-      C : Sparse_Vector := B;
-   begin
-      for X of C.X loop
-	 X := A * X;
-      end loop;
-      return C;
-   end "*";
-   
-   
-   procedure Print (X : in Sparse_Vector) is
-      use Int_IO, Real_IO, Ada.Text_IO;
-   begin
-      Put ("Length of vector:"); Put (X.NMax); New_Line;
-      for I in 1 .. Pos (X.X.Length) loop
-	 Put (X.I (I)); Put (", "); Put (X.X (I)); New_Line;
-      end loop;
-   end Print;
+   function Mult_M_SV (A : in Sparse_Matrix;
+		       X : in Sparse_Vector) return Sparse_Vector is separate;
 end Numerics.Sparse_Matrices;

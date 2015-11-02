@@ -17,6 +17,15 @@ package body Numerics.Sparse_Matrices.CSparse is
       return LU;
    end LU_Decomposition;
    
+   function Solve (LU  : in LU_Type;
+		   B   : in Sparse_Vector;
+		   Tol : in Real	  := 1.0e-20) return Sparse_Vector is
+      X : Real_Array := Solve (LU, To_Array (B));
+   begin
+      pragma Assert (X'Length = B.NMax);
+      return Sparse (X, Tol => Tol);
+   end Solve;
+
    
    function Solve (LU : in LU_Type;
 		   B  : in Real_Array) return Real_Array is

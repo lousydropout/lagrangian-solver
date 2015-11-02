@@ -12,18 +12,28 @@ procedure Sparse_Test is
    
    A  : Sparse_Matrix := Triplet_To_Matrix (I1, J1, X1);
    B  : Sparse_Matrix := Triplet_To_Matrix (J1, I1, X1);
+   X  : Sparse_Vector := Sparse ((0.0, 1.0, 0.0));
    
    C : Sparse_Matrix;
+   Y : Real_Array := To_Array (X);
 begin
    --  C := A or B;
    --  A := Transpose (A) + Transpose (B);
-   A.Print;
+   --  A.Print;
    A.Add (2, 2, -2.0);
    A.Print;
-   A.Add (1, 2, -1.0);
-   A.Print;
+   Put_Line ("X:");
+   X.Print;
+   Put_Line ("solution: ");
+   --  A.Add (1, 2, -1.0);
+   --  A.Print;
+   X := A * X;
    --  B.Transposed;
-   --  B.Print;
+   X.Print;
+   Put_Line ("array (X): ");
+   for I of Y loop
+      Put_Line (I'Img);
+   end loop;
    --  C.Print;
    
    --  C.Print;

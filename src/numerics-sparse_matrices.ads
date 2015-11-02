@@ -7,12 +7,10 @@ package Numerics.Sparse_Matrices is
    package Sparse_Matrix_Format_IO is new Ada.Text_IO.Enumeration_IO (Sparse_Matrix_Format);
    
    ------- Define Matrix --------------------------------------------
-   type Sparse_Matrix  is tagged private;
-   type Sparse_Vector  is tagged private;
+   type Sparse_Matrix is tagged private;
    
    --- Print procedure ----------------------------------------------
    procedure Print (Mat : in Sparse_Matrix); 
-   procedure Print (X : in Sparse_Vector); 
    
    ------- Basic Getter Functions -----------------------------------
    function Norm2 (Item : in Sparse_Matrix) return Real;
@@ -23,11 +21,6 @@ package Numerics.Sparse_Matrices is
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    ------- Functions for Creating Sparse Matrices -------------------
-   function Sparse (X : in Real_Vector;
-		    Tol	: in Real	:= 1.0e-10) return Sparse_Vector;
-   function Sparse (X	: in Real_Array;
-		    N	: in Pos	:= 0;
-		    Tol	: in Real	:= 1.0e-10) return Sparse_Vector;
    function Sparse (X : in Real_Matrix) return Sparse_Matrix;
    function Triplet_To_Matrix (I      : in Int_Array;
 			       J      : in Int_Array;
@@ -50,10 +43,11 @@ package Numerics.Sparse_Matrices is
 		  I, J : in     Nat;
 		  X    : in     Real);
    
+   
+   
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    ------- Testing Functions ----------------------------------------
-   function Is_Col_Vector (A : in Sparse_Matrix) return Boolean;
    function Is_Square_Matrix (A : in Sparse_Matrix) return Boolean;
    function Has_Same_Dimensions (Left, Right : in Sparse_Matrix) return Boolean;
    function Is_Valid (Mat : in Sparse_Matrix) return Boolean;
@@ -78,6 +72,9 @@ package Numerics.Sparse_Matrices is
    function Mult_M_RV (Left  : in Sparse_Matrix;
 		       Right : in Real_Vector) return Real_Vector
      with Pre => N_Col (Left) = Pos (Right.Length);
+   function Mult_M_SV (A : in Sparse_Matrix;
+		       X : in Sparse_Vector) return Sparse_Vector
+     with Pre => N_Col (A) = Length (X);
    function Permute_By_Col (Mat : in Sparse_Matrix;
 			    P   : in Int_Array) return Sparse_Matrix;
    function Permute (Mat : in Sparse_Matrix;
@@ -92,6 +89,8 @@ package Numerics.Sparse_Matrices is
    function "*" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Mult;
    function "*" (Left  : in Sparse_Matrix;
 		 Right : in Real_Vector) return Real_Vector renames Mult_M_RV;
+   function "*" (A : in Sparse_Matrix;
+		 X : in Sparse_Vector) return Sparse_Vector renames Mult_M_SV;
    
    function "and" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Kronecker;
    function "or"  (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Direct_Sum;
@@ -105,16 +104,6 @@ package Numerics.Sparse_Matrices is
    function "or" (Left  : in Real_Matrix;
 		  Right : in Sparse_Matrix)  return Sparse_Matrix is (Sparse (Left) or Right);
 
-   
-   function "+" (A, B : in Sparse_Vector) return Sparse_Vector;
-   function "*" (A : in Real;
-		 B : in Sparse_Vector) return Sparse_Vector;
-   function "*" (A : in Sparse_Vector;
-		 B : in Real) return Sparse_Vector is (B * A);
-   function "/" (A : in Sparse_Vector;
-		 B : in Real) return Sparse_Vector is ((1.0 / B) * A);
-   function "-" (A : in Sparse_Vector) return Sparse_Vector is ("*"(-1.0, A));
-   function "-" (A, B : in Sparse_Vector) return Sparse_Vector is (A + (-B));
    
    ------- File Readers ---------------------------------------------------
    function Read_Sparse_Triplet (File_Name : in String;
@@ -150,9 +139,4 @@ private
 	 P      : Int_Vector;
       end record;
    
-   type Sparse_Vector is tagged record
-      NMax : Pos := 0;
-      X    : Real_Vector;
-      I    : Int_Vector;
-   end record;
 end Numerics.Sparse_Matrices;
