@@ -72,7 +72,6 @@ package body Numerics is
 	 Result (I) := Y;
 	 I := I + 1;
       end loop;
-      --  Put_Line ("to_array : real_vector --> real_array" & Real'Image (Norm (Result)));
       return Result;
    end To_Array;
    
@@ -81,7 +80,6 @@ package body Numerics is
       I : Nat := 1;
       use Ada.Text_IO;
    begin
-      --  Put_Line ("to_array : int_vector --> int_array");
       for Y of Item loop
 	 Result (I) := Y;
 	 I := I + 1;
@@ -93,21 +91,6 @@ package body Numerics is
    
    ----- Vector and Array functions
    
-   function Basis_Vector (I, N : in Int) return Real_Vector is
-      use Ada.Containers;
-      Result : Real_Vector := RV_Package.To_Vector (0.0, Count_Type (N));
-   begin
-      Result (I) := 1.0;
-      return Result;
-   end Basis_Vector;
-   
-   procedure Print (V : in Real_Vector) is
-   begin
-      for X of V loop
-	 Real_IO.Put (X); Ada.Text_IO.New_Line;
-      end loop;
-   end Print;
-   
    
    procedure Set_Length (V : in out Real_Vector;
 			 N : in     Int) is
@@ -116,14 +99,6 @@ package body Numerics is
    end Set_Length;
 
    function Length (X : in Real_Vector) return Int is (Int (X.Length));
-   
-   
-   
-   
-   ------- Norm --------------------------
-   
-   function Norm2_RV (X : in Real_Vector) return Real is separate;
-   function Norm_RV (X : in Real_Vector) return Real is separate;
    
    
    
@@ -138,14 +113,14 @@ package body Numerics is
       Result : Int;
    begin
       case X.Length is
-	 when 0 => return 0;
-	 when 1 => return X (1);
-	 when others =>
-	    Result := X (1);
-	    for I in 2 .. Int (X.Length) loop
-	       if X (I) > Result then Result := X (I); end if;
-	    end loop;
-	    return Result;
+   	 when 0 => return 0;
+   	 when 1 => return X (1);
+   	 when others =>
+   	    Result := X (1);
+   	    for I in 2 .. Int (X.Length) loop
+   	       if X (I) > Result then Result := X (I); end if;
+   	    end loop;
+   	    return Result;
       end case;
    end Max;
    
@@ -153,68 +128,21 @@ package body Numerics is
       Result : Real;
    begin
       case X.Length is
-	 when 0 => return 0.0;
-	 when 1 => return X (1);
-	 when others =>
-	    Result := X (1);
-	    for I in 2 .. Int (X.Length) loop
-	       if X (I) > Result then Result := X (I); end if;
-	    end loop;
-	    return Result;
+   	 when 0 => return 0.0;
+   	 when 1 => return X (1);
+   	 when others =>
+   	    Result := X (1);
+   	    for I in 2 .. Int (X.Length) loop
+   	       if X (I) > Result then Result := X (I); end if;
+   	    end loop;
+   	    return Result;
       end case;
    end Max;
 
 
-   function Abs_Max (Item : in Real_Vector) return Real is
-      Result : Real := 0.0;
-   begin
-      for X of Item loop
-	 if abs (X) > Result then Result := X; end if;
-      end loop;
-      return Result;
-   end Abs_Max;
-   
-   
-   
    -------- Binary Operators ---------------------------
    function Dot_Product (Left_I, Right_J : in Int_Array;
-			 Left_X, Right_Y : in Real_Array) return Real is separate;
-   function Dot_Product_RV (X, Y : in Real_Vector) return Real is separate;
-
-   function Mult_R_RV (Left  : in Real;
-		       Right : in Real_Vector) return Real_Vector is separate;
-   function Add_RV_RV (Left, Right : in Real_Vector) return Real_Vector is separate;
-   function Minus_RV_RV (Left, Right : in Real_Vector) return Real_Vector is separate;
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   function Sparse (X	: in Real_Vector;
-		    N   : in Pos         := 0;
-		    Tol	: in Real	 := 1.0e-20) return Sparse_Vector is
-      use IV_Package, RV_Package;
-      Y : Sparse_Vector;
-   begin
-      Y.NMax := (if N < Pos (X.Length) then Pos (X.Length) else N);
-      
-      Y.X.Reserve_Capacity (X.Length);
-      Y.I.Reserve_Capacity (X.Length);
-
-      for I in 1 .. Nat (X.Length) loop
-	 if abs (X (I)) > Tol then
-	    Y.X.Append (X (I));
-	    Y.I.Append (I);
-	 end if;
-      end loop;
-
-      return Y;
-   end Sparse;
-   
+   			 Left_X, Right_Y : in Real_Array) return Real is separate;
    
    
    function Sparse (X	: in Real_Array;
@@ -349,14 +277,26 @@ package body Numerics is
    procedure Set (Item : in out Sparse_Vector;
    		  I    : in     Nat;
    		  X    : in     Real) is
-      Y : Sparse_Vector;
+      Length : constant Pos := Pos (Item.I.Length);
    begin
-      -- Build Y
-      Y.NMax := Item.NMax;
-      Y.X.Reserve_Capacity (1); Y.X.Append (X);
-      Y.I.Reserve_Capacity (1); Y.I.Append (I); 
-      -- Add Y to Item
-      Item := Item + Y;
+      if Length = Item.NMax then
+	 Item.X (I) := X;
+      elsif Length = 0 then
+	 Item.I.Append (I);
+	 Item.X.Append (X);
+      elsif Item.I.Contains (I) = False then
+	 for K in 1 .. Length loop
+	    if Item.I (K) > I then
+	       Item.I.Insert (Before => K, New_Item => I);
+	       Item.X.Insert (Before => K, New_Item => X);
+	       return;
+	    end if;
+	 end loop;
+	 Item.I.Append (I);
+	 Item.X.Append (X);
+      else
+	 Item.X (Item.I.Find_Index (I)) := X;
+      end if;
    end Set;
    
    

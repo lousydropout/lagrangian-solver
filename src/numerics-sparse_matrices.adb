@@ -2,13 +2,12 @@ package body Numerics.Sparse_Matrices is
    
    procedure Print (Mat : in Sparse_Matrix) is separate;
    
-   
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    ------- Basic Getter Functions -----------------------------------
    function Norm2 (Item : in Sparse_Matrix) return Real is separate;
-   function N_Row (Mat : in Sparse_Matrix) return Pos is separate;
-   function N_Col (Mat : in Sparse_Matrix) return Pos is separate;
+   function N_Row (Mat : in Sparse_Matrix)  return Pos  is separate;
+   function N_Col (Mat : in Sparse_Matrix)  return Pos  is separate;
    
    ------------------------------------------------------------------
    ------------------------------------------------------------------
@@ -46,7 +45,6 @@ package body Numerics.Sparse_Matrices is
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    -------- Essential Tools -----------------------------------------
-   --  function Cumulative_Sum (Item : in Int_Array) return Int_Array is separate;
    procedure Remove_Duplicates (Mat : in out Sparse_Matrix) is separate;
    procedure Compress (Mat : in out Sparse_Matrix) is separate;
    procedure Convert (Mat : in out Sparse_Matrix) is separate;
@@ -59,40 +57,8 @@ package body Numerics.Sparse_Matrices is
    
    
    
-   function Vectorize (I : in Int_Array;
-		       X : in Real_Array) return Sparse_Matrix is
-      Result   : Sparse_Matrix;
-      Offset_I : constant Int := I'First - 1;
-      Offset_X : constant Int := X'First - 1;
-   begin
-      Result.Format := CSC;
-      Result.N_Row := I (I'Last);
-      Result.N_Col := 1;
-      Result.P.Reserve_Capacity (2); 
-      Result.I.Reserve_Capacity (I'Length);
-      Result.X.Reserve_Capacity (X'Length);
-      
-      Result.P.Append (1);
-      Result.P.Append (X'Length + 1);
-      for Y of I loop
-	 Result.I.Append (Y);
-      end loop;
-      for Y of X loop
-	 Result.X.Append (Y);
-      end loop;
-      return Result;
-   end Vectorize;
-
-   
-   
-   
-   
-   
-   
-   
    ------------------------------------------------------------------
    ------------------------------------------------------------------
-   
    ------- Testing Functions -----------------------------------
    function Is_Square_Matrix (A : in Sparse_Matrix) return Boolean is separate;
    function Has_Same_Dimensions (Left, Right : in Sparse_Matrix) return Boolean is separate;   
@@ -102,7 +68,6 @@ package body Numerics.Sparse_Matrices is
    ------------------------------------------------------------------
    ------- Matrix Operations -----------------------------------
    function Eye (N : in Nat) return Sparse_Matrix is separate;
-   function Zero_Vector (N : in Nat) return Sparse_Matrix is separate;
 
    procedure Transposed (Mat : in out Sparse_Matrix) is separate;
    function Transpose (Mat : in Sparse_Matrix) return Sparse_Matrix is separate;
@@ -113,8 +78,6 @@ package body Numerics.Sparse_Matrices is
 		   Right : in Sparse_Matrix) return Sparse_Matrix is separate;
    function Kronecker (A, B : in Sparse_Matrix) return Sparse_Matrix is separate;
    function Direct_Sum (A, B : in Sparse_Matrix) return Sparse_Matrix is separate;
-   function Mult_M_RV (Left  : in Sparse_Matrix;
-		       Right : in Real_Vector) return Real_Vector is separate;
    function Permute_By_Col (Mat : in Sparse_Matrix;
 			    P   : in Int_Array) return Sparse_Matrix is separate;
    function Permute (Mat : in Sparse_Matrix;
@@ -122,12 +85,12 @@ package body Numerics.Sparse_Matrices is
 		     By  : in Permute_By_Type := Column) return Sparse_Matrix is separate;
    
    
-   function BiCGSTAB (A   : in     Sparse_Matrix;
-		      B   : in     Real_Vector;
-		      X0  : in     Real_Vector;
-		      Err :    out Real;
-		      Tol : in     Real	    := 1.0e-10) 
-		     return Real_Vector is separate;
+   --  function BiCGSTAB (A   : in     Sparse_Matrix;
+   --  		      B   : in     Real_Vector;
+   --  		      X0  : in     Real_Vector;
+   --  		      Err :    out Real;
+   --  		      Tol : in     Real	    := 1.0e-10) 
+   --  		     return Real_Vector is separate;
 
    function Number_Of_Elements (X : in Sparse_Matrix) return Int is (Int (X.X.Length));
    
@@ -144,30 +107,20 @@ package body Numerics.Sparse_Matrices is
       return True;
    end Is_Valid;
    
-   function Triplet_To_Matrix (I      : in Int_Vector;
-			       J      : in Int_Vector;
-			       X      : in Real_Vector;
-			       N_Row  : in Pos		 := 0;
-			       N_Col  : in Pos		 := 0;
-			       Format : in Sparse_Matrix_Format := CSC) 
-			      return Sparse_Matrix is
-      Result : Sparse_Matrix;
+   procedure Triplet_To_Matrix (Result :    out Sparse_Matrix;
+				I      : in     Int_Vector;
+				J      : in     Int_Vector;
+				X      : in     Real_Vector;
+				N_Row  : in     Pos	      := 0;
+				N_Col  : in     Pos	      := 0) is
    begin
       Result.N_Row  := (if N_Row = 0 then Max (I) else N_Row);
       Result.N_Col  := (if N_Col = 0 then Max (J) else N_Col);
       
       Result.Format := Triplet;
-      Result.I := I; Result.P := J; Result.X := X;
-      case Format is
-	 when CSC     => 
-	    Result.Compress;
-	 when CSR     => 
-	    Result.Compress; 
-	    Result.Convert;
-	 when Triplet => 
-	    null;
-      end case;
-      return Result;
+      Result.X := X; Result.I := I; Result.P := J; 
+      
+      Result.Compress; -- turns it into CSC format
    end Triplet_To_Matrix;
    
    function Read_Sparse_Triplet (File_Name : in String;
@@ -181,6 +134,7 @@ package body Numerics.Sparse_Matrices is
       Int_Input : Int;
       Real_Input : Real;
       File : File_Type;
+      Result : Sparse_Matrix;
    begin
       Open (File => File, Mode => In_File, Name => File_Name);
 
@@ -196,7 +150,8 @@ package body Numerics.Sparse_Matrices is
       J_Vec.Reserve_Capacity (N_Lines);
       X_Vec.Reserve_Capacity (N_Lines);
       
-      return Triplet_To_Matrix (I_Vec, J_Vec, X_Vec);
+      Triplet_To_Matrix (Result, I_Vec, J_Vec, X_Vec);
+      return Result;
    end Read_Sparse_Triplet;
    
    
@@ -206,12 +161,8 @@ package body Numerics.Sparse_Matrices is
    procedure Add (Mat  : in out Sparse_Matrix;
 		  I, J : in     Nat;
 		  X    : in     Real) is
-      use RV_Package, IV_Package, Ada.Containers;
+      use Ada.Containers;
       Ind  : Pos;
-      I1, I2 : Pos;
-      X1, X2 : Real;
-      CX : RV_Package.Cursor;
-      CI : IV_Package.Cursor;
    begin
       pragma Assert (Mat.Format = CSC);
       -- Check if Mat (I, J) exists
@@ -229,40 +180,17 @@ package body Numerics.Sparse_Matrices is
       end loop;      
       
       -- Reserve space for 1 more element
-      Mat.I.Reserve_Capacity (Mat.I.Length + 1);
       Mat.X.Reserve_Capacity (Mat.X.Length + 1);
+      Mat.I.Reserve_Capacity (Mat.I.Length + 1);
       
-      -- Fix I and X
-      
-      ---- 1. Find index of Mat.I & Mat.X just after (I, J)
-      Ind := Mat.P (J);
-      for P in Mat.P (J) .. Mat.P (J + 1) - 1 loop
-	 if Mat.I (P) < I then Ind := P; end if;
+      ---- Find index of Mat.I & Mat.X just after (I, J)
+      Ind := Mat.P (J + 1) - 1;
+      for P in reverse Mat.P (J) .. Mat.P (J + 1) - 1 loop
+      	 if Mat.I (P) > I then Ind := P; exit; end if;
       end loop;
-      
-      ---- 2. Get cursor for Mat.X at that index &
-      --------- continuously swap value with previous value
-      CX := To_Cursor (Mat.X, Ind);
-      X2 := X;
-      for K in Ind .. Nat (Mat.X.Length) loop
-	 X1         := Mat.X (CX);
-	 Mat.X (CX) := X2;
-	 X2         := X1;
-	 Next (CX);
-      end loop;
-      Mat.X.Append (X2);
-      
-      ---- 3. Repeat step 2 but for Mat.I
-      CI := To_Cursor (Mat.I, Ind);
-      I2 := I; 
-      for K in Ind .. Nat (Mat.I.Length) loop
-	 I1         := Mat.I (CI);
-	 Mat.I (CI) := I2;
-	 I2         := I1;
-	 Next (CI);
-      end loop;
-      Mat.I.Append (I2);
-
+      -- Insert elements into I and X
+      Mat.X.Insert (Before => Ind, New_Item => X);
+      Mat.I.Insert (Before => Ind, New_Item => I);
    end Add;
    
    

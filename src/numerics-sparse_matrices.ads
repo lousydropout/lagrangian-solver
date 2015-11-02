@@ -18,8 +18,6 @@ package Numerics.Sparse_Matrices is
    function N_Col (Mat : in Sparse_Matrix) return Pos with Inline => True;
    function Number_Of_Elements (X : in Sparse_Matrix) return Int;
    
-   ------------------------------------------------------------------
-   ------------------------------------------------------------------
    ------- Functions for Creating Sparse Matrices -------------------
    function Sparse (X : in Real_Matrix) return Sparse_Matrix;
    function Triplet_To_Matrix (I      : in Int_Array;
@@ -29,16 +27,7 @@ package Numerics.Sparse_Matrices is
 			       N_Col  : in Pos := 0;
 			       Format : in Sparse_Matrix_Format := CSC) return Sparse_Matrix
      with Pre => I'Length = J'Length and I'Length = X'Length;
-   function Triplet_To_Matrix (I      : in Int_Vector;
-			       J      : in Int_Vector;
-			       X      : in Real_Vector;
-			       N_Row  : in Pos		 := 0;
-			       N_Col  : in Pos		 := 0;
-			       Format : in Sparse_Matrix_Format := CSC) return Sparse_Matrix;
    function Convert (Mat : in Sparse_Matrix) return Sparse_Matrix;
-   function Vectorize (I : in Int_Array;
-   		       X : in Real_Array) return Sparse_Matrix
-     with Pre => I'Length = X'Length;
    procedure Add (Mat  : in out Sparse_Matrix;
 		  I, J : in     Nat;
 		  X    : in     Real);
@@ -57,7 +46,6 @@ package Numerics.Sparse_Matrices is
    ------------------------------------------------------------------
    ------- Matrix operations ----------------------------------------
    function Eye (N : in Nat) return Sparse_Matrix;
-   function Zero_Vector (N : in Nat) return Sparse_Matrix;
    function Transpose (Mat : in Sparse_Matrix) return Sparse_Matrix;
    function Plus (Left  : in Sparse_Matrix;
 		  Right : in Sparse_Matrix) return Sparse_Matrix
@@ -69,9 +57,6 @@ package Numerics.Sparse_Matrices is
      with Pre => N_Col (Left) = N_Row (Right);
    function Kronecker (A, B : in Sparse_Matrix) return Sparse_Matrix;
    function Direct_Sum (A, B : in Sparse_Matrix) return Sparse_Matrix;
-   function Mult_M_RV (Left  : in Sparse_Matrix;
-		       Right : in Real_Vector) return Real_Vector
-     with Pre => N_Col (Left) = Pos (Right.Length);
    function Mult_M_SV (A : in Sparse_Matrix;
 		       X : in Sparse_Vector) return Sparse_Vector
      with Pre => N_Col (A) = Length (X);
@@ -87,8 +72,6 @@ package Numerics.Sparse_Matrices is
    function "+" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Plus;
    function "-" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Minus;
    function "*" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Mult;
-   function "*" (Left  : in Sparse_Matrix;
-		 Right : in Real_Vector) return Real_Vector renames Mult_M_RV;
    function "*" (A : in Sparse_Matrix;
 		 X : in Sparse_Vector) return Sparse_Vector renames Mult_M_SV;
    
@@ -113,15 +96,21 @@ package Numerics.Sparse_Matrices is
    
 private
    
-   function BiCGSTAB (A   : in     Sparse_Matrix;
-		      B   : in     Real_Vector;
-		      X0  : in     Real_Vector;
-		      Err :    out Real;
-		      Tol : in     Real	    := 1.0e-10) return Real_Vector;
+   --  function BiCGSTAB (A   : in     Sparse_Matrix;
+   --  		      B   : in     Real_Vector;
+   --  		      X0  : in     Real_Vector;
+   --  		      Err :    out Real;
+   --  		      Tol : in     Real	    := 1.0e-10) return Real_Vector;
+   procedure Triplet_To_Matrix (Result :    out Sparse_Matrix;
+				I      : in     Int_Vector;
+				J      : in     Int_Vector;
+				X      : in     Real_Vector;
+				N_Row  : in     Pos	      := 0;
+				N_Col  : in     Pos	      := 0);
+
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    -------- Essential Tools -----------------------------------------
-   --  function  Cumulative_Sum (Item : in Int_Array) return Int_Array;
    procedure Cumulative_Sum (Item : in out Int_Array);
    procedure Remove_Duplicates (Mat : in out Sparse_Matrix);
    procedure Compress (Mat : in out Sparse_Matrix);

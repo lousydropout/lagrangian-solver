@@ -17,7 +17,7 @@ procedure Sparse_Test is
    C : Sparse_Matrix;
    Y : Real_Array := To_Array (X);
 begin
-   --  C := A or B;
+   C := A or B;
    --  A := Transpose (A) + Transpose (B);
    --  A.Print;
    A.Add (2, 2, -2.0);
@@ -25,8 +25,8 @@ begin
    Put_Line ("X:");
    X.Print;
    Put_Line ("solution: ");
-   --  A.Add (1, 2, -1.0);
-   --  A.Print;
+   A.Add (1, 2, -1.0);
+   A.Print;
    X := A * X;
    --  B.Transposed;
    X.Print;

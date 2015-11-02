@@ -36,14 +36,6 @@ package body Numerics.Sparse_Matrices.CSparse is
    end Solve;
    
    function Solve (LU : in LU_Type;
-		   B  : in Real_Vector) return Real_Array is 
-      (Solve (LU, To_Array (B)));
-      
-   function Solve (LU : in LU_Type;
-		   B  : in Real_Vector) return Real_Vector is
-      (Vectorize (Solve (LU, To_Array (B))));
-      
-   function Solve (LU : in LU_Type;
 		   B  : in Real_Array) return Real_Ptrs.Pointer is
       use C;
       Err : C.int;
