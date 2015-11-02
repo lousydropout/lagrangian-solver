@@ -128,4 +128,16 @@ private
 	 P      : Int_Vector;
       end record;
    
+   
+   
+   procedure Scatter (A	   : in     Sparse_Matrix;
+		      J	   : in     Int;
+		      β	   : in     Real;
+		      W	   : in out Int_Array;
+		      X	   : in out Real_Array;
+		      Mark : in     Int;
+		      C	   : in out Sparse_Matrix;
+		      Nz   : in out Int);
+   
+
 end Numerics.Sparse_Matrices;

@@ -299,7 +299,6 @@ package body Numerics is
       end if;
    end Set;
    
-   
 
 begin
    Ada.Numerics.Float_Random.Reset (Gen);

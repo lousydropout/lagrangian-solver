@@ -11,34 +11,6 @@ function Mult (Left, Right : in Sparse_Matrix) return Sparse_Matrix is
    N_Row : constant Count_Type := Count_Type (A.N_Row + 1);
    N_Res : constant Count_Type := Count_Type (A.N_Row * B.N_Col / 100);
    
-   procedure Scatter (A	   : in     Sparse_Matrix;
-		      J	   : in     Int;
-		      β	   : in     Real;
-		      W	   : in out Int_Array;
-		      X	   : in out Real_Array;
-		      Mark : in     Int;
-		      C	   : in out Sparse_Matrix;
-		      Nz   : in out Int) is
-      use IV_Package;
-      I    : Int;
-      Cur  : Cursor;
-      L, R : Pos;
-   begin
-      Cur := To_Cursor (A.P, J);
-      L   := A.P (Cur); Next (Cur); R := A.P (Cur) - 1;
-      for P in L .. R loop
-	 I := A.I (P);
-	 if W (I) < Mark then
-	    C.I.Append (I);
-	    X (I) := β * A.X (P);
-	    Nz    := Nz + 1;
-	    W (I) := Mark;
-	 else
-	    X (I) := X (I) + β * A.X (P);
-	 end if;
-      end loop;
-   end Scatter;
-   
 begin
    
    C.Format := CSC; C.N_Row := A.N_Row; C.N_Col := B.N_Col;

@@ -15,11 +15,11 @@ procedure Linear_Solver_Test is
 
 begin
    Put ("Read Matrix . . .");
-   --  Mat := Sparse (A);
-   --  Mat.Print;
+   
    ------ Rectangular Matrices -----------------
    --  Mat := Read_Sparse_Triplet (Dir & "ash219_st.txt");       -- 3.6K
-
+   --  Mat := Transpose (Mat) * Mat;
+   
    ------ Square Matrices ----------------------
    --  Mat := Read_Sparse_Triplet (Dir & "a5by5_st.txt");     -- 611
    --  Mat := Read_Sparse_Triplet (Dir & "bcsstk01_st.txt");  -- 4.9K
@@ -29,8 +29,6 @@ begin
    --  Mat := Read_Sparse_Triplet (Dir & "t1_st.txt");        -- 80
    --  Mat := Read_Sparse_Triplet (Dir & "west0067_st.txt");  -- 3.9K
    
-   --  Mat := Transpose (Mat) * Mat;
-   --  Mat.Transposed;
    Put_Line ("finished");
 
    
@@ -39,21 +37,26 @@ begin
    Put (Mat.N_Row, 0); Put (" x "); Put (Mat.N_Col, 0); New_Line;
    Put ("Number of entries: "); Put (Mat.Number_Of_Elements, 0); New_Line;
    
+   
    ----- Set size of vectors X and B ----
    Set_Length (SB, Mat.N_Col); Set_Length (SX, Mat.N_Col); 
+   
    
    ----- Begin LU Decomposition ---------
    Put ("LU Decomposition . . .");
    LU  := LU_Decomposition (Mat);
    Put_Line ("finished");
    
+   
    ------ Begin tests ------------------------
    Put_Line ("Begin testing . . .");
    for K in 1 .. Int (10) loop
       Put ("Trial "); Put (K, Width => 2); Put (": "); 
+      
       for I in 1 .. Mat.N_Col loop
 	 SB.Set (I, (10.0 * Rand) ** 10 * Sin (10.0 * Rand));
       end loop;
+      
       SX  := Solve (LU, SB);
       SY  := SB - Mat * SX;
 

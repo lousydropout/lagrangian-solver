@@ -8,8 +8,8 @@ function Triplet_To_Matrix (I      : in Int_Array;
 			    Format : in Sparse_Matrix_Format := CSC) return Sparse_Matrix is
    Result : Sparse_Matrix;
 begin
-   Result.N_Row  := (if N_Row = 0 then Max (I) else N_Row);
-   Result.N_Col  := (if N_Col = 0 then Max (J) else N_Col);
+   Result.N_Row  := Pos'Max (N_Row, Max (I));
+   Result.N_Col  := Pos'Max (N_Col, Max (J));
    Result.Format := Triplet;
    
    Set (X => Result.I, To => I);

@@ -114,8 +114,8 @@ package body Numerics.Sparse_Matrices is
 				N_Row  : in     Pos	      := 0;
 				N_Col  : in     Pos	      := 0) is
    begin
-      Result.N_Row  := (if N_Row = 0 then Max (I) else N_Row);
-      Result.N_Col  := (if N_Col = 0 then Max (J) else N_Col);
+      Result.N_Row  := Pos'Max (N_Row, Max (I));
+      Result.N_Col  := Pos'Max (N_Col, Max (J));
       
       Result.Format := Triplet;
       Result.X := X; Result.I := I; Result.P := J; 
@@ -193,6 +193,35 @@ package body Numerics.Sparse_Matrices is
       Mat.I.Insert (Before => Ind, New_Item => I);
    end Add;
    
+   
+   
+   procedure Scatter (A	   : in     Sparse_Matrix;
+		      J	   : in     Int;
+		      β	   : in     Real;
+		      W	   : in out Int_Array;
+		      X	   : in out Real_Array;
+		      Mark : in     Int;
+		      C	   : in out Sparse_Matrix;
+		      Nz   : in out Int) is
+      use IV_Package;
+      I    : Int;
+      Cur  : Cursor;
+      L, R : Pos;
+   begin
+      Cur := To_Cursor (A.P, J);
+      L   := A.P (Cur); Next (Cur); R := A.P (Cur) - 1;
+      for P in L .. R loop
+	 I := A.I (P);
+	 if W (I) < Mark then
+	    C.I.Append (I);
+	    X (I) := β * A.X (P);
+	    Nz    := Nz + 1;
+	    W (I) := Mark;
+	 else
+	    X (I) := X (I) + β * A.X (P);
+	 end if;
+      end loop;
+   end Scatter;
    
       
    function Mult_M_SV (A : in Sparse_Matrix;

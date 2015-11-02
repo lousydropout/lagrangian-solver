@@ -11,7 +11,7 @@ Project Main is
   
   package Compiler is
      for Default_Switches ("Ada")
-       use ("-O2",                      -- optimize
+       use ("-O1",                      -- optimize
 	    "-gnata",                   -- assertions
 	    "-fno-inline",              -- turn off inline for smaller executable
 	    "-gnatVa",                  -- turn on all validity checking options

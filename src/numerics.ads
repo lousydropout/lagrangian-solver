@@ -44,10 +44,8 @@ package Numerics is
 		 B : in Real) return Sparse_Vector is (B * A);
    function "/" (A : in Sparse_Vector;
 		 B : in Real) return Sparse_Vector is ((1.0 / B) * A);
-   function "-" (A : in Sparse_Vector) return Sparse_Vector is ("*"(-1.0, A));
+   function "-" (A : in Sparse_Vector) return Sparse_Vector is ("*" (-1.0, A));
    function "-" (A, B : in Sparse_Vector) return Sparse_Vector is (A + (-B));
-   
-   
    
    ------- Norm --------------------------
    function Norm (X : in Sparse_Vector) return Real;
