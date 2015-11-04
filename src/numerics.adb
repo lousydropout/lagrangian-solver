@@ -284,9 +284,13 @@ package body Numerics is
       elsif Length = 0 then
 	 Item.I.Append (I);
 	 Item.X.Append (X);
-      elsif Item.I.Contains (I) = False then
+      else
+	 -- look for index K >= I in Item.I
 	 for K in 1 .. Length loop
-	    if Item.I (K) > I then
+	    if Item.I (K) = I then
+	       Item.X (K) := X;
+	       return;
+	    elsif Item.I (K) > I then
 	       Item.I.Insert (Before => K, New_Item => I);
 	       Item.X.Insert (Before => K, New_Item => X);
 	       return;
@@ -294,10 +298,36 @@ package body Numerics is
 	 end loop;
 	 Item.I.Append (I);
 	 Item.X.Append (X);
-      else
-	 Item.X (Item.I.Find_Index (I)) := X;
       end if;
    end Set;
+   
+
+   procedure Add (Item : in out Sparse_Vector;
+   		  I    : in     Nat;
+   		  X    : in     Real) is
+      Length : constant Pos := Pos (Item.I.Length);
+   begin
+      if Length = Item.NMax then
+	 Item.X (I) := X;
+      elsif Length = 0 then
+	 Item.I.Append (I);
+	 Item.X.Append (X);
+      else
+	 -- look for index K >= I in Item.I
+	 for K in 1 .. Length loop
+	    if Item.I (K) = I then
+	       Item.X (K) := Item.X (K) + X;
+	       return;
+	    elsif Item.I (K) > I then
+	       Item.I.Insert (Before => K, New_Item => I);
+	       Item.X.Insert (Before => K, New_Item => X);
+	       return;
+	    end if;
+	 end loop;
+	 Item.I.Append (I);
+	 Item.X.Append (X);
+      end if;
+   end Add;
    
 
 begin

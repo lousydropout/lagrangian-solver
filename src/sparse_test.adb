@@ -21,6 +21,7 @@ begin
    --  A := Transpose (A) + Transpose (B);
    --  A.Print;
    A.Add (2, 2, -2.0);
+   A.Set (2, 2, 3.14);
    A.Print;
    Put_Line ("X:");
    X.Print;
