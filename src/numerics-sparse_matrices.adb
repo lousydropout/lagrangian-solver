@@ -158,6 +158,8 @@ package body Numerics.Sparse_Matrices is
    procedure Cumulative_Sum (Item : in out Int_Array) is separate;
    
    
+   
+   
    procedure Add (Mat  : in out Sparse_Matrix;
 		  I, J : in     Nat;
 		  X    : in     Real) is
@@ -165,32 +167,38 @@ package body Numerics.Sparse_Matrices is
       Ind  : Pos;
    begin
       pragma Assert (Mat.Format = CSC);
+      
       -- Check if Mat (I, J) exists
       for K in Mat.P (J) .. Mat.P (J + 1) - 1 loop
 	 if Mat.I (K) = I then 
-	    -- If exists, then just add value X to Mat (I, J)
+	    -- If exists, then add X to Mat (I, J)
 	    Mat.X (K) := Mat.X (K) + X;
 	    return;
 	 end if;
       end loop;
       
+      -- Reserve space for 1 more element
+      Mat.X.Reserve_Capacity (Mat.X.Length + 1);
+      Mat.I.Reserve_Capacity (Mat.I.Length + 1);
+      
+      Ind := Mat.P (J); -- need this since for-loop may not occur
+      for P in Mat.P (J) .. Mat.P (J + 1) - 1 loop
+	 if Mat.I (P) > I then Ind := P; exit; end if;
+      end loop;
+      
+      -- Insert elements into I and X
+      if Ind <= Pos (Mat.X.Length) then
+	 Mat.X.Insert (Before => Ind, New_Item => X);
+	 Mat.I.Insert (Before => Ind, New_Item => I);
+      else
+	 Mat.X.Append (X); Mat.I.Append (I);
+      end if;
+
       -- Fix P
       for P in J + 1 .. Mat.N_Col + 1 loop
 	 Mat.P (P) := Mat.P (P) + 1;
       end loop;      
       
-      -- Reserve space for 1 more element
-      Mat.X.Reserve_Capacity (Mat.X.Length + 1);
-      Mat.I.Reserve_Capacity (Mat.I.Length + 1);
-      
-      ---- Find index of Mat.I & Mat.X just after (I, J)
-      Ind := Mat.P (J + 1) - 1;
-      for P in reverse Mat.P (J) .. Mat.P (J + 1) - 1 loop
-      	 if Mat.I (P) > I then Ind := P; exit; end if;
-      end loop;
-      -- Insert elements into I and X
-      Mat.X.Insert (Before => Ind, New_Item => X);
-      Mat.I.Insert (Before => Ind, New_Item => I);
    end Add;
    
    
@@ -202,32 +210,38 @@ package body Numerics.Sparse_Matrices is
       Ind  : Pos;
    begin
       pragma Assert (Mat.Format = CSC);
+      
       -- Check if Mat (I, J) exists
       for K in Mat.P (J) .. Mat.P (J + 1) - 1 loop
 	 if Mat.I (K) = I then 
-	    -- If exists, then set value X to Mat (I, J)
+	    -- If exists, then set Mat (I, J) to X
 	    Mat.X (K) := X;
 	    return;
 	 end if;
       end loop;
       
+      -- Reserve space for 1 more element
+      Mat.X.Reserve_Capacity (Mat.X.Length + 1);
+      Mat.I.Reserve_Capacity (Mat.I.Length + 1);
+      
+      Ind := Mat.P (J); -- need this since for-loop may not occur
+      for P in Mat.P (J) .. Mat.P (J + 1) - 1 loop
+	 if Mat.I (P) > I then Ind := P; exit; end if;
+      end loop;
+      
+      -- Insert elements into I and X
+      if Ind <= Pos (Mat.X.Length) then
+	 Mat.X.Insert (Before => Ind, New_Item => X);
+	 Mat.I.Insert (Before => Ind, New_Item => I);
+      else
+	 Mat.X.Append (X); Mat.I.Append (I);
+      end if;
+
       -- Fix P
       for P in J + 1 .. Mat.N_Col + 1 loop
 	 Mat.P (P) := Mat.P (P) + 1;
       end loop;      
       
-      -- Reserve space for 1 more element
-      Mat.X.Reserve_Capacity (Mat.X.Length + 1);
-      Mat.I.Reserve_Capacity (Mat.I.Length + 1);
-      
-      ---- Find index of Mat.I & Mat.X just after (I, J)
-      Ind := Mat.P (J + 1) - 1;
-      for P in reverse Mat.P (J) .. Mat.P (J + 1) - 1 loop
-      	 if Mat.I (P) > I then Ind := P; exit; end if;
-      end loop;
-      -- Insert elements into I and X
-      Mat.X.Insert (Before => Ind, New_Item => X);
-      Mat.I.Insert (Before => Ind, New_Item => I);
    end Set;
    
    
@@ -290,14 +304,20 @@ package body Numerics.Sparse_Matrices is
    end Diag;
       
    
-   --  procedure Set_Diag (X  : in out Sparse_Matrix;
-   --  		       To : in     Sparse_Vector) is
-   --     K : Int;
-   --  begin
-   --     for I in 1 .. Int (To.I.Length) loop
-   --  	 K := To.I (I);
-   --  	 X.Set (K, K, To.X (I));
-   --     end loop;
-   --  end Set_Diag;
+   procedure Set_Diag (X  : in out Sparse_Matrix;
+   		       To : in     Sparse_Vector) is
+      K : Int;
+      use Ada.Text_IO;
+   begin
+      for I in 1 .. Int (To.I.Length) loop
+	 Put_Line (I'Img);
+   	 K := To.I (I);
+   	 X.Set (K, K, To.X (I));
+	 Put_Line ("------------------");
+	 X.Print;
+	 Put_Line ("------------------");
+      end loop;
+      Put_Line ("end set_diag");
+   end Set_Diag;
 
 end Numerics.Sparse_Matrices;

@@ -11,7 +11,7 @@ procedure Sparse_Test is
    X1 : Real_Array := (1.0, 2.0, 3.0, 5.0);
    
    A  : Sparse_Matrix := Triplet_To_Matrix (I1, J1, X1, 3, 3);
-   B  : Sparse_Matrix := Triplet_To_Matrix (J1, I1, X1);
+   B  : Sparse_Matrix := Triplet_To_Matrix (J1, I1, X1, 3, 3);
    X  : Sparse_Vector := Sparse ((0.0, 1.0, 0.0));
    
    C : Sparse_Matrix;
@@ -20,36 +20,38 @@ begin
    C := A or B;
    --  A := Transpose (A) + Transpose (B);
    --  A.Print;
-   A.Add (2, 2, -2.0);
-   A.Set (2, 2, 3.14);
-   A.Print;
+   --  A.Add (2, 2, -2.0);
+   --  A.Set (2, 2, 3.14);
+   --  A.Print;
+   Put_Line ("B: ");
+   B.Print;
+   X := Sparse ((6.789, 2.17, 999.314));
+   B.Set_Diag (X);
+   Put_Line ("B: ");
+   B.Print;
    Put_Line ("X:");
-   X := A.Diag;
+   X := B.Diag;
    X.Print;
    B := Diag (X);
    Put_Line ("B: ");
    B.Print;
-   X := Sparse ((1.0, 2.0, 3.14));
-   --  B.Set_Diag (X);
-   --  Put_Line ("B: ");
-   --  B.Print;
    New_Line; New_Line;
-   Put_Line ("solution: ");
-   A.Add (1, 2, -1.0);
-   A.Print;
-   X := A * X;
-   --  B.Transposed;
-   X.Print;
-   Put_Line ("array (X): ");
-   for I of Y loop
-      Put_Line (I'Img);
-   end loop;
+   --  Put_Line ("solution: ");
+   --  A.Add (1, 2, -1.0);
+   --  A.Print;
+   --  X := A * X;
+   --  --  B.Transposed;
+   --  X.Print;
+   --  Put_Line ("array (X): ");
+   --  for I of Y loop
+   --     Put_Line (I'Img);
+   --  end loop;
    --  C.Print;
    
    --  C.Print;
    --  C := Transpose (B * B);
    --  C.Print;
-   New_Line;
-   Put_Line ("Number of Elements = " & Int'Image (Number_Of_Elements (A)));
+   --  New_Line;
+   --  Put_Line ("Number of Elements = " & Int'Image (Number_Of_Elements (A)));
 
 end Sparse_Test;

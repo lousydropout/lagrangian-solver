@@ -19,9 +19,9 @@ package Numerics.Sparse_Matrices is
    function Number_Of_Elements (X : in Sparse_Matrix) return Int;
    
    ------- Functions for Creating Sparse Matrices -------------------
-   --  procedure Set_Diag (X  : in out Sparse_Matrix;
-   --  		       To : in     Sparse_Vector)
-   --    with Pre => Is_Square_Matrix (X);
+   procedure Set_Diag (X  : in out Sparse_Matrix;
+   		       To : in     Sparse_Vector)
+     with Pre => Is_Square_Matrix (X) and X.N_Col = To.Length;
    function Diag (X : in Sparse_Matrix) return Sparse_Vector
      with Pre => Is_Square_Matrix (X);
    function Diag (X : in Sparse_Vector) return Sparse_Matrix;
