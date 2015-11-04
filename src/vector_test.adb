@@ -4,13 +4,14 @@ use  Numerics, Numerics.Sparse_Matrices;
 with Ada.Text_IO; use Ada.Text_IO;
 procedure Vector_Test is
    
-   X : Sparse_Vector; -- := Sparse ((2.0,  0.0, 0.0));
+   X : Sparse_Vector := Sparse ((0.0,  0.0, 0.0));
    Y : Sparse_Vector; -- := Sparse ((0.0, -5.0, 7.0));
    Z : Sparse_Vector;
 begin
+   --  X.Set_Length (3);
    X.Print;
-   X.Set_Length (3);
-   X.Set (1, 2.0);
+   X.Set (1, π);
+   X.Add (2, 9.9999);
    
    Put_Line ("X");
    Print (X);

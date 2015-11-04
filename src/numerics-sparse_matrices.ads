@@ -37,6 +37,9 @@ package Numerics.Sparse_Matrices is
    procedure Add (Mat  : in out Sparse_Matrix;
 		  I, J : in     Nat;
 		  X    : in     Real);
+   procedure Set (Mat  : in out Sparse_Matrix;
+		  I, J : in     Nat;
+		  X    : in     Real);
    
    
    

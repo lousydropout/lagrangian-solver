@@ -1,8 +1,11 @@
 with Ada.Containers.Vectors, Interfaces.C, Interfaces.C.Pointers, Ada.Text_IO;
 with Ada.Numerics.Generic_Elementary_Functions, Ada.Numerics.Float_Random;
-with Ada.Text_IO;
+with Ada.Numerics, Ada.Text_IO;
 package Numerics is
+   π : constant := Ada.Numerics.π;
+   
    package C renames Interfaces.C;
+   
    
    -------- Define types (Real, Int, Pos, Nat) ----------------------
    type Real is new C.double range C.double'First .. C.double'Last;
@@ -35,6 +38,9 @@ package Numerics is
    procedure Set_Length (X : in out Sparse_Vector;
 			 N : in     Pos);
    procedure Set (Item : in out Sparse_Vector;
+   		  I    : in     Nat;
+   		  X    : in     Real);
+   procedure Add (Item : in out Sparse_Vector;
    		  I    : in     Nat;
    		  X    : in     Real);
    function "+" (A, B : in Sparse_Vector) return Sparse_Vector;
