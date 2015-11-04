@@ -226,4 +226,41 @@ package body Numerics.Sparse_Matrices is
       
    function Mult_M_SV (A : in Sparse_Matrix;
 		       X : in Sparse_Vector) return Sparse_Vector is separate;
+   
+   
+   function Diag (X : in Sparse_Matrix) return Sparse_Vector is
+      Y : Sparse_Vector;
+   begin
+      Y.Set_Length (X.N_Col);
+      
+      for P in 1 .. X.N_Col loop
+	 for I in X.P (P) .. X.P (P + 1) - 1 loop
+	    if X.I (I) = P then
+	       Y.Set (P, X.X (I));
+	       exit;
+	    end if;
+	 end loop;
+      end loop;
+      return Y;
+   end Diag;
+   
+   function Diag (X : in Sparse_Vector) return Sparse_Matrix is
+      Y : Sparse_Matrix;
+      J, K : Pos := 1;
+   begin
+      Y.Triplet_To_Matrix (X.I, X.I, X.X, X.NMax, X.NMax);
+      return Y;
+   end Diag;
+      
+   
+   --  procedure Set_Diag (X  : in out Sparse_Matrix;
+   --  		       To : in     Sparse_Vector) is
+   --     K : Int;
+   --  begin
+   --     for I in 1 .. Int (To.I.Length) loop
+   --  	 K := To.I (I);
+   --  	 X.Set (K, K, To.X (I));
+   --     end loop;
+   --  end Set_Diag;
+
 end Numerics.Sparse_Matrices;

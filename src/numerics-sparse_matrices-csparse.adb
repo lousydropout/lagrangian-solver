@@ -2,7 +2,7 @@ package body Numerics.Sparse_Matrices.CSparse is
    
    
    function LU_Decomposition (Mat : in Sparse_Matrix;
-			      Tol : in Real   := 1.0e-12) return LU_Type is
+			      Tol : in Real   := 1.0e-20) return LU_Type is
       Sparse : Sparse_Ptr := To_Sparse (Mat);
       LU     : LU_Type;
    begin
@@ -16,6 +16,16 @@ package body Numerics.Sparse_Matrices.CSparse is
       Sparse      := Free (Sparse);
       return LU;
    end LU_Decomposition;
+   
+   
+   function Solve (A   : in Sparse_Matrix;
+		   B   : in Sparse_Vector;
+		   Tol : in Real	  := 1.0e-20) return Sparse_Vector is
+      LU : LU_Type := LU_Decomposition (A, Tol);
+   begin
+      return Solve (LU, B, Tol);
+   end Solve;
+   
    
    function Solve (LU  : in LU_Type;
 		   B   : in Sparse_Vector;

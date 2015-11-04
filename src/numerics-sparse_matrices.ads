@@ -14,11 +14,17 @@ package Numerics.Sparse_Matrices is
    
    ------- Basic Getter Functions -----------------------------------
    function Norm2 (Item : in Sparse_Matrix) return Real;
-   function N_Row (Mat : in Sparse_Matrix) return Pos with Inline => True;
-   function N_Col (Mat : in Sparse_Matrix) return Pos with Inline => True;
+   function N_Row (Mat : in Sparse_Matrix) return Pos;
+   function N_Col (Mat : in Sparse_Matrix) return Pos;
    function Number_Of_Elements (X : in Sparse_Matrix) return Int;
    
    ------- Functions for Creating Sparse Matrices -------------------
+   --  procedure Set_Diag (X  : in out Sparse_Matrix;
+   --  		       To : in     Sparse_Vector)
+   --    with Pre => Is_Square_Matrix (X);
+   function Diag (X : in Sparse_Matrix) return Sparse_Vector
+     with Pre => Is_Square_Matrix (X);
+   function Diag (X : in Sparse_Vector) return Sparse_Matrix;
    function Sparse (X : in Real_Matrix) return Sparse_Matrix;
    function Triplet_To_Matrix (I      : in Int_Array;
 			       J      : in Int_Array;

@@ -8,10 +8,12 @@ package Numerics.Sparse_Matrices.CSparse is
    
    ------ LU Decomposition -----------------------------------------
    function LU_Decomposition (Mat : in Sparse_Matrix;
-			      Tol : in Real   := 1.0e-12) return LU_Type
+			      Tol : in Real   := 1.0e-20) return LU_Type
      with Pre => Is_Valid (Mat) and Is_Square_Matrix (Mat);
    
-   
+   function Solve (A   : in Sparse_Matrix;
+		   B   : in Sparse_Vector;
+		   Tol : in Real	  := 1.0e-20) return Sparse_Vector;
    function Solve (LU : in LU_Type;
 		   B  : in Real_Array) return Real_Array
      with Pre => N_Col (LU) = B'Length;

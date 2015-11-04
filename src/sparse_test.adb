@@ -10,7 +10,7 @@ procedure Sparse_Test is
    J1 : Int_Array  := (1,   3,   1,  3);
    X1 : Real_Array := (1.0, 2.0, 3.0, 5.0);
    
-   A  : Sparse_Matrix := Triplet_To_Matrix (I1, J1, X1);
+   A  : Sparse_Matrix := Triplet_To_Matrix (I1, J1, X1, 3, 3);
    B  : Sparse_Matrix := Triplet_To_Matrix (J1, I1, X1);
    X  : Sparse_Vector := Sparse ((0.0, 1.0, 0.0));
    
@@ -23,7 +23,16 @@ begin
    A.Add (2, 2, -2.0);
    A.Print;
    Put_Line ("X:");
+   X := A.Diag;
    X.Print;
+   B := Diag (X);
+   Put_Line ("B: ");
+   B.Print;
+   X := Sparse ((1.0, 2.0, 3.14));
+   --  B.Set_Diag (X);
+   --  Put_Line ("B: ");
+   --  B.Print;
+   New_Line; New_Line;
    Put_Line ("solution: ");
    A.Add (1, 2, -1.0);
    A.Print;

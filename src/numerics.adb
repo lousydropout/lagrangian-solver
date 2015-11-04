@@ -284,18 +284,19 @@ package body Numerics is
       elsif Length = 0 then
 	 Item.I.Append (I);
 	 Item.X.Append (X);
-      elsif Item.I.Contains (I) = False then
+      else
+	 -- Look for Index larger than I
 	 for K in 1 .. Length loop
+	    -- if found, insert before that position
 	    if Item.I (K) > I then
 	       Item.I.Insert (Before => K, New_Item => I);
 	       Item.X.Insert (Before => K, New_Item => X);
 	       return;
 	    end if;
 	 end loop;
+	 -- if not found, then append since I is largest
 	 Item.I.Append (I);
 	 Item.X.Append (X);
-      else
-	 Item.X (Item.I.Find_Index (I)) := X;
       end if;
    end Set;
    

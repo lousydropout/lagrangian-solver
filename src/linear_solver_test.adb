@@ -10,6 +10,7 @@ procedure Linear_Solver_Test is
    SX  : Sparse_Vector;
    SB  : Sparse_Vector;
    SY  : Sparse_Vector;
+   Y   : Sparse_Vector;
    Dir : String      := "matrices/sparse-triplet/zero-based/";
    Res : Real;
 
@@ -57,10 +58,11 @@ begin
 	 SB.Set (I, (10.0 * Rand) ** 10 * Sin (10.0 * Rand));
       end loop;
       
-      SX  := Solve (LU, SB);
-      SY  := SB - Mat * SX;
-
-      Res := Norm (SY) / Real'Max (1.0, Norm (SB));
+      --  SX  := Solve (LU, SB);
+      --  SY  := SB - Mat * SX;
+      Y   := SB - Mat * Solve (Mat, SB);
+      --  Res := Norm (SY - Y);
+      Res := Norm (Y) / Real'Max (1.0, Norm (SB));
       Put ("    Norm (Res)  =  "); Put (Res, Fore => 1, Aft => 1, Exp => 3);
       
       Put_Line (if Res > 1.0e-10 then "  ***" else "");
