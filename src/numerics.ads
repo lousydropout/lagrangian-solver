@@ -39,10 +39,12 @@ package Numerics is
 			 N : in     Pos);
    procedure Set (Item : in out Sparse_Vector;
    		  I    : in     Nat;
-   		  X    : in     Real);
+   		  X    : in     Real)
+     with Pre => I <= Item.Length;
    procedure Add (Item : in out Sparse_Vector;
    		  I    : in     Nat;
-   		  X    : in     Real);
+   		  X    : in     Real)
+     with Pre => I <= Item.Length;
    function "+" (A, B : in Sparse_Vector) return Sparse_Vector;
    function "*" (A : in Real;
 		 B : in Sparse_Vector) return Sparse_Vector;
