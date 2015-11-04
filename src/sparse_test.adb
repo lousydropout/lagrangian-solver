@@ -25,8 +25,8 @@ begin
    --  A.Print;
    Put_Line ("B: ");
    B.Print;
-   X := Sparse ((6.789, 2.17, 999.314));
-   B.Set_Diag (X);
+   X := Sparse ((6.789, 999.314, 0.0));
+   B.Set_Diag (To => X);
    Put_Line ("B: ");
    B.Print;
    Put_Line ("X:");

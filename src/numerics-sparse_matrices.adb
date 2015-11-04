@@ -297,7 +297,6 @@ package body Numerics.Sparse_Matrices is
    
    function Diag (X : in Sparse_Vector) return Sparse_Matrix is
       Y : Sparse_Matrix;
-      J, K : Pos := 1;
    begin
       Y.Triplet_To_Matrix (X.I, X.I, X.X, X.NMax, X.NMax);
       return Y;
@@ -307,17 +306,11 @@ package body Numerics.Sparse_Matrices is
    procedure Set_Diag (X  : in out Sparse_Matrix;
    		       To : in     Sparse_Vector) is
       K : Int;
-      use Ada.Text_IO;
    begin
       for I in 1 .. Int (To.I.Length) loop
-	 Put_Line (I'Img);
    	 K := To.I (I);
    	 X.Set (K, K, To.X (I));
-	 Put_Line ("------------------");
-	 X.Print;
-	 Put_Line ("------------------");
       end loop;
-      Put_Line ("end set_diag");
    end Set_Diag;
 
 end Numerics.Sparse_Matrices;
