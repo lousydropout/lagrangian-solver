@@ -282,12 +282,12 @@ package body Numerics.Sparse_Matrices is
    function Diag (X : in Sparse_Matrix) return Sparse_Vector is
       Y : Sparse_Vector;
    begin
-      Y.Set_Length (X.N_Col);
+      Set_Length (Y, X.N_Col);
       
       for P in 1 .. X.N_Col loop
 	 for I in X.P (P) .. X.P (P + 1) - 1 loop
 	    if X.I (I) = P then
-	       Y.Set (P, X.X (I));
+	       Set (Y, P, X.X (I));
 	       exit;
 	    end if;
 	 end loop;

@@ -9,9 +9,9 @@ procedure Vector_Test is
    Z : Sparse_Vector;
 begin
    --  X.Set_Length (3);
-   X.Print;
-   X.Set (1, π);
-   X.Add (2, 9.9999);
+   Print (X);
+   Set (X, 1, π);
+   Add (X, 2, 9.9999);
    
    Put_Line ("X");
    Print (X);

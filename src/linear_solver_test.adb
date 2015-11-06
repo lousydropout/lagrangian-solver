@@ -55,7 +55,7 @@ begin
       Put ("Trial "); Put (K, Width => 2); Put (": "); 
       
       for I in 1 .. Mat.N_Col loop
-	 SB.Set (I, (10.0 * Rand) ** 10 * Sin (10.0 * Rand));
+	 Set (SB, I, (10.0 * Rand) ** 10 * Sin (10.0 * Rand));
       end loop;
       
       --  SX  := Solve (LU, SB);

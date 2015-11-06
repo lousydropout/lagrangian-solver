@@ -13,7 +13,7 @@ package Numerics is
    subtype Pos is Int     range 0 .. Int'Last;
    subtype Nat is Int     range 1 .. Int'Last;
    
-   type Sparse_Vector is tagged private;
+   type Sparse_Vector is private;
    
    -------- Define random variable function -----------------------
    function Rand return Real;
@@ -40,11 +40,11 @@ package Numerics is
    procedure Set (Item : in out Sparse_Vector;
    		  I    : in     Nat;
    		  X    : in     Real)
-     with Pre => I <= Item.Length;
+     with Pre => I <= Length (Item);
    procedure Add (Item : in out Sparse_Vector;
    		  I    : in     Nat;
    		  X    : in     Real)
-     with Pre => I <= Item.Length;
+     with Pre => I <= Length (Item);
    function "+" (A, B : in Sparse_Vector) return Sparse_Vector;
    function "*" (A : in Real;
 		 B : in Sparse_Vector) return Sparse_Vector;
@@ -92,7 +92,7 @@ private
    subtype Real_Vector is RV_Package.Vector;
    
    
-   type Sparse_Vector is tagged record
+   type Sparse_Vector is record
       NMax : Pos := 0;
       X    : Real_Vector;
       I    : Int_Vector;

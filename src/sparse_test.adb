@@ -31,7 +31,7 @@ begin
    B.Print;
    Put_Line ("X:");
    X := B.Diag;
-   X.Print;
+   Print (X);
    B := Diag (X);
    Put_Line ("B: ");
    B.Print;

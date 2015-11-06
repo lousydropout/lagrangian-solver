@@ -1,7 +1,8 @@
 Project Main is
   
   for Languages use ("Ada", "C");
-  for Main use ("sparse_test",
+  for Main use ("ad_test",
+		"sparse_test",
 		"linear_solver_test",
 		"vector_test");
   for Source_Dirs use ("src");
