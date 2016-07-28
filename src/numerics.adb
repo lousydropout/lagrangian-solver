@@ -9,6 +9,12 @@ package body Numerics is
       return Real (Random (Gen));
    end Rand;
    
+   
+   --  function "**" (X : in Real; N : in Pos) return Real is
+   --  begin
+   --     return X ** Natural (N);
+   --  end "**";
+   
    -- Vectorize & To_Array are needed in Triplet_To_Matrix
    procedure Set (X  : in out Real_Vector;
 		  To : in     Real_Array) is

@@ -3,10 +3,13 @@ use  Numerics, Numerics.Sparse_Matrices;
 
 package Forward_AD is
    type AD_Type is tagged private;
-     
+   type AD_Vector is array (Nat range <>) of AD_Type;
+   
    function Var (X    : in Real;
 		 I, N : in Nat;
 		 Dx   : in Real	:= 1.0) return AD_Type;
+   function Var (X : in Real_Array) return AD_Vector;
+   
    
    function Val (X : in AD_Type) return Real;
    function Grad (X : in AD_Type) return Sparse_Vector;
@@ -14,10 +17,22 @@ package Forward_AD is
    function "+" (X, Y : in AD_Type) return AD_Type with Pre => X.Length = Y.Length;
    function "-" (X, Y : in AD_Type) return AD_Type with Pre => X.Length = Y.Length;
    function "*" (X, Y : in AD_Type) return AD_Type with Pre => X.Length = Y.Length;
+   function "/" (X, Y : in AD_Type) return AD_Type with Pre => X.Length = Y.Length;
+   function "**" (X : in AD_Type; N : Pos) return AD_Type;
    function Sin (X : in AD_Type) return AD_Type;
    function Cos (X : in AD_Type) return AD_Type;
+   function Tan (X : in AD_Type) return AD_Type;
    function Exp (X : in AD_Type) return AD_Type;
+   function Log (X : in AD_Type) return AD_Type; 
    
+   function "+" (X : in AD_Type) return AD_Type;
+   function "-" (X : in AD_Type) return AD_Type;
+   
+   function "*" (Y : in Real; X : in AD_Type) return AD_Type;
+   function "*" (X : in AD_Type; Y : in Real) return AD_Type;
+   function "/" (X : in AD_Type; Y : in Real) return AD_Type with Pre => Y /= 0.0;
+   
+   procedure Print (X : in AD_Type);
 private
    type AD_Type is tagged
       record

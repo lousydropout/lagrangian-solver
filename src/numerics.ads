@@ -18,6 +18,9 @@ package Numerics is
    -------- Define random variable function -----------------------
    function Rand return Real;
    
+   --  function "**" (X : in Real; N : in Pos) return Real;
+   
+   
    -------- Define array types -----------------------------------
    type Real_Array is array (Nat range <>) of aliased Real with Convention => C;
    type Int_Array  is array (Nat range <>) of aliased Int  with Convention => C;
