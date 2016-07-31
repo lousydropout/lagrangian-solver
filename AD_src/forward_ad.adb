@@ -4,8 +4,6 @@ package body Forward_AD is
    procedure Print (X : in AD_Type) is
       use Ada.Text_IO;
    begin
-      --  Put_Line ("X:");
-      --  Put_Line ("   N: " & Int'Image (X.N));
       Put_Line ("   value: " & Real'Image (X.Val));
       Print (X.Grad);
       New_Line;

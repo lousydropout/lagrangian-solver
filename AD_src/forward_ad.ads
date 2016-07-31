@@ -2,6 +2,7 @@ with Numerics, Numerics.Sparse_Matrices;
 use  Numerics, Numerics.Sparse_Matrices;
 
 package Forward_AD is
+   
    type AD_Type is tagged private;
    type AD_Vector is array (Nat range <>) of AD_Type;
    
@@ -33,11 +34,14 @@ package Forward_AD is
    function "/" (X : in AD_Type; Y : in Real) return AD_Type with Pre => Y /= 0.0;
    
    procedure Print (X : in AD_Type);
+   
 private
+   
    type AD_Type is tagged
       record
 	 N    : Pos := 0;
 	 Val  : Real;
 	 Grad : Numerics.Sparse_Vector;
       end record;
+   
 end Forward_AD;
