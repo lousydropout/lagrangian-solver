@@ -55,6 +55,10 @@ package Numerics is
    function "-" (A : in Sparse_Vector) return Sparse_Vector is ("*" (-1.0, A));
    function "-" (A, B : in Sparse_Vector) return Sparse_Vector is (A + (-B));
    
+   
+   function "*" (A : in Real_Matrix;
+		 B : in Sparse_Vector) return Sparse_Vector;
+   
    ------- Norm --------------------------
    function Norm (X : in Sparse_Vector) return Real;
    function Length (X : in Sparse_Vector) return Pos;

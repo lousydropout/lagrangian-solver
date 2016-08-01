@@ -22,6 +22,16 @@ package body Forward_AD is
       return Result;
    end Var;
    
+   function Zero (N : in Nat) return AD_Type is
+      Result : AD_Type;
+   begin
+      Result.N := N;
+      Result.Val := 0.0;
+      Set_Length (Result.Grad, N);
+      return Result;
+   end Zero;
+   
+   
    function Var (X : in Real_Array) return AD_Vector is
       Result : AD_Vector (1 .. X'Length);
    begin
@@ -33,6 +43,7 @@ package body Forward_AD is
    
    function Val (X : in AD_Type) return Real is (X.Val);
    function Grad (X : in AD_Type) return Sparse_Vector is (X.Grad);
+   function Grad (X : in AD_Type) return Real_Array is (To_Array (X.Grad));
    function Length (X : in AD_Type) return Pos is (X.N);
    function "+" (X, Y : in AD_Type) return AD_Type is
    begin
@@ -52,6 +63,28 @@ package body Forward_AD is
 	      Val  => X.Val * Y.Val,
 	      Grad => X.Val * Y.Grad + Y.Val * X.Grad);
    end "*";
+   
+   function "*" (X : in Real; Y : in AD_Vector) return AD_Vector is
+      Z : AD_Vector := Y;
+   begin
+      for W of Z loop
+	 W := X * W;
+      end loop;
+      return Z;
+   end "*";
+   
+   function "*" (X : in Real_Matrix; Y : in AD_Vector) return AD_Vector is
+      Z : AD_Vector := 0.0 * Y;
+   begin
+      for K in Y'Range loop
+	 for I in X'Range (1) loop
+	    Z (I) := Z (I) + X (I, K) * Y (K);
+	 end loop;
+      end loop;
+      return Z;
+   end "*";
+   
+   
    function "/" (X, Y : in AD_Type) return AD_Type is
       Z : constant Real := 1.0 / Y.Val;
    begin

@@ -1,11 +1,12 @@
 Project Main is
   
   for Languages use ("Ada", "C");
-  for Main use ("ad_test",
-		"sparse_test",
-		"linear_solver_test",
-		"forward_ad-test",
-		"vector_test");
+  for Main use ("forward_ad-test",
+		"forward_ad-verlet");
+		--  "ad_test",
+		--  "sparse_test",
+		--  "linear_solver_test",
+		--  "vector_test");
   for Source_Dirs use ("src", "AD_src", "drivers");
   for Object_Dir use "obj";
   for Exec_Dir use ".";
@@ -13,7 +14,7 @@ Project Main is
   
   package Compiler is
      for Default_Switches ("Ada")
-       use ("-O1",                      -- optimize
+       use ("-O1",                      -- optimize for testing (fast compiling)
 	    "-gnata",                   -- assertions
 	    "-fno-inline",              -- turn off inline for smaller executable
 	    "-gnatVa",                  -- turn on all validity checking options

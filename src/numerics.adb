@@ -228,6 +228,24 @@ package body Numerics is
    end "*";
    
    
+   function "*" (A : in Real_Matrix;
+		 B : in Sparse_Vector) return Sparse_Vector is
+      C : Real_Array (A'Range (2)) := (others => 0.0);
+      J : constant Int_Array  := To_Array (B.I);
+      X : constant Real_Array := To_Array (B.X);
+   begin
+      
+      for K in J'Range loop
+	 for I in A'Range (1) loop
+	    C (I) := C (I) + A (I, J (K)) * X (J (K));
+	 end loop;
+      end loop;
+      
+      return Sparse (C);
+   end "*";
+
+   
+   
    procedure Print (X : in Sparse_Vector) is
       use Int_IO, Real_IO, Ada.Text_IO;
    begin

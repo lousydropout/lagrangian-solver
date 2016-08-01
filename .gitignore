@@ -7,3 +7,4 @@ linear_solver_test
 vector_test
 ad_test
 forward_ad-test
+forward_ad-verlet
