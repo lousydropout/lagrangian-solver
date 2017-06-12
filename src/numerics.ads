@@ -15,6 +15,12 @@ package Numerics is
    
    type Sparse_Vector is private;
    
+   type Pos2D is record
+      X, Y : Real;
+   end record;
+   
+   type Pos2D_Vector is array (Nat range <>) of Pos2D;
+   
    -------- Define random variable function -----------------------
    function Rand return Real;
    
@@ -31,6 +37,16 @@ package Numerics is
    function Sparse (X	: in Real_Array;
 		    N	: in Pos	:= 0;
 		    Tol	: in Real	:= 1.0e-20) return Sparse_Vector;
+   
+   
+   -------- Pos2D functions --------------------------------------
+   function "+" (X : in Pos2D) return Pos2D is (X);
+   function "-" (X : in Pos2D) return Pos2D;
+   function "+" (X, Y : in Pos2D) return Pos2D;
+   function "-" (X, Y : in Pos2D) return Pos2D;
+   function "*" (X, Y : in Pos2D) return Real;
+   function Norm (X : in Pos2D) return Real;
+   function To_Array (Xvec : in Pos2D_Vector) return Real_Array;
    
    ------- Sparse_Vector Functions ----------------------------------------
    procedure Print (X : in Sparse_Vector); 

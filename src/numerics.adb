@@ -348,7 +348,45 @@ package body Numerics is
       end if;
    end Add;
    
+   
+   
+   
+   function "+" (X, Y : in Pos2D) return Pos2D is
+   begin
+      return (X.X + Y.X, X.Y + Y.Y);
+   end "+";
+   
+   function "-" (X : in Pos2D) return Pos2D is
+   begin
+      return (-X.X, -X.Y);
+   end "-";
+   
+   function "-" (X, Y : in Pos2D) return Pos2D is
+   begin
+      return (X.X - Y.X, X.Y - Y.Y);
+   end "-";
 
+   function "*" (X, Y : in Pos2D) return Real is
+   begin
+      return X.X * Y.X + X.Y * Y.Y;
+   end "*";
+   
+   function Norm (X : in Pos2D) return Real is
+   begin
+      return X.X**2 + X.Y**2;
+   end Norm;
+   
+   function To_Array (Xvec : in Pos2D_Vector) return Real_Array is
+      Result : Real_Array (1 .. 2 * Xvec'Length);
+      K      : Nat := 1;
+   begin
+      for X of Xvec loop
+	 Result (K) := X.X; K := K + 1;
+	 Result (K) := X.Y; K := K + 1;
+      end loop;
+      return Result;
+   end To_Array;
+   
 begin
    Ada.Numerics.Float_Random.Reset (Gen);
 end Numerics;

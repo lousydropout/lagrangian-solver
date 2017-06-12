@@ -18,10 +18,10 @@ procedure Forward_AD.Verlet is
    
    X : Real_Array := (1.0, 2.0, 3.0);
    U : AD_Type := Potential (X);
-   --  F : Sparse_Vector := U.Grad;
-   --  F : Real_Array := Grad (U);
+   --  F : Sparse_Vector := -U.Grad;
+   F : Real_Array := -Grad (U);
 
-   F : Real_Array := -Grad (Potential (X));
+   --  F : Real_Array := -Grad (Potential (X));
 
 begin
    

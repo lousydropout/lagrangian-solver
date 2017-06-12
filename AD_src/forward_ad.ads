@@ -5,8 +5,8 @@ package Forward_AD is
    
    type AD_Type is tagged private;
 
-   
    type AD_Vector is array (Nat range <>) of AD_Type;
+   
    
    function Var (X    : in Real;
 		 I, N : in Nat;
@@ -41,6 +41,9 @@ package Forward_AD is
    function "*" (X : in Real_Matrix; Y : in AD_Vector) return AD_Vector;
    
    procedure Print (X : in AD_Type);
+   
+   
+   
    
 private
    
