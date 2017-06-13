@@ -372,8 +372,9 @@ package body Numerics is
    end "*";
    
    function Norm (X : in Pos2D) return Real is
+      use Real_Functions;
    begin
-      return X.X**2 + X.Y**2;
+      return Sqrt (X.X**2 + X.Y**2);
    end Norm;
    
    function To_Array (Xvec : in Pos2D_Vector) return Real_Array is
@@ -386,6 +387,48 @@ package body Numerics is
       end loop;
       return Result;
    end To_Array;
+   
+   
+   function "+" (X, Y : in Pos2D_Vector) return Pos2D_Vector is
+      Z : Pos2D_Vector := X;
+   begin
+      for I in Z'Range loop
+	 Z (I) := Z (I) + Y (I);
+      end loop;
+      return Z;
+   end "+";
+   
+   function "-" (X, Y : in Pos2D_Vector) return Pos2D_Vector is
+      Z : Pos2D_Vector := X;
+   begin
+      for I in Z'Range loop
+	 Z (I) := Z (I) - Y (I);
+      end loop;
+      return Z;
+   end "-";
+   
+   function "-" (X : in Pos2D_Vector) return Pos2D_Vector is
+      Z : Pos2D_Vector (X'Range);
+   begin
+      for I in Z'Range loop
+	 Z (I) := -X (I);
+      end loop;
+      return Z;
+   end "-";
+   
+   
+   
+   
+   function "*" (X : in Real;
+		 Y : in Pos2D_Vector) return Pos2D_Vector is
+      Z : Pos2D_Vector := Y;
+   begin
+      for K of Z loop
+	 K := X * K;
+      end loop;
+      return Z;
+   end "*";
+   
    
 begin
    Ada.Numerics.Float_Random.Reset (Gen);

@@ -45,6 +45,19 @@ package Numerics is
    function "+" (X, Y : in Pos2D) return Pos2D;
    function "-" (X, Y : in Pos2D) return Pos2D;
    function "*" (X, Y : in Pos2D) return Real;
+   function "*" (X : in Real;
+		 Y : in Pos2D) return Pos2D is (X * Y.X, X * Y.Y);
+   function "*" (X : in Pos2D;
+		 Y : in Real) return Pos2D is (Y * X);
+   
+   function "+" (X, Y : in Pos2D_Vector) return Pos2D_Vector;
+   function "-" (X, Y : in Pos2D_Vector) return Pos2D_Vector;
+   function "-" (X : in Pos2D_Vector) return Pos2D_Vector;
+   function "*" (X : in Real;
+		 Y : in Pos2D_Vector) return Pos2D_Vector;
+   function "*" (X : in Pos2D_Vector;
+		 Y : in Real) return Pos2D_Vector is (Y * X);
+   
    function Norm (X : in Pos2D) return Real;
    function To_Array (Xvec : in Pos2D_Vector) return Real_Array;
    
