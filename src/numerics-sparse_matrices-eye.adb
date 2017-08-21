@@ -5,6 +5,9 @@ function Eye (N : in Nat) return Sparse_Matrix is
    use Ada.Containers;
 begin
    Result.Format := CSC;
+   Result.N_Row  := N;
+   Result.N_Col  := N;
+
    Result.X := RV_Package.To_Vector (1.0, Count_Type (N));
    Result.I.Reserve_Capacity (Count_Type (N));
    Result.P.Reserve_Capacity (Count_Type (N + 1));

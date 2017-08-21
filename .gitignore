@@ -9,4 +9,6 @@ ad_test
 forward_ad-test
 forward_ad-verlet
 forward_ad-bubble
+bubble
 *.xyz
+*.gif

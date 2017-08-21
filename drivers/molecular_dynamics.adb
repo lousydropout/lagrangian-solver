@@ -2,8 +2,9 @@ package body Molecular_Dynamics is
    
    function Verlet (R	  : in Pos2D_Vector;
 		    R_New : in Pos2D_Vector;
+		    Is_BC : in BC_Vectype;
 		    Dt	  : in Real) return Pos2D_Vector is
-      F : Pos2D_Vector := Calculate_Forces (R_New);
+      F : Pos2D_Vector := Calculate_Forces (R_New, Is_BC);
    begin
       return (2.0 * R_New - R + (Dt**2) * F);
    end Verlet;
@@ -22,19 +23,11 @@ package body Molecular_Dynamics is
    end LJ_Force;
    
    
-   function Correct_Forces (F : in Pos2D_Vector;
-			    M : in Nat) return Pos2D_Vector is
-      G : Pos2D_Vector := F;
-   begin
-      G (1 .. 2 * M + 2) := (others => (0.0, 0.0));
-      return G;
-   end Correct_Forces;
    
-   
-   function Calculate_Forces (R : in Pos2D_Vector) return Pos2D_Vector is
+   function Calculate_Forces (R	    : in Pos2D_Vector;
+			      Is_BC : in BC_Vectype) return Pos2D_Vector is
       Force : Pos2D := (0.0, 0.0);
-      F : Pos2D_Vector (R'Range) := (others => (0.0, 0.0));
-      Check : Pos2D := (0.0, 0.0);
+      F     : Pos2D_Vector (R'Range) := (others => (0.0, 0.0));
    begin
       for I in R'First .. R'Last loop
 	 for J in I + 1 .. R'Last loop
@@ -44,45 +37,61 @@ package body Molecular_Dynamics is
 	 end loop;
       end loop;
       
+      Force := (0.0, 0.0);
       for X of F loop
-	 Check := Check + X;
+	 Force := Force + X;
       end loop;
-      if Norm (Check) > 0.1 then
+      if Norm (Force) > 0.1 then
+	 Put (Norm (Force));
 	 Put_Line ("Error");
       end if;
       
-      return Correct_Forces (F, 5);
+      for I in R'Range loop
+	 if Is_BC (I) = True then F (I) := (0.0, 0.0); end if;
+      end loop;
+      
+      return F;
    end Calculate_Forces;
    
    
-   function Initialize_Lattice (N, M : in Nat;
-				Vac  : in Nat) return Pos2D_Vector is
+   
+   
+   
+   
+   procedure Initialize_Lattice (N, M	 : in     Nat;
+				 Vac	 : in     Nat;
+				 Lattice :    out Pos2d_Vector;
+				 Is_BC	 :    out BC_Vectype;
+				 Sides	 : in     Boolean      := False) is
       K, Ind : Nat := 1;
-      Result : Pos2D_Vector (1 .. 2 * N * M + N + M) := (others => (0.0, 0.0));
       Ratio : Real := 1.0;
    begin
+      Is_BC := (others => False);
+      Is_BC (1 .. 2 * M + 2) := (others => True);
       
       -- Row 2N
       for J in 0 .. M loop
-	 Result (K).X := Ratio * Real (J);
-	 Result (K).Y := Ratio * Real (2 * N) * Sqrt (3.0) * 0.5;
+	 Lattice (K).X := Ratio * Real (J);
+	 Lattice (K).Y := Ratio * Real (2 * N) * Sqrt (3.0) * 0.5;
 	 K := K + 1; Ind := Ind + 1;
       end loop;
       
       -- Row 0 
       for J in 0 .. M loop
-	 Result (K).X := Ratio * Real (J);
-	 Result (K).Y := 0.0;
+	 Lattice (K).X := Ratio * Real (J);
+	 Lattice (K).Y := 0.0;
 	 K := K + 1; Ind := Ind + 1;
       end loop;
       
       -- The in-between rows
-      for I in 1 .. 2 * N - 1 loop      
+      for I in 1 .. 2 * N - 1 loop
+	 if Sides = True then Is_BC (K) := True; end if;
+	    
 	 if I mod 2 = 0 then -- if row I is even
 	    for J in 0 .. M loop
 	       if Ind /= Vac then
-		  Result (K).X := Ratio * Real (J);
-		  Result (K).Y := Ratio * Real (I) * Sqrt (3.0) * 0.5;
+		  Lattice (K).X := Ratio * Real (J);
+		  Lattice (K).Y := Ratio * Real (I) * Sqrt (3.0) * 0.5;
 		  K := K + 1; 
 	       end if;
 	       Ind := Ind + 1;
@@ -90,18 +99,25 @@ package body Molecular_Dynamics is
 	 else -- if row I is odd
 	    for J in 1 .. M loop
 	       if Ind /= Vac then
-	    	  Result (K).X := Ratio * Real (J) - 0.5;
-	    	  Result (K).Y := Ratio * Real (I) * Sqrt (3.0) * 0.5;
+	    	  Lattice (K).X := Ratio * Real (J) - 0.5;
+	    	  Lattice (K).Y := Ratio * Real (I) * Sqrt (3.0) * 0.5;
 	    	  K := K + 1; 
 	       end if;
 	       Ind := Ind + 1;
 	    end loop;
 	    null;
 	 end if;
+	 if Sides = True then Is_BC (K - 1) := True; end if;
+	 
       end loop;
       
-      
-      return Result;
+	 for I in Lattice'Range loop
+	    --  if Is_BC (I) = False then
+	       Lattice (I).X := Lattice (I).X; --  + 0.05 * Rand;
+	       Lattice (I).Y := Lattice (I).Y; -- + 0.05 * Rand;
+	    --  end if;
+	 end loop;
+
    end Initialize_Lattice;
       
 

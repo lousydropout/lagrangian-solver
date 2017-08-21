@@ -56,6 +56,9 @@ package Numerics.Sparse_Matrices is
    ------------------------------------------------------------------
    ------- Matrix operations ----------------------------------------
    function Eye (N : in Nat) return Sparse_Matrix;
+   function Omega (N : in Nat;
+		   M : in Pos := 0) return Sparse_Matrix;
+   
    function Transpose (Mat : in Sparse_Matrix) return Sparse_Matrix;
    function Plus (Left  : in Sparse_Matrix;
 		  Right : in Sparse_Matrix) return Sparse_Matrix
@@ -78,6 +81,7 @@ package Numerics.Sparse_Matrices is
    procedure Transposed (Mat : in out Sparse_Matrix);
    
 
+   function "-" (X : in Sparse_Matrix) return Sparse_Matrix;
    ---------- In Binary Form -----------------------------------------------
    function "+" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Plus;
    function "-" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Minus;

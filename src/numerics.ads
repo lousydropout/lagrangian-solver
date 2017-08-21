@@ -21,9 +21,6 @@ package Numerics is
    
    type Pos2D_Vector is array (Nat range <>) of Pos2D;
    
-   -------- Define random variable function -----------------------
-   function Rand return Real;
-   
    -------- Define array types -----------------------------------
    type Real_Array is array (Nat range <>) of aliased Real with Convention => C;
    type Int_Array  is array (Nat range <>) of aliased Int  with Convention => C;
@@ -34,10 +31,29 @@ package Numerics is
    package Int_IO is new Ada.Text_IO.Integer_IO (Int);
    package Real_IO is new Ada.Text_IO.Float_IO (Real);
    
+   -------- Define random variable function -----------------------
+   function Rand return Real;
+   function Rand (N : in Nat) return Real_Array;
+   
+   
+   
    function Sparse (X	: in Real_Array;
 		    N	: in Pos	:= 0;
 		    Tol	: in Real	:= 1.0e-20) return Sparse_Vector;
    
+   -----------   Real_Array functions ---------------------------
+   function "-" (X : in Real_Array) return Real_Array;
+   function "+" (X : in Real_Array;
+		 Y : in Real_Array) return Real_Array 
+     with Pre => X'Length = Y'Length;
+   function "-" (X : in Real_Array;
+		 Y : in Real_Array) return Real_Array
+     with Pre => X'Length = Y'Length;
+   
+   function "*" (Left  : in Real;
+		 Right : in Real_Array) return Real_Array;
+   function "*" (Left  : in Real_Array;
+		 Right : in Real) return Real_Array is (Right * Left);
    
    -------- Pos2D functions --------------------------------------
    function "+" (X : in Pos2D) return Pos2D is (X);

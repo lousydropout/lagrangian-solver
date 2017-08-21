@@ -9,6 +9,14 @@ package body Numerics is
       return Real (Random (Gen));
    end Rand;
    
+   function Rand (N : in Nat) return Real_Array is
+      use Ada.Numerics.Float_Random;
+      X : Real_Array (1 .. N) := (others => Rand);
+   begin
+      return X;
+   end Rand;
+   
+   
    -- Vectorize & To_Array are needed in Triplet_To_Matrix
    procedure Set (X  : in out Real_Vector;
 		  To : in     Real_Array) is
@@ -429,6 +437,47 @@ package body Numerics is
       return Z;
    end "*";
    
+   
+   -------- Real array functions ----------------
+   function "-" (X : in Real_Array) return Real_Array is
+      Y : Real_Array (X'Range);
+   begin
+      for I in X'Range loop
+	 Y (I) := -X (I);
+      end loop;
+      return Y;
+   end "-";
+   
+   function "+" (X : in Real_Array;
+		 Y : in Real_Array) return Real_Array is
+      Z : Real_Array (X'Range);
+   begin
+      for I in X'Range loop
+	 Z (I) := X (I) + Y (I);
+      end loop;
+      return Z;
+   end "+";
+   
+   function "-" (X : in Real_Array;
+		 Y : in Real_Array) return Real_Array is
+      Z : Real_Array (X'Range);
+   begin
+      for I in X'Range loop
+	 Z (I) := X (I) - Y (I);
+      end loop;
+      return Z;
+   end "-";
+   
+   function "*" (Left  : in Real;
+		 Right : in Real_Array) return Real_Array is
+      Result : Real_Array (Right'Range);
+   begin
+      for I in Result'Range loop
+	 Result (I) := Left * Right (I);
+      end loop;
+      return Result;
+   end "*";
+
    
 begin
    Ada.Numerics.Float_Random.Reset (Gen);

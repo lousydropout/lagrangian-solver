@@ -68,6 +68,8 @@ package body Numerics.Sparse_Matrices is
    ------------------------------------------------------------------
    ------- Matrix Operations -----------------------------------
    function Eye (N : in Nat) return Sparse_Matrix is separate;
+   function Omega (N : in Nat;
+		   M : in Pos := 0) return Sparse_Matrix is separate;
 
    procedure Transposed (Mat : in out Sparse_Matrix) is separate;
    function Transpose (Mat : in Sparse_Matrix) return Sparse_Matrix is separate;
@@ -312,5 +314,14 @@ package body Numerics.Sparse_Matrices is
    	 X.Set (K, K, To.X (I));
       end loop;
    end Set_Diag;
-
+   
+   
+   function "-" (X : in Sparse_Matrix) return Sparse_Matrix is
+      Y : Sparse_Matrix := X;
+   begin
+      for Item of Y.X loop
+	 Item := -Item;
+      end loop;
+      return Y;
+   end "-";
 end Numerics.Sparse_Matrices;
