@@ -3,7 +3,7 @@ Project Main is
   for Languages use ("Ada", "C");
   for Main use (--  "forward_ad-test",
 		--  "forward_ad-bubble",
-		"forward_ad-verlet");
+		"forward_ad-dynamics");
 		--  "bubble");
 		--  "ad_test",
 		--  "sparse_test",

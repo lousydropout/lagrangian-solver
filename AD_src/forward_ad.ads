@@ -12,7 +12,11 @@ package Forward_AD is
 		 I, N : in Nat;
 		 Dx   : in Real	:= 1.0) return AD_Type;
    function Zero (N : in Nat) return AD_Type;
-   function Var (X : in Real_Array) return AD_Vector;
+   function Var (X	: in Real_Array;
+		 Length	: in Nat;
+		 Start	: in Nat := 1) return AD_Vector;
+   function Var (X : in Real_Array) return AD_Vector is 
+      (Var (X => X, Length => X'Length));
    
    
    function Val (X : in AD_Type) return Real;

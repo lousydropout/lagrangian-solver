@@ -9,9 +9,9 @@ package Numerics is
    
    -------- Define types (Real, Int, Pos, Nat) ----------------------
    type Real is new C.double range C.double'First .. C.double'Last;
-   type Int  is new C.long range C.long'First .. C.long'Last;
-   subtype Pos is Int     range 0 .. Int'Last;
-   subtype Nat is Int     range 1 .. Int'Last;
+   type Int  is new C.long   range C.long'First   .. C.long'Last;
+   subtype Pos is Int        range 0              .. Int'Last;
+   subtype Nat is Int        range 1              .. Int'Last;
    
    type Sparse_Vector is private;
    
@@ -28,8 +28,8 @@ package Numerics is
    package Real_Functions is new Ada.Numerics.Generic_Elementary_Functions (Real);
    
    ------- Define Real_IO and Int_IO packages ------------------------
-   package Int_IO is new Ada.Text_IO.Integer_IO (Int);
-   package Real_IO is new Ada.Text_IO.Float_IO (Real);
+   package Int_IO  is new Ada.Text_IO.Integer_IO (Int);
+   package Real_IO is new Ada.Text_IO.Float_IO   (Real);
    
    -------- Define random variable function -----------------------
    function Rand return Real;

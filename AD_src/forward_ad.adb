@@ -31,12 +31,16 @@ package body Forward_AD is
       return Result;
    end Zero;
    
-   
-   function Var (X : in Real_Array) return AD_Vector is
+   function Var (X	: in Real_Array;
+		 Length	: in Nat;
+		 Start	: in Nat := 1) return AD_Vector is
       Result : AD_Vector (1 .. X'Length);
    begin
       for I in X'Range loop
-	 Result (I) := Var (X (I), I - X'First + 1, X'Length);
+	 Result (I - X'First + 1) := Var (X  => X (I), 
+					  I  => I - X'First + Start,
+					  N  => Length,
+					  Dx => 1.0);
       end loop;
       return Result;
    end Var;
