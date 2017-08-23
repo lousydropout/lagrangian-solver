@@ -33,7 +33,31 @@ package body Numerics.Sparse_Matrices is
       Y.Compress;
       return Y;
    end Sparse;
+   
+   function "*" (Left, Right : in Sparse_Vector) return Sparse_Matrix is
+      use Ada.Containers, Ada.Text_IO, Real_IO;
+      A, B : Sparse_Matrix;
+      Eps : constant Real := 10.0 * Real'Small;
+   begin
+      A.Format := CSC; A.N_Col := 1; A.N_Row := Left.NMax;
+      A.X := Left.X;
+      A.I := Left.I;
+      A.P.Reserve_Capacity (2);
+      A.P.Append (1);
+      A.P.Append (Nat (Left.I.Length) + 1);
+	 
       
+      B.Format := CSC; B.N_Col := 1; B.N_Row := Right.NMax;
+      B.X := Right.X;
+      B.I := Right.I;
+      B.P.Reserve_Capacity (2);
+      B.P.Append (1);
+      B.P.Append (Nat (Right.I.Length) + 1);
+      
+      return (A * Transpose (B));
+   end "*";
+   
+
    function Triplet_To_Matrix (I      : in Int_Array;
 			       J      : in Int_Array;
 			       X      : in Real_Array;
@@ -68,6 +92,7 @@ package body Numerics.Sparse_Matrices is
    ------------------------------------------------------------------
    ------- Matrix Operations -----------------------------------
    function Eye (N : in Nat) return Sparse_Matrix is separate;
+   function Zero (N : in Nat) return Sparse_Matrix is separate;
    function Omega (N : in Nat;
 		   M : in Pos := 0) return Sparse_Matrix is separate;
 

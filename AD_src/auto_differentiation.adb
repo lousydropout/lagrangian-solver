@@ -1,35 +1,18 @@
-with Ada.Text_IO;
-package body Forward_AD is
+package body Auto_Differentiation is
    
-   procedure Print (X : in AD_Type) is
-      use Ada.Text_IO;
-   begin
-      Put_Line ("   value: " & Real'Image (X.Val));
-      Print (X.Grad);
-      New_Line;
-   end Print;
-      
    
    function Var (X    : in Real;
-		 I, N : in Nat;
-		 Dx   : in Real	:= 1.0) return AD_Type is
+		 I, N : in Nat) return AD_Type is
       Result : AD_Type;
    begin
       Result.N   := N;
       Result.Val := X;
       Set_Length (Result.Grad, N);
       Set (Result.Grad, I, Dx);
+      Result.Hessian := Zero (N);
       return Result;
    end Var;
    
-   function Zero (N : in Nat) return AD_Type is
-      Result : AD_Type;
-   begin
-      Result.N := N;
-      Result.Val := 0.0;
-      Set_Length (Result.Grad, N);
-      return Result;
-   end Zero;
    
    function Var (X	: in Real_Array;
 		 Length	: in Nat;
@@ -39,8 +22,7 @@ package body Forward_AD is
       for I in X'Range loop
 	 Result (I - X'First + 1) := Var (X  => X (I), 
 					  I  => I - X'First + Start,
-					  N  => Length,
-					  Dx => 1.0);
+					  N  => Length);
       end loop;
       return Result;
    end Var;
@@ -49,132 +31,150 @@ package body Forward_AD is
    function Grad (X : in AD_Type) return Sparse_Vector is (X.Grad);
    function Grad (X : in AD_Type) return Real_Array is (To_Array (X.Grad));
    function Length (X : in AD_Type) return Pos is (X.N);
+   
    function "+" (X, Y : in AD_Type) return AD_Type is
    begin
-      return (N    => X.N, 
-	      Val  => X.Val  + Y.Val, 
-	      Grad => X.Grad + Y.Grad);
+      return (N       => X.N, 
+	      Val     => X.Val  + Y.Val, 
+	      Grad    => X.Grad + Y.Grad,
+	      Hessian => X.Hessian + Y.Hessian);
    end "+";
+   
    function "-" (X, Y : in AD_Type) return AD_Type is
    begin
-      return (N    => X.N, 
-	      Val  => X.Val  - Y.Val, 
-	      Grad => X.Grad - Y.Grad);
+      return (N       => X.N, 
+	      Val     => X.Val  - Y.Val, 
+	      Grad    => X.Grad - Y.Grad,
+	      Hessian => X.Hessian - Y.Hessian);
    end "-";
+   
    function "*" (X, Y : in AD_Type) return AD_Type is
+      Tmp : Sparse_Matrix := X.Grad * Y.Grad;
    begin
-      return (N    => X.N,
-	      Val  => X.Val * Y.Val,
-	      Grad => X.Val * Y.Grad + Y.Val * X.Grad);
+      return (N       => X.N, 
+	      Val     => X.Val  * Y.Val, 
+	      Grad    => X.Val * Y.Grad + Y.Val * X.Grad,
+	      Hessian => 
+		X.Val * Y.Hessian +
+		Tmp + Transpose (Tmp) +
+		Y.Val + X.Hessian);
    end "*";
-   
-   function "*" (X : in Real; Y : in AD_Vector) return AD_Vector is
-      Z : AD_Vector := Y;
-   begin
-      for W of Z loop
-	 W := X * W;
-      end loop;
-      return Z;
-   end "*";
-   
-   function "*" (X : in Real_Matrix; Y : in AD_Vector) return AD_Vector is
-      Z : AD_Vector := 0.0 * Y;
-   begin
-      for K in Y'Range loop
-	 for I in X'Range (1) loop
-	    Z (I) := Z (I) + X (I, K) * Y (K);
-	 end loop;
-      end loop;
-      return Z;
-   end "*";
-   
    
    function "/" (X, Y : in AD_Type) return AD_Type is
       Z : constant Real := 1.0 / Y.Val;
+      Tmp : constant Sparse_Matrix := X.Grad * Y.Grad;
+      Z2 : constant Real := Z * Z;
+      Z3 : constant Real := Z2 * Z;
    begin
       return (N    => X.N,
 	      Val  => X.Val * Z,
-	      Grad => Z * X.Grad - (Z ** 2 * X.Val) * Y.Grad);
+	      Grad => Z * X.Grad - (Z ** 2 * X.Val) * Y.Grad,
+	      Hessian => 
+		-Z2 * Tmp
+		+ 2.0 * X.Val * Z3 * Y.Grad * Y.Grad 
+		- X.Val * Z2 * Y.Hessian
+		- Z2 * Transpose (Tmp)
+		+ Z * X.Hessian);
    end "/";
    
    function "**" (X : in AD_Type; N : Pos) return AD_Type is
+      Y : constant Real := Real (N) * X.Val ** Natural (N - 1);
+      Z : constant Real := Real (N * (N-1)) * X.Val ** Natural (N - 2);
    begin
       return (N    => X.N,
    	      Val  => X.Val ** Natural (N),
-   	      Grad => (Real (N) * X.Val ** Natural (N - 1)) * X.Grad);
+   	      Grad => Y * X.Grad,
+	      Hessian => Y * X.Hessian + Z * X.Grad * X.Grad);
    end "**";
+
+   
+   
    function Sin (X : in AD_Type) return AD_Type is
       use Real_Functions;
+      S : constant Real := Sin (X.Val);
+      C : constant Real := Cos (X.Val);
    begin
-      return (N    => X.N, 
-	      Val  => Sin (X.Val), 
-	      Grad => Cos (X.Val) * X.Grad);
+      return (N => X.N,
+	      Val => S,
+	      Grad => C * X.Grad,
+	      Hessian => -S * X.Grad * X.Grad + C * X.Hessian);
    end Sin;
    function Cos (X : in AD_Type) return AD_Type is
       use Real_Functions;
+      S : constant Real := Sin (X.Val);
+      C : constant Real := Cos (X.Val);
    begin
       return (N    =>  X.N, 
-	      Val  =>  Cos (X.Val), 
-	      Grad => -Sin (X.Val) * X.Grad);
+	      Val  =>  C,
+	      Grad => -S * X.Grad,
+	      Hessian => -C * X.Grad * X.Grad - S * X.Hessian);
    end Cos;
    function Tan (X : in AD_Type) return AD_Type is
       use Real_Functions;
       C : constant Real := Cos (X.Val);
       T : Real;
+      Y : Real;
+      Z : Sparse_Vector;
    begin
       pragma Assert (C /= 0.0);
       T := Sin (X.Val) / C;
+      Y := (1.0 - T ** 2);
+      Z := Y * X.Grad;
       return (N    => X.N,
 	      Val  => T,
-	      Grad => (1.0 + T ** 2) * X.Grad);
+	      Grad => Z,
+	      Hessian => (1.0 + Y) * X.Hessian + (2.0 * T) * Z * X.Grad);
    end Tan;
 	      
       
    function Exp (X : in AD_Type) return AD_Type is
       use Real_Functions;
       Y : constant Real := Exp (X.Val);
+      G : constant Sparse_Vector := Y * X.Grad;
    begin
       return (N    => X.N,
 	      Val  => Y,
-	      Grad => Y * X.Grad);
+	      Grad => G,
+	      Hessian => Y * X.Hessian + G * X.Grad);
    end Exp;
    
    
    function Log (X : in AD_Type) return AD_Type is
       use Real_Functions;
+      Y : Real;
+      Z : Sparse_Vector;
    begin
       pragma Assert (X.Val > 0.0);
+      Y := 1.0 / X.Val;
+      Z := Y * X.Grad;
       return (N    => X.N,
 	      Val  => Log (X.Val),
-	      Grad => (1.0 / X.Val) * X.Grad);
+	      Grad => Z,
+	      Hessian => -Z * Z + Y * X.Hessian);
    end Log;
    
-   
-   
-   -----------------------------------------------------------
-   function "+" (X : in AD_Type) return AD_Type is
-   begin
-      return X;
-   end "+";
    function "-" (X : in AD_Type) return AD_Type is
    begin
       return (N    =>  X.N, 
 	      Val  => -X.Val,
-	      Grad => -X.Grad);
+	      Grad => -X.Grad,
+	      Hessian => -X.Hessian);
    end "-";
    
-   function "*" (Y : in Real; X : in AD_Type) return AD_Type is
+      
+   function "*" (X : in AD_Type; Y : in Real) return AD_Type is
    begin
       return (N    => X.N,
 	      Val  => Y * X.Val,
-	      Grad => Y * X.Grad);
+	      Grad => Y * X.Grad,
+	      Hessian => Y * X.Hessian);
    end "*";
-
+   
    function "/" (X : in AD_Type; Y : in Real) return AD_Type is
    begin
       return (1.0 / Y) * X;
    end "/";
 
+
    
-   
-end Forward_AD;
+end Auto_Differentiation;

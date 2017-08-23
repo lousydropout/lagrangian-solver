@@ -56,6 +56,7 @@ package Numerics.Sparse_Matrices is
    ------------------------------------------------------------------
    ------- Matrix operations ----------------------------------------
    function Eye (N : in Nat) return Sparse_Matrix;
+   function Zero (N : in Nat) return Sparse_Matrix;
    function Omega (N : in Nat;
 		   M : in Pos := 0) return Sparse_Matrix;
    
@@ -83,6 +84,8 @@ package Numerics.Sparse_Matrices is
 
    function "-" (X : in Sparse_Matrix) return Sparse_Matrix;
    ---------- In Binary Form -----------------------------------------------
+   function "*" (Left, Right : in Sparse_Vector) return Sparse_Matrix;
+   
    function "+" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Plus;
    function "-" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Minus;
    function "*" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Mult;
@@ -134,7 +137,7 @@ private
    ---- Define Matrix type -----------------------------------------
    type Sparse_Matrix is tagged
       record
-	 Format : Sparse_Matrix_Format;
+	 Format : Sparse_Matrix_Format := CSC;
 	 N_Row  : Pos := 0;
 	 N_Col  : Pos := 0;
 	 X      : Real_Vector;

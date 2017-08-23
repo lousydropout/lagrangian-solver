@@ -1,7 +1,7 @@
 with Numerics;
 use  Numerics;
 
-package body Forward_AD.Integrator is
+package body Auto_Differentiation.Integrator is
    
    function Bogack_Shampine (Hamiltonian : not null access 
 			       function (X : Real_Array; N : Nat) return AD_Type;
@@ -57,4 +57,4 @@ package body Forward_AD.Integrator is
       end loop;
    end Update;
    
-end Forward_AD.Integrator;
+end Auto_Differentiation.Integrator;

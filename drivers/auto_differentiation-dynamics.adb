@@ -1,7 +1,7 @@
-with Numerics, Ada.Text_IO, Forward_AD.Integrator;
-use  Numerics, Ada.Text_IO, Forward_AD.Integrator;
+with Numerics, Ada.Text_IO, Auto_Differentiation.Integrator;
+use  Numerics, Ada.Text_IO, Auto_Differentiation.Integrator;
 
-procedure Forward_AD.Dynamics is
+procedure Auto_Differentiation.Dynamics is
    use Real_IO, Int_IO;
    --  Set Up Parameters -----------------
    N       : constant Nat := 2;
@@ -53,4 +53,4 @@ begin
       Put (X (K), Exp => 0, Aft => 3); New_Line;
    end loop;
    
-end Forward_AD.Dynamics;
+end Auto_Differentiation.Dynamics;

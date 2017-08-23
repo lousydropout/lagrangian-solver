@@ -38,7 +38,7 @@ package Forward_AD is
    function "-" (X : in AD_Type) return AD_Type;
    
    function "*" (Y : in Real; X : in AD_Type) return AD_Type;
-   function "*" (X : in AD_Type; Y : in Real) return AD_Type;
+   function "*" (X : in AD_Type; Y : in Real) return AD_Type is (Y * X);
    function "/" (X : in AD_Type; Y : in Real) return AD_Type with Pre => Y /= 0.0;
    
    function "*" (X : in Real; Y : in AD_Vector) return AD_Vector;

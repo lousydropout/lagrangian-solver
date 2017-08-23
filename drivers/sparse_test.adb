@@ -13,6 +13,7 @@ procedure Sparse_Test is
    A  : Sparse_Matrix := Triplet_To_Matrix (I1, J1, X1, 3, 3);
    B  : Sparse_Matrix := Triplet_To_Matrix (J1, I1, X1, 3, 3);
    X  : Sparse_Vector := Sparse ((0.0, 1.0, 0.0));
+   Z  : Sparse_Vector;
    
    C : Sparse_Matrix;
    Y : Real_Array := To_Array (X);
@@ -25,6 +26,9 @@ begin
    --  A.Print;
    Put_Line ("B: ");
    B.Print;
+   Put_Line ("B transposed: ");
+   B.Transposed;
+   B.Print;
    X := Sparse ((6.789, 999.314, 0.0));
    B.Set_Diag (To => X);
    Put_Line ("B: ");
@@ -36,6 +40,7 @@ begin
    Put_Line ("B: ");
    B.Print;
    New_Line; New_Line;
+   ---------------------------------------------------------
    --  Put_Line ("solution: ");
    --  A.Add (1, 2, -1.0);
    --  A.Print;
@@ -53,5 +58,14 @@ begin
    --  C.Print;
    --  New_Line;
    --  Put_Line ("Number of Elements = " & Int'Image (Number_Of_Elements (A)));
-
+   
+   X := Sparse ((0.0, 1.0));
+   Z := Sparse ((2.0, 0.0, 3.0));
+   Put_Line ("---------------------------------------------------------");
+   C := X * Z;
+   C.Print;
+   
+   Put_Line ("---------------------------------------------------------");
+   C := Z * X;
+   C.Print;
 end Sparse_Test;

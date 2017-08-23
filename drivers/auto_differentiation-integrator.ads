@@ -1,4 +1,4 @@
-package Forward_AD.Integrator is
+package Auto_Differentiation.Integrator is
    
    type Variable (N2 : Nat) is
       record
@@ -25,4 +25,4 @@ package Forward_AD.Integrator is
 		     Control     : in out Control_Type);
 
    
-end Forward_AD.Integrator;
+end Auto_Differentiation.Integrator;
