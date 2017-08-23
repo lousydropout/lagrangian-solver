@@ -4,7 +4,6 @@ use  Numerics, Numerics.Sparse_Matrices;
 package Forward_AD is
    
    type AD_Type is tagged private;
-
    type AD_Vector is array (Nat range <>) of AD_Type;
    
    

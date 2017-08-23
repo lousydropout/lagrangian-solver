@@ -349,4 +349,40 @@ package body Numerics.Sparse_Matrices is
       end loop;
       return Y;
    end "-";
+   
+   function "*" (Left  : in Real;
+		 Right : in Sparse_Matrix) return Sparse_Matrix is
+      C : Sparse_Matrix := Right;
+   begin
+      for X of C.X loop
+	 X := X * Left;
+      end loop;
+      return C;
+   end "*";
+   
+   
+   function Add_Column (X : in Sparse_Matrix;
+			V : in Sparse_Vector) return Sparse_Matrix is
+      use Ada.Containers;
+      Y : Sparse_Matrix := X;
+      N : Nat := Nat (X.X.Length);
+      P : Nat := Nat (X.P.Length);
+      M : Nat := Nat (V.X.Length);
+   begin
+      pragma Assert (X.N_Row = V.NMax);
+      
+      Y.N_Row := X.N_Row + 1;
+      
+      Y.X.Reserve_Capacity (Count_Type (N + V.NMax));
+      Y.I.Reserve_Capacity (Count_Type (N + V.NMax));
+      Y.P.Reserve_Capacity (Count_Type (P + 1));
+      Y.P.Append (X.P (P) + M);
+      
+      for J in 1 .. M loop
+	 Y.X.Append (V.X (J));
+	 Y.I.Append (V.I (J));
+      end loop;
+      return Y;
+   end Add_Column;
+   
 end Numerics.Sparse_Matrices;

@@ -3,11 +3,13 @@ use  Numerics, Numerics.Sparse_Matrices;
 
 package Auto_Differentiation is
    
-   type AD_Type is tagged private;
+   type AD_Type;
    --  type AD_Vector is array (Nat range <>) of AD_Type;
+   function Plus1 (X : in Real) return Real;
    
    function Var (X    : in Real;
-		 I, N : in Nat) return AD_Type;
+   		 I, N : in Nat;
+   		 Dx   : in Real	:= 1.0) return AD_Type;
    --  function Var (X	: in Real_Array;
    --  		 Length	: in Nat;
    --  		 Start	: in Nat := 1) return AD_Vector;
@@ -44,14 +46,14 @@ package Auto_Differentiation is
    ------------- procedures ----------------------
    procedure Print (X : in AD_Type);
      
-private
+--  private
    
-   type AD_Type is tagged
+   type AD_Type is
       record
 	 N       : Pos := 0;
 	 Val     : Real;
-	 Grad    : Numerics.Sparse_Vector;
-	 Hessian : Numerics.Sparse_Matrices.Sparse_Matrix := Zero (0);
+	 Grad    : Sparse_Vector;
+	 Hessian : Sparse_Matrix;
       end record;
    
 end Auto_Differentiation;

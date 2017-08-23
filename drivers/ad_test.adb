@@ -1,11 +1,11 @@
-with Numerics, Auto_Differentiation, Ada.Text_IO;
-use  Numerics, Auto_Differentiation, Ada.Text_IO;
+with Numerics, Numerics.Sparse_Matrices, Auto_Differentiation, Ada.Text_IO;
+use  Numerics, Numerics.Sparse_Matrices, Auto_Differentiation, Ada.Text_IO;
 --  with Forward_AD, Forward_AD.Hamiltonian, Ada.Text_IO, Numerics;
 --  use  Forward_AD, Forward_AD.Hamiltonian, Ada.Text_IO, Numerics;
 
 procedure AD_Test is
    
-   --  A : AD_Type;
+   A : AD_Type := Var (1.3, 1, 3);
    
    --  Q : Real_Array := (1.0, 2.0, 3.0);
    --  V : Real_Array := Q;
@@ -16,6 +16,7 @@ procedure AD_Test is
    --     return 0.0;
    --  end Hamiltonian;
    
+   P : Sparse_Matrix := Zero (1);
    
 begin
    

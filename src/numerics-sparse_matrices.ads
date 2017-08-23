@@ -19,6 +19,9 @@ package Numerics.Sparse_Matrices is
    function Number_Of_Elements (X : in Sparse_Matrix) return Int;
    
    ------- Functions for Creating Sparse Matrices -------------------
+   function Add_Column (X : in Sparse_Matrix;
+			V : in Sparse_Vector) return Sparse_Matrix;
+   
    procedure Set_Diag (X  : in out Sparse_Matrix;
    		       To : in     Sparse_Vector)
      with Pre => Is_Square_Matrix (X) and X.N_Col = Length (To);
@@ -84,6 +87,11 @@ package Numerics.Sparse_Matrices is
 
    function "-" (X : in Sparse_Matrix) return Sparse_Matrix;
    ---------- In Binary Form -----------------------------------------------
+   function "*" (Left  : in Real;
+		 Right : in Sparse_Matrix) return Sparse_Matrix;
+   function "*" (Left  : in Sparse_Matrix;
+		 Right : in Real) return Sparse_Matrix is (Right * Left);
+   
    function "*" (Left, Right : in Sparse_Vector) return Sparse_Matrix;
    
    function "+" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Plus;
