@@ -1,19 +1,21 @@
-generic
-   
-   N   : Nat;
-   Eps : Real;
-   with function Hamiltonian (X : in Real_Array) return AD_Type;
-   
 package Forward_AD.Integrator is
-
-   function Bogack_Shampine (X		 : in     Real_Array;
+   
+   function Bogack_Shampine (Hamiltonian : not null access 
+			       function (X : Real_Array; N : Nat) return AD_Type;
+			     X		 : in     Real_Array;
+			     N           : in     Nat;
 			     T		 : in     Real;
 			     Dt		 : in     Real;
-			     Err	 :    out Real) return Real_Array;
+			     Err	 :    out Real)
+			    return Real_Array;
    
-   procedure Update (X		 : in out Real_Array;
-		     T		 : in out Real;
-		     Dt		 : in out Real);
+   procedure Update (Hamiltonian : not null access 
+		    	       function (X : Real_Array; N : Nat) return AD_Type;
+		     X   : in out Real_Array;
+		     N   : in     Nat;
+		     T   : in out Real;
+		     Dt  : in out Real;
+		     Eps : in     Real  := 1.0e-10);
 
 
    

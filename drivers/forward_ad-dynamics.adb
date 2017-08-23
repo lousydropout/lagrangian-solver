@@ -1,9 +1,10 @@
 with Numerics, Ada.Text_IO, Forward_AD.Integrator;
-use  Numerics, Ada.Text_IO;
+use  Numerics, Ada.Text_IO, Forward_AD.Integrator;
 
 procedure Forward_AD.Dynamics is
    use Real_Functions, Real_IO, Int_IO;
-   function Hamiltonian (X : in Real_Array) return AD_Type;
+   function Hamiltonian (X : in Real_Array;
+			 N : in Nat) return AD_Type;
    
    ---- Parameters -----
    N   : constant Nat  := 2;       -- # of particles
@@ -12,7 +13,8 @@ procedure Forward_AD.Dynamics is
    -------------------------------				   
    
    --- Set up Hamiltonian -----
-   function Hamiltonian (X : in Real_Array) return AD_Type is
+   function Hamiltonian (X : in Real_Array;
+			 N : in Nat) return AD_Type is
       H : AD_Type   := Zero (X'Length);
       Q : AD_Vector := Var  (X (1     ..     N), 2 * N,     1);
       P : AD_Vector := Var  (X (N + 1 .. 2 * N), 2 * N, N + 1);
@@ -27,25 +29,20 @@ procedure Forward_AD.Dynamics is
    end Hamiltonian;
    -------------------------------
    
-   -- Set up solver for the Hamiltonian ---
-   package Integrator is new Forward_AD.Integrator (N, Eps, Hamiltonian); 
-   use Integrator;
-   -------------------------------
    
    -- Initial Conditions ----
    X   : Real_Array := 40.0 * Rand (2 * N);
    T   : Real       := 0.0;
    -------------------------------
-   
 begin
    
    Put (T); Put ("    "); Put (Dt); Put ("    ");
-   Put (Val (Hamiltonian (X))); New_Line;
+   Put (Val (Hamiltonian (X, N))); New_Line;
    
-   Update (X, T, Dt);
+   Update (Hamiltonian'Access, X, N, T, Dt);
    
    Put (T); Put ("    "); Put (Dt); Put ("    ");
-   Put (Val (Hamiltonian (X))); New_Line;
+   Put (Val (Hamiltonian (X, N))); New_Line;
 
 
    
