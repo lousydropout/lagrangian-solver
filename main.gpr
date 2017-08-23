@@ -4,7 +4,7 @@ Project Main is
   for Main use (--  "forward_ad-test",
 		--  "forward_ad-bubble",
 		--  "auto_differentiation-dynamics",
-		--  "ad_test",
+		"ad_test",
 		"sparse_test",
 		"forward_ad-dynamics");
 		--  "bubble");
@@ -27,7 +27,7 @@ Project Main is
 	    "-gnatW8",                  -- allow wide characters (e.g. π)
 	    "-gnateF",                  -- check overflow on predefined float types
 	    "-gnateV",                  -- validity checks on subprogram parameters
-	    "-gnatm5",                  -- don't list > 5 errors/warnings
+	    --  "-gnatm5",                  -- don't list > 5 errors/warnings
 	    "-gnato3");                 -- Overflow (mode : Eliminated)
      for Default_Switches ("C") use ("-Wall");
   end Compiler;

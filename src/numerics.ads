@@ -13,7 +13,19 @@ package Numerics is
    subtype Pos is Int        range 0              .. Int'Last;
    subtype Nat is Int        range 1              .. Int'Last;
    
-   type Sparse_Vector is private;
+   ------- Define Real_Vector and Int_Vector packages ------------------------
+   package IV_Package is new Ada.Containers.Vectors (Nat, Int,  "=");
+   package RV_Package is new Ada.Containers.Vectors (Nat, Real, "=");
+   subtype Int_Vector  is IV_Package.Vector;
+   subtype Real_Vector is RV_Package.Vector;
+   
+   
+   type Sparse_Vector is record
+      NMax : Pos := 0;
+      X    : Real_Vector;
+      I    : Int_Vector;
+   end record;
+   --  type Sparse_Vector is private;
    
    type Pos2D is record
       X, Y : Real;
@@ -137,18 +149,6 @@ private
    
    Gen : Ada.Numerics.Float_Random.Generator;
    
-   ------- Define Real_Vector and Int_Vector packages ------------------------
-   package IV_Package is new Ada.Containers.Vectors (Nat, Int,  "=");
-   package RV_Package is new Ada.Containers.Vectors (Nat, Real, "=");
-   subtype Int_Vector  is IV_Package.Vector;
-   subtype Real_Vector is RV_Package.Vector;
-   
-   
-   type Sparse_Vector is record
-      NMax : Pos := 0;
-      X    : Real_Vector;
-      I    : Int_Vector;
-   end record;
    
    
    

@@ -1,3 +1,4 @@
+with Ada.Text_IO;
 package body Auto_Differentiation is
    
    function Plus1 (X : in Real) return Real is
@@ -63,7 +64,7 @@ package body Auto_Differentiation is
    	      Hessian => 
    		X.Val * Y.Hessian +
    		Tmp + Transpose (Tmp) +
-   		Y.Val + X.Hessian);
+   		Y.Val * X.Hessian);
    end "*";
    
    function "/" (X, Y : in AD_Type) return AD_Type is
@@ -168,7 +169,7 @@ package body Auto_Differentiation is
    end "-";
    
       
-   function "*" (X : in AD_Type; Y : in Real) return AD_Type is
+   function "*" (Y : in Real; X : in AD_Type) return AD_Type is
    begin
       return (N    => X.N,
    	      Val  => Y * X.Val,
@@ -176,11 +177,14 @@ package body Auto_Differentiation is
    	      Hessian => Y * X.Hessian);
    end "*";
    
-   function "/" (X : in AD_Type; Y : in Real) return AD_Type is
+
+
+   procedure Print (X : in AD_Type) is
+      use Ada.Text_IO;
    begin
-      return (1.0 / Y) * X;
-   end "/";
-
-
+      Put_Line ("   value: " & Real'Image (X.Val));
+      Print (X.Grad);
+      New_Line;
+   end Print;
    
 end Auto_Differentiation;

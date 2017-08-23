@@ -33,9 +33,21 @@ package body Numerics.Sparse_Matrices is
       Y.Compress;
       return Y;
    end Sparse;
+   function As_Matrix (X : in Sparse_Vector) return Sparse_Matrix is
+      A : Sparse_Matrix;
+      Eps : constant Real := 10.0 * Real'Small;
+   begin
+      A.Format := CSC; A.N_Col := 1; A.N_Row := X.NMax;
+      A.X := X.X;
+      A.I := X.I;
+      A.P.Reserve_Capacity (2);
+      A.P.Append (1);
+      A.P.Append (Nat (X.I.Length) + 1);
+      return A;
+   end As_Matrix;
    
    function "*" (Left, Right : in Sparse_Vector) return Sparse_Matrix is
-      use Ada.Containers, Ada.Text_IO, Real_IO;
+      use Ada.Containers;
       A, B : Sparse_Matrix;
       Eps : constant Real := 10.0 * Real'Small;
    begin
@@ -371,7 +383,7 @@ package body Numerics.Sparse_Matrices is
    begin
       pragma Assert (X.N_Row = V.NMax);
       
-      Y.N_Row := X.N_Row + 1;
+      Y.N_Col := X.N_Col + 1;
       
       Y.X.Reserve_Capacity (Count_Type (N + V.NMax));
       Y.I.Reserve_Capacity (Count_Type (N + V.NMax));

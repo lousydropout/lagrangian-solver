@@ -1,3 +1,5 @@
+with Numerics;
+use  Numerics;
 package Numerics.Sparse_Matrices is
    
    
@@ -7,7 +9,17 @@ package Numerics.Sparse_Matrices is
    package Sparse_Matrix_Format_IO is new Ada.Text_IO.Enumeration_IO (Sparse_Matrix_Format);
    
    ------- Define Matrix --------------------------------------------
-   type Sparse_Matrix is tagged private;
+   --  type Sparse_Matrix is tagged private;
+   type Sparse_Matrix is tagged
+      record
+	 Format : Sparse_Matrix_Format := CSC;
+	 N_Row  : Pos := 0;
+	 N_Col  : Pos := 0;
+	 X      : Real_Vector;
+	 I      : Int_Vector;
+	 P      : Int_Vector;
+      end record;
+   
    
    --- Print procedure ----------------------------------------------
    procedure Print (Mat : in Sparse_Matrix); 
@@ -21,7 +33,14 @@ package Numerics.Sparse_Matrices is
    ------- Functions for Creating Sparse Matrices -------------------
    function Add_Column (X : in Sparse_Matrix;
 			V : in Sparse_Vector) return Sparse_Matrix;
+   function As_Matrix (X : in Sparse_Vector) return Sparse_Matrix;
    
+   function "and" (A, B : in Sparse_Vector) return Sparse_Matrix
+     is (Add_Column (As_Matrix (A), B));
+   
+   function "and" (X : in Sparse_Matrix; V : in Sparse_Vector) 
+		  return Sparse_Matrix renames Add_Column;
+		   
    procedure Set_Diag (X  : in out Sparse_Matrix;
    		       To : in     Sparse_Vector)
      with Pre => Is_Square_Matrix (X) and X.N_Col = Length (To);
@@ -34,7 +53,8 @@ package Numerics.Sparse_Matrices is
 			       X      : in Real_Array;
 			       N_Row  : in Pos := 0;
 			       N_Col  : in Pos := 0;
-			       Format : in Sparse_Matrix_Format := CSC) return Sparse_Matrix
+			       Format : in Sparse_Matrix_Format := CSC) 
+			      return Sparse_Matrix
      with Pre => I'Length = J'Length and I'Length = X'Length;
    function Convert (Mat : in Sparse_Matrix) return Sparse_Matrix;
    procedure Add (Mat  : in out Sparse_Matrix;
@@ -143,15 +163,15 @@ private
    procedure Convert (Mat : in out Sparse_Matrix);
    
    ---- Define Matrix type -----------------------------------------
-   type Sparse_Matrix is tagged
-      record
-	 Format : Sparse_Matrix_Format := CSC;
-	 N_Row  : Pos := 0;
-	 N_Col  : Pos := 0;
-	 X      : Real_Vector;
-	 I      : Int_Vector;
-	 P      : Int_Vector;
-      end record;
+   --  type Sparse_Matrix is tagged
+   --     record
+   --  	 Format : Sparse_Matrix_Format := CSC;
+   --  	 N_Row  : Pos := 0;
+   --  	 N_Col  : Pos := 0;
+   --  	 X      : Real_Vector;
+   --  	 I      : Int_Vector;
+   --  	 P      : Int_Vector;
+   --     end record;
    
    
    

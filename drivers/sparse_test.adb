@@ -53,9 +53,11 @@ begin
    --  Put_Line ("Number of Elements = " & Int'Image (Number_Of_Elements (A)));
    
    X := Sparse ((0.0, 1.0, 0.0));
+   Print (As_Matrix (X));
    Z := Sparse ((2.0, 0.0, 3.0));
+   Print (As_Matrix (Z));
    Put_Line ("---------------------------------------------------------");
-   C := Add_Column (B, X);
+   C := X and Z;
    C.Print;
    
    --  Put_Line ("---------------------------------------------------------");
