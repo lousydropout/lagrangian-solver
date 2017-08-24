@@ -1,4 +1,5 @@
-with Ada.Text_IO;
+with Ada.Text_IO, Ada.Exceptions;
+
 package body Auto_Differentiation is
    
    function Plus1 (X : in Real) return Real is
@@ -20,18 +21,29 @@ package body Auto_Differentiation is
    end Var;
    
    
-   --  function Var (X	: in Real_Array;
-   --  		 Length	: in Nat;
-   --  		 Start	: in Nat := 1) return AD_Vector is
-   --     Result : AD_Vector (1 .. X'Length);
-   --  begin
-   --     for I in X'Range loop
-   --  	 Result (I - X'First + 1) := Var (X  => X (I), 
-   --  					  I  => I - X'First + Start,
-   --  					  N  => Length);
-   --     end loop;
-   --     return Result;
-   --  end Var;
+   function Var (X	: in Real_Array;
+   		 Length	: in Nat;
+   		 Start	: in Nat := 1) return AD_Vector is
+      Result : AD_Vector (1 .. X'Length);
+   begin
+      for I in X'Range loop
+   	 Result (I - X'First + 1) := Var (X  => X (I), 
+   					  I  => I - X'First + Start,
+   					  N  => Length);
+      end loop;
+      return Result;
+   end Var;
+   
+   function Zero (N : in Nat) return AD_Type is
+      Result : AD_Type;
+   begin
+      Result.N := N;
+      Result.Val := 0.0;
+      Set_Length (Result.Grad, N);
+      Result.Hessian := Zero (N);
+      return Result;
+   end Zero;
+
    
    function Val (X : in AD_Type) return Real is (X.Val);
    function Grad (X : in AD_Type) return Sparse_Vector is (X.Grad);
@@ -56,15 +68,18 @@ package body Auto_Differentiation is
    end "-";
    
    function "*" (X, Y : in AD_Type) return AD_Type is
-      Tmp : Sparse_Matrix := X.Grad * Y.Grad;
+      Tmp : constant Sparse_Matrix := X.Grad * Y.Grad;
+      Z : AD_Type;
    begin
-      return (N       => X.N, 
-   	      Val     => X.Val  * Y.Val, 
-   	      Grad    => X.Val * Y.Grad + Y.Val * X.Grad,
-   	      Hessian => 
-   		X.Val * Y.Hessian +
-   		Tmp + Transpose (Tmp) +
-   		Y.Val * X.Hessian);
+      Z := (N       => X.N, 
+	    Val     => X.Val  * Y.Val, 
+	    Grad    => X.Val * Y.Grad + Y.Val * X.Grad,
+	    Hessian => 
+	      X.Val * Y.Hessian + 
+	      Tmp + Transpose (Tmp) +
+	      Y.Val * X.Hessian);
+	   
+      return Z;
    end "*";
    
    function "/" (X, Y : in AD_Type) return AD_Type is
@@ -75,7 +90,7 @@ package body Auto_Differentiation is
    begin
       return (N    => X.N,
    	      Val  => X.Val * Z,
-   	      Grad => Z * X.Grad - (Z ** 2 * X.Val) * Y.Grad,
+   	      Grad => Z * X.Grad - (Z2 * X.Val) * Y.Grad,
    	      Hessian => 
    		-Z2 * Tmp
    		+ 2.0 * X.Val * Z3 * Y.Grad * Y.Grad 
@@ -84,14 +99,25 @@ package body Auto_Differentiation is
    		+ Z * X.Hessian);
    end "/";
    
-   function "**" (X : in AD_Type; N : Pos) return AD_Type is
-      Y : constant Real := Real (N) * X.Val ** Natural (N - 1);
-      Z : constant Real := Real (N * (N - 1)) * X.Val ** Natural (N - 2);
+   function "**" (X : in AD_Type; N : in Pos) return AD_Type is
+      Y : Real;
+      Z : Real;
+      H : Sparse_Matrix;
    begin
-      return (N    => X.N,
-   	      Val  => X.Val ** Natural (N),
-   	      Grad => Y * X.Grad,
-   	      Hessian => Y * X.Hessian + Z * X.Grad * X.Grad);
+      case N is
+      	 when 0 =>
+      	    return (0.0 * Zero (N));
+      	 when 1 =>
+      	    return X;
+      	 when others =>
+	    Y := Real (N) * X.Val ** Natural (N - 1);
+	    Z := Real (N * (N - 1)) * X.Val ** Natural (N - 2);
+	    H := Y * X.Hessian + Z * X.grad * X.grad;
+	    return (N    => X.N,
+		    Val  => X.Val ** Natural (N),
+		    Grad => Y * X.Grad,
+		    Hessian => H);
+      end case;
    end "**";
 
    

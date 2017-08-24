@@ -143,7 +143,9 @@ package Numerics is
      and Right_J'Length = Right_Y'Length;
    
    
-   
+
+   --  function "**" (Left : in Real; Right : in Int) return Real;
+
    
 private
    

@@ -113,6 +113,8 @@ package body Numerics.Sparse_Matrices is
    function Mult (Left, Right : in Sparse_Matrix) return Sparse_Matrix is separate;
    function Plus (Left  : in Sparse_Matrix;
 		  Right : in Sparse_Matrix) return Sparse_Matrix is separate;
+   function Plus2 (Left  : in Sparse_Matrix;
+		   Right : in Sparse_Matrix) return Sparse_Matrix is separate;
    function Minus (Left  : in Sparse_Matrix;
 		   Right : in Sparse_Matrix) return Sparse_Matrix is separate;
    function Kronecker (A, B : in Sparse_Matrix) return Sparse_Matrix is separate;
@@ -397,4 +399,54 @@ package body Numerics.Sparse_Matrices is
       return Y;
    end Add_Column;
    
+   
+   
+   procedure To_Triplet (A     : in     Sparse_Matrix;
+			 I     :    out Int_Vector;
+			 J     :    out Int_Vector;
+			 X     :    out Real_Vector;
+			 N_Row :    out Pos;
+			 N_Col :    out Pos) is
+      use Ada.Containers;
+      N : constant Count_Type := A.X.Length;
+   begin
+      N_Row := A.N_Row;
+      N_Col := A.N_Col;
+      I.Reserve_Capacity (N);
+      J.Reserve_Capacity (N);
+      X.Reserve_Capacity (N);
+      
+      for P in 1 .. N_Col loop
+	 for K in A.P (P) .. A.P (P + 1) - 1 loop
+	    J.Append (P);
+	    I.Append (A.I (K));
+	    X.Append (A.X (K));
+	 end loop;
+      end loop;
+   end To_Triplet;
+   
+   
+   procedure Testing_Stuff (A : in Sparse_Matrix) is
+      use Real_IO, Int_IO, Ada.Text_IO;
+      I, J : Int_Vector;
+      X : Real_Vector;
+      N_Row, N_Col : Pos;
+   begin
+      New_Line;
+      Put_Line ("Testing stuf . . .");
+      Put ("N_Row = "); Put (A.N_Row); New_Line;
+      Put ("N_Col = "); Put (A.N_Col); New_Line;
+      Put ("x.length = "); Put (Pos (A.X.Length)); New_Line;
+      Put ("i.length = "); Put (Pos (A.I.Length)); New_Line;
+      Put ("p.length = "); Put (Pos (A.P.Length)); New_Line;
+      New_Line;
+      To_Triplet (A, I, J, X, N_Row, N_Col);
+      for K in 1 .. Pos (I.Length) loop
+	 Put (I (K)); Put ("   ");
+	 Put (J (K)); Put ("   ");
+	 Put (X (K)); New_Line;
+      end loop;
+      Put_Line ("finished testing stuff."); New_Line;
+   end Testing_Stuff;
+      
 end Numerics.Sparse_Matrices;

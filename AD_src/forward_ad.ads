@@ -26,7 +26,7 @@ package Forward_AD is
    function "-" (X, Y : in AD_Type) return AD_Type with Pre => X.Length = Y.Length;
    function "*" (X, Y : in AD_Type) return AD_Type with Pre => X.Length = Y.Length;
    function "/" (X, Y : in AD_Type) return AD_Type with Pre => X.Length = Y.Length;
-   function "**" (X : in AD_Type; N : Pos) return AD_Type;
+   function "**" (X : in AD_Type; N : in Pos) return AD_Type;
    function Sin (X : in AD_Type) return AD_Type;
    function Cos (X : in AD_Type) return AD_Type;
    function Tan (X : in AD_Type) return AD_Type;

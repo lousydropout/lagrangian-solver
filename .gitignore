@@ -10,6 +10,7 @@ forward_ad-test
 forward_ad-verlet
 forward_ad-bubble
 forward_ad-dynamics
+auto_differentiation-dynamics
 bubble
 *.xyz
 *.gif

@@ -13,12 +13,14 @@ procedure Auto_Differentiation.Dynamics is
       H : AD_Type   := Zero (X'Length);
       Q : AD_Vector := Var  (X (1     ..     N), 2 * N,     1);
       P : AD_Vector := Var  (X (N + 1 .. 2 * N), 2 * N, N + 1);
+      Z : AD_Type;
    begin
       for I in 1 .. N loop
-	 H := H + 0.5 * P (I) ** 2;
+	 H := H + 0.5 * P (I) * P (I);
       end loop;
       for I in 1 .. N - 1 loop
-	 H := H + 0.5 * (Q (I + 1) - Q (I)) ** 2;
+	 Z := Q (I + 1) - Q (I);
+	 H := H + 0.5 * (Z * Z);
       end loop;
       return H;
    end Hamiltonian;

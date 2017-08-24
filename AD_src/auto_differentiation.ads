@@ -3,18 +3,27 @@ use  Numerics, Numerics.Sparse_Matrices;
 
 package Auto_Differentiation is
    
-   type AD_Type;
-   --  type AD_Vector is array (Nat range <>) of AD_Type;
+   
+   type AD_Type is tagged
+      record
+	 N       : Pos := 0;
+	 Val     : Real;
+	 Grad    : Sparse_Vector;
+	 Hessian : Sparse_Matrix;
+      end record;
+   
+   type AD_Vector is array (Nat range <>) of AD_Type;
    function Plus1 (X : in Real) return Real;
    
    function Var (X    : in Real;
    		 I, N : in Nat;
    		 Dx   : in Real	:= 1.0) return AD_Type;
-   --  function Var (X	: in Real_Array;
-   --  		 Length	: in Nat;
-   --  		 Start	: in Nat := 1) return AD_Vector;
-   --  function Var (X : in Real_Array) return AD_Vector is 
-   --     (Var (X => X, Length => X'Length));
+   function Zero (N : in Nat) return AD_Type;
+   function Var (X	: in Real_Array;
+   		 Length	: in Nat;
+   		 Start	: in Nat := 1) return AD_Vector;
+   function Var (X : in Real_Array) return AD_Vector is 
+      (Var (X => X, Length => X'Length));
    
    function Val (X : in AD_Type) return Real;
    function Grad (X : in AD_Type) return Sparse_Vector;
@@ -27,7 +36,7 @@ package Auto_Differentiation is
    function "-" (X, Y : in AD_Type) return AD_Type;
    function "*" (X, Y : in AD_Type) return AD_Type;
    function "/" (X, Y : in AD_Type) return AD_Type;
-   function "**" (X : in AD_Type; N : Pos) return AD_Type;
+   function "**" (X : in AD_Type; N : in Pos) return AD_Type;
    
    function Sin (X : in AD_Type) return AD_Type;
    function Cos (X : in AD_Type) return AD_Type;
@@ -47,14 +56,5 @@ package Auto_Differentiation is
    procedure Print (X : in AD_Type);
      
 --  private
-   
-   type AD_Type is
-      record
-	 N       : Pos := 0;
-	 Val     : Real;
-	 Grad    : Sparse_Vector;
-	 Hessian : Sparse_Matrix;
-      end record;
-   
 end Auto_Differentiation;
 

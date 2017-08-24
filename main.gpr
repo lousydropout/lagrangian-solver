@@ -3,7 +3,7 @@ Project Main is
   for Languages use ("Ada", "C");
   for Main use (--  "forward_ad-test",
 		--  "forward_ad-bubble",
-		--  "auto_differentiation-dynamics",
+		"auto_differentiation-dynamics",
 		"ad_test",
 		"sparse_test",
 		"forward_ad-dynamics");

@@ -87,6 +87,9 @@ package Numerics.Sparse_Matrices is
    function Plus (Left  : in Sparse_Matrix;
 		  Right : in Sparse_Matrix) return Sparse_Matrix
      with Pre => Has_Same_Dimensions (Left, Right);
+   function Plus2 (Left  : in Sparse_Matrix;
+		   Right : in Sparse_Matrix) return Sparse_Matrix
+     with Pre => Has_Same_Dimensions (Left, Right);
    function Minus (Left  : in Sparse_Matrix;
 		   Right : in Sparse_Matrix) return Sparse_Matrix
      with Pre => Has_Same_Dimensions (Left, Right);
@@ -114,7 +117,7 @@ package Numerics.Sparse_Matrices is
    
    function "*" (Left, Right : in Sparse_Vector) return Sparse_Matrix;
    
-   function "+" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Plus;
+   function "+" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Plus2;
    function "-" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Minus;
    function "*" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Mult;
    function "*" (A : in Sparse_Matrix;
@@ -139,6 +142,7 @@ package Numerics.Sparse_Matrices is
    
    
    
+   procedure Testing_Stuff (A : in Sparse_Matrix);
 private
    
    --  function BiCGSTAB (A   : in     Sparse_Matrix;
@@ -152,7 +156,7 @@ private
 				X      : in     Real_Vector;
 				N_Row  : in     Pos	      := 0;
 				N_Col  : in     Pos	      := 0);
-
+   
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    -------- Essential Tools -----------------------------------------
@@ -183,6 +187,14 @@ private
 		      Mark : in     Int;
 		      C	   : in out Sparse_Matrix;
 		      Nz   : in out Int);
+   
+
+   procedure To_Triplet (A     : in     Sparse_Matrix;
+			 I     :    out Int_Vector;
+			 J     :    out Int_Vector;
+			 X     :    out Real_Vector;
+			 N_Row :    out Pos;
+			 N_Col :    out Pos);
    
 
 end Numerics.Sparse_Matrices;

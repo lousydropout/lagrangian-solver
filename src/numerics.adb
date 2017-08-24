@@ -479,6 +479,16 @@ package body Numerics is
    end "*";
 
    
+   --  function "**" (Left : in Real; Right : in Int) return Real is
+   --     Y : constant Real := Left ** Natural (abs (Right));
+   --  begin
+   --     if Right >= 0 then
+   --  	 return Y;
+   --     else
+   --  	 return (-Y);
+   --     end if;
+   --  end "**";
+   
 begin
    Ada.Numerics.Float_Random.Reset (Gen);
 end Numerics;
