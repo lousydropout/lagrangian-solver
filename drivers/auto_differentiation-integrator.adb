@@ -17,6 +17,8 @@ package body Auto_Differentiation.Integrator is
       
    begin
       pragma Assert (2 * N = Var.N2);
+      -- Turn off the calculation of Hessians (not used for explicit schemes):
+      Level := Gradient; 
       
       K1 := To_Array (J * Grad (Hamiltonian (X, N)));
       K2 := To_Array (J * Grad (Hamiltonian (X + (0.50 * Dt) * K1, N)));
@@ -27,6 +29,7 @@ package body Auto_Differentiation.Integrator is
 
       Err := Norm (Z - Y);
 
+      Level := Hessian; -- Turn back on calculation of Hessians
       return (Z);
    end Bogack_Shampine;
    

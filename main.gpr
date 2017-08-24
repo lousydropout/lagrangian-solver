@@ -4,7 +4,7 @@ Project Main is
   for Main use (--  "forward_ad-test",
 		--  "forward_ad-bubble",
 		"auto_differentiation-dynamics",
-		"ad_test",
+		--  "ad_test",
 		"sparse_test",
 		"forward_ad-dynamics");
 		--  "bubble");
@@ -17,7 +17,7 @@ Project Main is
   
   package Compiler is
      for Default_Switches ("Ada")
-       use ("-O1",                      -- optimize for testing (fast compiling)
+       use ("-O2",                      -- optimize for testing (fast compiling)
 	    "-gnata",                   -- assertions
 	    "-fno-inline",              -- turn off inline for smaller executable
 	    "-gnatVa",                  -- turn on all validity checking options

@@ -2,12 +2,14 @@ with Numerics, Numerics.Sparse_Matrices;
 use  Numerics, Numerics.Sparse_Matrices;
 
 package Auto_Differentiation is
+   type Evaluation_Level is (Value, Gradient, Hessian);
+   Level : Evaluation_Level := Hessian;
    
    
    type AD_Type is private;
-   
+   type AD_2D is array (1 .. 2) of AD_Type;
+      
    type AD_Vector is array (Nat range <>) of AD_Type;
-   function Plus1 (X : in Real) return Real;
    
    function Var (X    : in Real;
    		 I, N : in Nat;
@@ -58,6 +60,8 @@ private
 	 Grad    : Sparse_Vector;
 	 Hessian : Sparse_Matrix;
       end record;
-
+   
+   G0 : constant Sparse_Vector := Sparse ((0.0, 0.0));
+   H0 : constant Sparse_Matrix := Zero (1);
 end Auto_Differentiation;
 
