@@ -26,6 +26,7 @@ begin
    Set (Mat.X, X);
    Set (Mat.P, Count);
    
-   Mat.Convert; Mat.Convert;
-   Mat.Remove_Duplicates;
+   Convert (Mat);
+   Convert (Mat);
+   Remove_Duplicates (Mat);
 end Compress;

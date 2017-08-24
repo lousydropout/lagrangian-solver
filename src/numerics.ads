@@ -19,13 +19,7 @@ package Numerics is
    subtype Int_Vector  is IV_Package.Vector;
    subtype Real_Vector is RV_Package.Vector;
    
-   
-   type Sparse_Vector is record
-      NMax : Pos := 0;
-      X    : Real_Vector;
-      I    : Int_Vector;
-   end record;
-   --  type Sparse_Vector is private;
+   type Sparse_Vector is private;
    
    type Pos2D is record
       X, Y : Real;
@@ -171,5 +165,11 @@ private
    function Length (X : in Real_Vector) return Int;
    function Max (X : in Int_Vector) return Int;
    function Max (X : in Real_Vector) return Real;
+   
+   type Sparse_Vector is record
+      NMax : Pos := 0;
+      X    : Real_Vector;
+      I    : Int_Vector;
+   end record;
    
 end Numerics;

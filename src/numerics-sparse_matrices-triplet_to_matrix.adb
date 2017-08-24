@@ -20,8 +20,8 @@ begin
       when CSC => Compress (Result);
       when Triplet => null;
       when CSR => 
-	 Result.Compress;
-	 Result.Convert;
+	 Compress (Result);
+	 Convert (Result);
    end case;
    return Result;
 end Triplet_To_Matrix;

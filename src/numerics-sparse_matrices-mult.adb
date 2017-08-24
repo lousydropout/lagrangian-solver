@@ -40,7 +40,8 @@ begin
    C.X.Reserve_Capacity (C.X.Length);
    
    -- Need to sort entries
-   C.Convert; C.Convert;
+   Convert (C);
+   Convert (C);
    
    return C;
 end Mult;

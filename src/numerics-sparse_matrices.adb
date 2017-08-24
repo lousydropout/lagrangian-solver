@@ -30,7 +30,7 @@ package body Numerics.Sparse_Matrices is
 	    Y.X.Append (X (I, J));
 	 end loop;
       end loop;
-      Y.Compress;
+      Compress (Y);
       return Y;
    end Sparse;
    function As_Matrix (X : in Sparse_Vector) return Sparse_Matrix is
@@ -87,7 +87,7 @@ package body Numerics.Sparse_Matrices is
    function Convert (Mat : in Sparse_Matrix) return Sparse_Matrix is
       Result : Sparse_Matrix := Mat;
    begin
-      Result.Convert;
+      Convert (Result);
       return Result;
    end Convert;
    
@@ -161,7 +161,7 @@ package body Numerics.Sparse_Matrices is
       Result.Format := Triplet;
       Result.X := X; Result.I := I; Result.P := J; 
       
-      Result.Compress; -- turns it into CSC format
+      Compress (Result); -- turns it into CSC format
    end Triplet_To_Matrix;
    
    function Read_Sparse_Triplet (File_Name : in String;
@@ -339,7 +339,7 @@ package body Numerics.Sparse_Matrices is
    function Diag (X : in Sparse_Vector) return Sparse_Matrix is
       Y : Sparse_Matrix;
    begin
-      Y.Triplet_To_Matrix (X.I, X.I, X.X, X.NMax, X.NMax);
+      Triplet_To_Matrix (Y, X.I, X.I, X.X, X.NMax, X.NMax);
       return Y;
    end Diag;
       
@@ -350,7 +350,7 @@ package body Numerics.Sparse_Matrices is
    begin
       for I in 1 .. Int (To.I.Length) loop
    	 K := To.I (I);
-   	 X.Set (K, K, To.X (I));
+   	 Set (X, K, K, To.X (I));
       end loop;
    end Set_Diag;
    

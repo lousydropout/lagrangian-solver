@@ -4,7 +4,7 @@ procedure Transposed (Mat : in out Sparse_Matrix) is
    Tmp : Pos;
 begin
    
-   Mat.Convert;
+   Convert (Mat);
    
    case Mat.Format is
       when Triplet => null;

@@ -9,16 +9,7 @@ package Numerics.Sparse_Matrices is
    package Sparse_Matrix_Format_IO is new Ada.Text_IO.Enumeration_IO (Sparse_Matrix_Format);
    
    ------- Define Matrix --------------------------------------------
-   --  type Sparse_Matrix is tagged private;
-   type Sparse_Matrix is tagged
-      record
-	 Format : Sparse_Matrix_Format := CSC;
-	 N_Row  : Pos := 0;
-	 N_Col  : Pos := 0;
-	 X      : Real_Vector;
-	 I      : Int_Vector;
-	 P      : Int_Vector;
-      end record;
+   type Sparse_Matrix is private;
    
    
    --- Print procedure ----------------------------------------------
@@ -43,7 +34,7 @@ package Numerics.Sparse_Matrices is
 		   
    procedure Set_Diag (X  : in out Sparse_Matrix;
    		       To : in     Sparse_Vector)
-     with Pre => Is_Square_Matrix (X) and X.N_Col = Length (To);
+     with Pre => Is_Square_Matrix (X) and N_Col (X) = Length (To);
    function Diag (X : in Sparse_Matrix) return Sparse_Vector
      with Pre => Is_Square_Matrix (X);
    function Diag (X : in Sparse_Vector) return Sparse_Matrix;
@@ -60,11 +51,11 @@ package Numerics.Sparse_Matrices is
    procedure Add (Mat  : in out Sparse_Matrix;
 		  I, J : in     Nat;
 		  X    : in     Real)
-     with Pre => I <= Mat.N_Row and J <= Mat.N_Col;
+     with Pre => I <= N_Row (Mat) and J <= N_Col (Mat);
    procedure Set (Mat  : in out Sparse_Matrix;
 		  I, J : in     Nat;
 		  X    : in     Real)
-     with Pre => I <= Mat.N_Row and J <= Mat.N_Col;
+     with Pre => I <= N_Row (Mat) and J <= N_Col (Mat);
    
    
    ------------------------------------------------------------------
@@ -196,5 +187,14 @@ private
 			 N_Row :    out Pos;
 			 N_Col :    out Pos);
    
+   type Sparse_Matrix is 
+      record
+	 Format : Sparse_Matrix_Format := CSC;
+	 N_Row  : Pos := 0;
+	 N_Col  : Pos := 0;
+	 X      : Real_Vector;
+	 I      : Int_Vector;
+	 P      : Int_Vector;
+      end record;
 
 end Numerics.Sparse_Matrices;
