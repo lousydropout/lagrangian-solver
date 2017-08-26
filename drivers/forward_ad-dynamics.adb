@@ -4,7 +4,7 @@ use  Numerics, Ada.Text_IO, Forward_AD.Integrator;
 procedure Forward_AD.Dynamics is
    use Real_IO, Int_IO;
    --  Set Up Parameters -----------------
-   N       : constant Nat := 32;
+   N       : constant Nat := 2;
    Control : Control_Type (N => N);
    -------------------------------
    
@@ -40,7 +40,7 @@ begin
    --  Put (Val (Hamiltonian (X, N))); New_Line;
    
    for Iter in 1 .. 4 loop
-      for Iter2 in 1 .. 10 loop
+      for Iter2 in 1 .. 1000 loop
 	 Update (Hamiltonian'Access, Var, Control);
       end loop;
       --  Put (T, Fore => 3, Exp => 0, Aft => 3); Put ("    "); 

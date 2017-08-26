@@ -1,6 +1,20 @@
-with Ada.Text_IO, Ada.Exceptions;
+with Ada.Text_IO;
 
 package body Auto_Differentiation is
+   
+   function Const (X : in Real;
+		   N : in Nat) return AD_Type is
+      Y : Real_Array (1 .. N) := (others => 0.0);
+   begin
+      case Level is
+	 when Value =>
+	    return (N, X, G0, H0);
+	 when Gradient =>
+	    return (N, X, Sparse (Y), H0);
+	 when Hessian =>
+	    return (N, X, Sparse (Y), Zero (N));
+      end case;
+   end Const;
    
    function Var (X    : in Real;
    		 I, N : in Nat;
@@ -345,6 +359,25 @@ package body Auto_Differentiation is
    	      Hessian => Y * X.Hessian);
    end "*";
    
+   
+   
+   function "+" (X, Y : in AD_2D) return AD_2D is
+   begin
+      return (X (1) + Y (1), 
+	      X (2) + Y (2));
+   end "+";
+   
+   function "-" (X, Y : in AD_2D) return AD_2D is
+   begin
+      return (X (1) - Y (1), 
+	      X (2) - Y (2));
+   end "-";
+   
+   function Dot (X, Y : in AD_2D) return AD_Type is
+   begin
+      return (X (1) * Y (1) + X (2) * Y (2));
+   end Dot;
+
 
 
    procedure Print (X : in AD_Type) is

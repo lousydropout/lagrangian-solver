@@ -374,10 +374,10 @@ package body Numerics is
       return (X.X - Y.X, X.Y - Y.Y);
    end "-";
 
-   function "*" (X, Y : in Pos2D) return Real is
+   function Dot (X, Y : in Pos2D) return Real is
    begin
       return X.X * Y.X + X.Y * Y.Y;
-   end "*";
+   end Dot;
    
    function Norm (X : in Pos2D) return Real is
       use Real_Functions;

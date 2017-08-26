@@ -14,6 +14,8 @@ package Auto_Differentiation is
    function Var (X    : in Real;
    		 I, N : in Nat;
    		 Dx   : in Real	:= 1.0) return AD_Type;
+   function Const (X : in Real;
+		   N : in Nat) return AD_Type;
    function Zero (N : in Nat) return AD_Type;
    function Var (X	: in Real_Array;
    		 Length	: in Nat;
@@ -47,7 +49,10 @@ package Auto_Differentiation is
    function "*" (X : in AD_Type; Y : in Real) return AD_Type is (Y * X);
    function "/" (X : in AD_Type; Y : in Real) return AD_Type  is ((1.0 / Y) * X)
      with Pre => Y /= 0.0;
-     
+   
+   function "+" (X, Y : in AD_2D) return AD_2D;
+   function "-" (X, Y : in AD_2D) return AD_2D;
+   function Dot (X, Y : in AD_2D) return AD_Type;
    ------------- procedures ----------------------
    procedure Print (X : in AD_Type);
      

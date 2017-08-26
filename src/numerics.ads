@@ -66,7 +66,9 @@ package Numerics is
    function "-" (X : in Pos2D) return Pos2D;
    function "+" (X, Y : in Pos2D) return Pos2D;
    function "-" (X, Y : in Pos2D) return Pos2D;
-   function "*" (X, Y : in Pos2D) return Real;
+   function Dot (X, Y : in Pos2D) return Real;
+   function "*" (X, Y : in Pos2D) return Real renames Dot;
+
    function "*" (X : in Real;
 		 Y : in Pos2D) return Pos2D is (X * Y.X, X * Y.Y);
    function "*" (X : in Pos2D;

@@ -14,7 +14,7 @@ package body Auto_Differentiation.Integrator is
       Err : Real renames Control.Err;
       J   : constant Sparse_Matrix := -Omega (N);
       K1, K2, K3, K4, Y, Z : Real_Array (X'Range);
-      
+      Old : constant Evaluation_Level := Level;
    begin
       pragma Assert (2 * N = Var.N2);
       -- Turn off the calculation of Hessians (not used for explicit schemes):
@@ -29,7 +29,7 @@ package body Auto_Differentiation.Integrator is
 
       Err := Norm (Z - Y);
 
-      Level := Hessian; -- Turn back on calculation of Hessians
+      Level := Old; -- return to previous evaluation level
       return (Z);
    end Bogack_Shampine;
    
