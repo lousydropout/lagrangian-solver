@@ -1,5 +1,5 @@
-with Numerics, Numerics.Sparse_Matrices, Numerics.Sparse_Matrices.CSparse;
-use  Numerics, Numerics.Sparse_Matrices, Numerics.Sparse_Matrices.CSparse;
+with Numerics, Numerics.Sparse_Matrices;
+use  Numerics, Numerics.Sparse_Matrices;
 
 with Ada.Text_IO; use Ada.Text_IO;
 procedure Sparse_Test is
