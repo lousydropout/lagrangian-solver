@@ -8,13 +8,18 @@ package Numerics is
    
    
    -------- Define types (Real, Int, Pos, Nat) ----------------------
-   type Real is new C.double range C.double'First .. C.double'Last;
-   type Int  is new C.long   range C.long'First   .. C.long'Last;
-   subtype Pos is Int        range 0              .. Int'Last;
-   subtype Nat is Int        range 1              .. Int'Last;
+   --  type Real is new C.double range C.double'First .. C.double'Last;
+   --  type Int  is new C.long   range C.long'First   .. C.long'Last;
+   --  subtype Pos is Int        range 0              .. Int'Last;
+   --  subtype Nat is Int        range 1              .. Int'Last;
+   
+   type Real is new Long_Long_Float 
+     range Long_Long_Float'First .. Long_Long_Float'Last;
+   subtype Pos is Integer range 0 .. Integer'Last;
+   subtype Nat is Integer range 1 .. Integer'Last;
    
    ------- Define Real_Vector and Int_Vector packages ------------------------
-   package IV_Package is new Ada.Containers.Vectors (Nat, Int,  "=");
+   package IV_Package is new Ada.Containers.Vectors (Nat, Integer,  "=");
    package RV_Package is new Ada.Containers.Vectors (Nat, Real, "=");
    subtype Int_Vector  is IV_Package.Vector;
    subtype Real_Vector is RV_Package.Vector;
@@ -28,13 +33,16 @@ package Numerics is
    type Pos2D_Vector is array (Nat range <>) of Pos2D;
    
    -------- Define array types -----------------------------------
-   type Real_Array is array (Nat range <>) of aliased Real with Convention => C;
-   type Int_Array  is array (Nat range <>) of aliased Int  with Convention => C;
-   type Real_Matrix is array (Nat range <>, Nat range <>) of aliased Real with Convention => C;
+   type Real_Array is array (Nat range <>) of aliased Real;
+   -- with Convention => C;
+   type Int_Array  is array (Nat range <>) of aliased Integer;
+   --  with Convention => C;
+   type Real_Matrix is array (Nat range <>, Nat range <>) of aliased Real;
+   --  with Convention => C;
    package Real_Functions is new Ada.Numerics.Generic_Elementary_Functions (Real);
    
    ------- Define Real_IO and Int_IO packages ------------------------
-   package Int_IO  is new Ada.Text_IO.Integer_IO (Int);
+   package Int_IO  is new Ada.Text_IO.Integer_IO (Integer);
    package Real_IO is new Ada.Text_IO.Float_IO   (Real);
    
    -------- Define random variable function -----------------------
@@ -121,14 +129,14 @@ package Numerics is
    function Norm (X : in Real_Array) return Real;
    
    -------- Max and Abs_Max functions ------------------
-   function Max_Int_Array (Item : in Int_Array) return Int;
-   function Abs_Max_IA (Item : in Int_Array) return Int;
+   function Max_Int_Array (Item : in Int_Array) return Integer;
+   function Abs_Max_IA (Item : in Int_Array) return Integer;
    function Max_Real_Array (Item : in Real_Array) return Real;
    function Abs_Max_RA (Item : in Real_Array) return Real;
    
-   function Max (Item : in Int_Array) return Int renames Max_Int_Array;
+   function Max (Item : in Int_Array) return Integer renames Max_Int_Array;
    function Max (Item : in Real_Array) return Real renames Max_Real_Array;
-   function Abs_Max (Item : in Int_Array) return Int renames Abs_Max_IA;
+   function Abs_Max (Item : in Int_Array) return Integer renames Abs_Max_IA;
    function Abs_Max (Item : in Real_Array) return Real renames Abs_Max_RA;
    
    
@@ -163,9 +171,9 @@ private
 
    ----- Vector and Array functions
    procedure Set_Length (V : in out Real_Vector;
-			 N : in     Int);
-   function Length (X : in Real_Vector) return Int;
-   function Max (X : in Int_Vector) return Int;
+			 N : in     Integer);
+   function Length (X : in Real_Vector) return Integer;
+   function Max (X : in Int_Vector) return Integer;
    function Max (X : in Real_Vector) return Real;
    
    type Sparse_Vector is record

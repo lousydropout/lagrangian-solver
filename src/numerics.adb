@@ -101,31 +101,31 @@ package body Numerics is
    
    
    procedure Set_Length (V : in out Real_Vector;
-			 N : in     Int) is
+			 N : in     Integer) is
    begin
       V.Set_Length (Ada.Containers.Count_Type (N));
    end Set_Length;
 
-   function Length (X : in Real_Vector) return Int is (Int (X.Length));
+   function Length (X : in Real_Vector) return Integer is (Integer (X.Length));
    
    
    
    -------- Max and Abs_Max functions ------------------
    
-   function Max_Int_Array (Item : in Int_Array) return Int is separate;
+   function Max_Int_Array (Item : in Int_Array) return Integer is separate;
    function Max_Real_Array (Item : in Real_Array) return Real is separate;
-   function Abs_Max_IA (Item : in Int_Array) return Int is separate;
+   function Abs_Max_IA (Item : in Int_Array) return Integer is separate;
    function Abs_Max_RA (Item : in Real_Array) return Real is separate;
    
-   function Max (X : in Int_Vector) return Int is
-      Result : Int;
+   function Max (X : in Int_Vector) return Integer is
+      Result : Integer;
    begin
       case X.Length is
    	 when 0 => return 0;
    	 when 1 => return X (1);
    	 when others =>
    	    Result := X (1);
-   	    for I in 2 .. Int (X.Length) loop
+   	    for I in 2 .. Nat (X.Length) loop
    	       if X (I) > Result then Result := X (I); end if;
    	    end loop;
    	    return Result;
@@ -140,7 +140,7 @@ package body Numerics is
    	 when 1 => return X (1);
    	 when others =>
    	    Result := X (1);
-   	    for I in 2 .. Int (X.Length) loop
+   	    for I in 2 .. Nat (X.Length) loop
    	       if X (I) > Result then Result := X (I); end if;
    	    end loop;
    	    return Result;
@@ -162,7 +162,7 @@ package body Numerics is
       Y.NMax := (if N < X'Length then X'Length else N);
       Y.X.Reserve_Capacity (Count_Type (X'Length));
       Y.I.Reserve_Capacity (Count_Type (X'Length));
-      for I in 1 .. Int (X'Length) loop
+      for I in 1 .. Nat (X'Length) loop
 	 if abs (X (I)) > Tol then
 	    Y.X.Append (X (I));
 	    Y.I.Append (I);
@@ -479,7 +479,7 @@ package body Numerics is
    end "*";
 
    
-   --  function "**" (Left : in Real; Right : in Int) return Real is
+   --  function "**" (Left : in Real; Right : in Integer) return Real is
    --     Y : constant Real := Left ** Natural (abs (Right));
    --  begin
    --     if Right >= 0 then

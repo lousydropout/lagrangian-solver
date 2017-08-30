@@ -7,7 +7,7 @@ function Permute_By_Col (Mat : in Sparse_Matrix;
    use Ada.Text_IO;
 begin
    pragma Assert (Mat.Format = CSC);
-   pragma Assert (P'Length = Int (Mat.P.Length) - 1);
+   pragma Assert (P'Length = Integer (Mat.P.Length) - 1);
    Result.Format := CSC;
    Result.N_Row  := Mat.N_Row;
    Result.N_Col  := Mat.N_Col;

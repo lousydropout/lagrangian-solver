@@ -19,7 +19,7 @@ package Numerics.Sparse_Matrices is
    function Norm2 (Item : in Sparse_Matrix) return Real;
    function N_Row (Mat : in Sparse_Matrix)  return Pos;
    function N_Col (Mat : in Sparse_Matrix)  return Pos;
-   function Number_Of_Elements (X : in Sparse_Matrix) return Int;
+   function Number_Of_Elements (X : in Sparse_Matrix) return Integer;
    
    ------- Functions for Creating Sparse Matrices -------------------
    function Add_Column (X : in Sparse_Matrix;
@@ -129,7 +129,7 @@ package Numerics.Sparse_Matrices is
    
    ------- File Readers ---------------------------------------------------
    function Read_Sparse_Triplet (File_Name : in String;
-				 Offset	   : in Int    := 0) return Sparse_Matrix;
+				 Offset	   : in Integer := 0) return Sparse_Matrix;
    
    
    
@@ -171,13 +171,13 @@ private
    
    
    procedure Scatter (A	   : in     Sparse_Matrix;
-		      J	   : in     Int;
+		      J	   : in     Integer;
 		      β	   : in     Real;
 		      W	   : in out Int_Array;
 		      X	   : in out Real_Array;
-		      Mark : in     Int;
+		      Mark : in     Integer;
 		      C	   : in out Sparse_Matrix;
-		      Nz   : in out Int);
+		      Nz   : in out Integer);
    
 
    procedure To_Triplet (A     : in     Sparse_Matrix;

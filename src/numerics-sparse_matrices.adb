@@ -23,8 +23,8 @@ package body Numerics.Sparse_Matrices is
       Y.I.Reserve_Capacity (N);
       Y.P.Reserve_Capacity (N);
       Y.X.Reserve_Capacity (N);
-      for I in 1 .. Int (X'Length (1)) loop
-	 for J in 1 .. Int (X'Length (2)) loop
+      for I in 1 .. Pos (X'Length (1)) loop
+	 for J in 1 .. Pos (X'Length (2)) loop
 	    Y.I.Append (I); 
 	    Y.P.Append (J);
 	    Y.X.Append (X (I, J));
@@ -133,7 +133,7 @@ package body Numerics.Sparse_Matrices is
    --  		      Tol : in     Real	    := 1.0e-10) 
    --  		     return Real_Vector is separate;
 
-   function Number_Of_Elements (X : in Sparse_Matrix) return Int is (Int (X.X.Length));
+   function Number_Of_Elements (X : in Sparse_Matrix) return Integer is (Pos (X.X.Length));
    
    function Is_Valid (Mat : in Sparse_Matrix) return Boolean is
       use IV_Package, RV_Package;
@@ -165,14 +165,14 @@ package body Numerics.Sparse_Matrices is
    end Triplet_To_Matrix;
    
    function Read_Sparse_Triplet (File_Name : in String;
-				 Offset	   : in Int    := 0)
+				 Offset	   : in Integer    := 0)
 				return Sparse_Matrix is
       use Ada.Text_IO, Ada.Containers, Real_IO, Int_IO;
       N_Lines : Count_Type := 0;
       I_Vec : Int_Vector;
       J_Vec : Int_Vector;
       X_Vec : Real_Vector;
-      Int_Input : Int;
+      Int_Input : Integer;
       Real_Input : Real;
       File : File_Type;
       Result : Sparse_Matrix;
@@ -288,15 +288,15 @@ package body Numerics.Sparse_Matrices is
    
    
    procedure Scatter (A	   : in     Sparse_Matrix;
-		      J	   : in     Int;
+		      J	   : in     Integer;
 		      β	   : in     Real;
 		      W	   : in out Int_Array;
 		      X	   : in out Real_Array;
-		      Mark : in     Int;
+		      Mark : in     Integer;
 		      C	   : in out Sparse_Matrix;
-		      Nz   : in out Int) is
+		      Nz   : in out Integer) is
       use IV_Package;
-      I    : Int;
+      I    : Integer;
       Cur  : Cursor;
       L, R : Pos;
    begin
@@ -346,9 +346,9 @@ package body Numerics.Sparse_Matrices is
    
    procedure Set_Diag (X  : in out Sparse_Matrix;
    		       To : in     Sparse_Vector) is
-      K : Int;
+      K : Integer;
    begin
-      for I in 1 .. Int (To.I.Length) loop
+      for I in 1 .. Integer (To.I.Length) loop
    	 K := To.I (I);
    	 Set (X, K, K, To.X (I));
       end loop;

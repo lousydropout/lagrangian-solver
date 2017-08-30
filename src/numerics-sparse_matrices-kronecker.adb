@@ -5,7 +5,7 @@ function Kronecker (A, B : in Sparse_Matrix) return Sparse_Matrix is
    N_Col : constant Nat := B.N_Col;
    N_Row : constant Nat := B.N_Row;
    Bl    : Int_Array (1 .. N_Col);
-   Al    : Int;
+   Al    : Integer;
    Tmp   : Nat := 1;
    use Ada.Containers;
 begin
