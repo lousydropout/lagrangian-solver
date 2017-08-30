@@ -4,9 +4,12 @@ Project Main is
   for Main use (--  "forward_ad-test",
 		--  "forward_ad-bubble",
 		"auto_differentiation-dynamics",
+		--  "forward_ad-jacobian",
+		"dynamics",
 		--  "ad_test",
-		"sparse_test",
-		"forward_ad-dynamics");
+		--  "sparse_test",
+		"forward_ad-dynamics"
+	       );
 		--  "bubble");
 		--  "linear_solver_test",
 		--  "vector_test");

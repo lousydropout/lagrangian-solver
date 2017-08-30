@@ -10,9 +10,11 @@ forward_ad-test
 forward_ad-verlet
 forward_ad-bubble
 forward_ad-dynamics
+forward_ad-jacobian
 auto_differentiation-dynamics
 bubble
 *.xyz
 *.gif
 *.Rhistory
 *.csv
+dynamics

@@ -46,6 +46,8 @@ package Forward_AD is
    procedure Print (X : in AD_Type);
    
    
+   -- functions for AD_Vectors
+   function Jacobian_Matrix (X : in AD_Vector) return Sparse_Matrix;
    
    
 private

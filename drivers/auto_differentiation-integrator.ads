@@ -1,3 +1,5 @@
+with Ada.Text_IO;
+use  Ada.Text_IO;
 package Auto_Differentiation.Integrator is
    
    type Variable (N2 : Nat) is
@@ -24,5 +26,7 @@ package Auto_Differentiation.Integrator is
 		     Var         : in out Variable;
 		     Control     : in out Control_Type);
 
+   procedure Print_XYZ (File : in File_Type;
+			Var  : in Variable);
    
 end Auto_Differentiation.Integrator;

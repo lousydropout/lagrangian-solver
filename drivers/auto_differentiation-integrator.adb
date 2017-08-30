@@ -56,8 +56,42 @@ package body Auto_Differentiation.Integrator is
 	    X  := Y;
 	    T  := T + Dt;
 	 end if;
-	 Dt := 0.8 * Dt * (Eps / Err) ** 0.3;
+	 Dt := 0.8 * Dt * (Eps / (Err + 1.0e-20)) ** 0.3;
       end loop;
    end Update;
+   
+   
+   procedure Print_XYZ (File : in File_Type;
+			Var  : in Variable) is
+      use Real_Functions, Real_IO;
+      X :  Real_Array renames Var.X;
+      X1, Y1, X2, Y2 : Real;
+      R : constant Real := 10.0;
+   begin
+      X1 := -R * Sin (X (1));
+      Y1 :=  R * Cos (X (1));
+      X2 := X1 - R * Sin (2.0 * X (1) + X (2));
+      Y2 := Y1 + R * Cos (2.0 * X (1) + X (2));
+      -- print header
+      Put_Line (File, "3");
+      Put_Line (File, "Properties=pos:R:2");
+      -- position of ball 1
+      Put_Line (File, "0.0     0.0     5.0");
+      -- position of ball 2
+      Put (File => File, Item => X1);
+      Put (File => File, Item => "     ");
+      Put (File => File, Item => Y1);
+      Put (File => File, Item => "     ");
+      Put (File => File, Item => "5.0");
+      New_Line (File => File);
+      -- position of ball 3
+      Put (File => File, Item => X2);
+      Put (File => File, Item => "     ");
+      Put (File => File, Item => Y2);
+      Put (File => File, Item => "     ");
+      Put (File => File, Item => "5.0");
+      New_Line (File => File);
+   end Print_XYZ;
+   
    
 end Auto_Differentiation.Integrator;

@@ -12,7 +12,7 @@ procedure Auto_Differentiation.Dynamics is
       Const6_1 : constant AD_Type := Const (6.1, 2 * N);
       Const1_1 : constant AD_Type := Const (1.1, 2 * N);
       C_Plus_2 : constant AD_Type := Const (2.0, 2 * N) + C;
-      C_Plus_6 : constant AD_Type := Const6_1 + 2.0 * C;
+      C_Plus_6 : constant AD_Type := Const6_1 + 4.0 * C;
       Det : constant AD_Type := 1.1 * C_Plus_6 - C_Plus_2 ** 2;
       T_Dot, S_Dot : AD_Type;
    begin
@@ -21,10 +21,8 @@ procedure Auto_Differentiation.Dynamics is
       T_Dot := T_Dot / Det;
       S_Dot := S_Dot / Det;
       
-      return (3.05 * T_Dot ** 2 
-		+ 0.55 * S_Dot ** 2
-		+ 2.00 * T_Dot * S_Dot
-		+ T_Dot * (T_Dot + S_Dot) * C);
+      return (0.5 * C_Plus_6 * T_Dot ** 2 + 0.55 * S_Dot ** 2
+		+ C_Plus_2 * T_Dot * S_Dot);
    end KE;
    
    function PE (Q : in AD_Vector; N : in Nat) return AD_Type is
@@ -32,21 +30,21 @@ procedure Auto_Differentiation.Dynamics is
       T : AD_Type renames Q (1);
       S : AD_Type renames Q (2);
       Tmp : AD_Type := Cos (0.5 * (T + S));
-      Alpha : constant Real := 1.0;
+      Alpha : constant Real := 10.0;
    begin
       pragma Assert (Val (Tmp) /= 0.0);
       Tmp := Const (0.5, 2 * N) / Tmp;
-      
       PE_G := Cos (T) + Cos (2.0 * T + S);
       PE_M
 	:= Cos (2.0 * T) - 3.0 * Cos (T) ** 2
 	+  Cos (2.0 * S) - 3.0 * Cos (S) ** 2
 	+ (Tmp ** 3) * Cos (2.0 * (T + S))
-	- 3.0 * (Tmp ** 5) * (  (Cos (T) + Cos (2.0 * T + S)) 
+	- 3.0 * (Tmp ** 5) * ((Cos (T) + Cos (2.0 * T + S)) 
 			      * (Cos (S) + Cos (2.0 * S + T)));
       return ((Alpha / 6.0) * PE_M + PE_G);
    end PE;
    
+
    function Hamiltonian (X : in Real_Array; N : in Nat) return AD_Type;
    --- print data ------
    procedure Print_Data (Var : in Variable) is
@@ -61,12 +59,14 @@ procedure Auto_Differentiation.Dynamics is
       Y (2) := Y (1) + Cos (2.0 * T + S);
       
       ---------------------------------------
-      Put (Var.T); -- print time
+      Put (Var.T, Aft => 3, Exp => 0); -- print time
       for I in 1 .. Nat (2) loop
-	 Put (",  "); Put (X (I)); Put (",  "); Put (Y (I)); -- print positions
+	 Put (",  "); Put (X (I), Aft => 3, Exp => 0);
+	 Put (",  "); Put (Y (I), Aft => 3, Exp => 0); -- print positions
       end loop;
-      Put (",  "); Put (Val (Hamiltonian (Var.X, N))); -- print total energy
-      New_Line;
+      Put (",  "); 
+      -- print total energy
+      Put (Val (Hamiltonian (Var.X, N)), Aft => 10, Exp => 0); New_Line;
    end Print_Data;
    
    -------------------------------
@@ -79,40 +79,46 @@ procedure Auto_Differentiation.Dynamics is
    end Hamiltonian;
    -------------------------------
    
+   function Momenta (Var : in Variable) return Real_Array is
+      use Real_Functions;
+      C : constant Real := Cos (Var.X (1) + Var.X (2));
+      P : Real_Array := Var.X;
+   begin
+      P (3) := (6.1 + 4.0 * C) * Var.X (3) + (2.0 + C) * Var.X (4);
+      P (4) := (2.0 + C)       * Var.X (3) + 1.1       * Var.X (4);
+      return P;
+   end Momenta;
+   
+   
    -- Initial Conditions ----
-   Var : Variable := (N2 => 2 * N,
-		      X => (0.0, 0.0, 0.0, 1.0),
-		      T => 0.0);
+   Var : Variable :=  (N2 => 2 * N,
+		       X  => (0.0, 0.0, 0.05, 0.0),
+		       T  => 0.0);
    X : Real_Array renames Var.X;
    T : Real       renames Var.T;
    -------------------------------
+   Time : Real;
+   XYZ : File_Type;
    DT : constant Real := 1.0e-2;
-   Time : Real := T;
 begin
    Level := Gradient;
+   Var.X := Momenta (Var);
    
-   --  Put (T, Fore => 3, Exp => 0, Aft => 3); Put ("    "); 
-   --  Put (Control.Dt); Put ("    ");
-   --  Put (Val (Hamiltonian (X, N))); New_Line;
+   Create (XYZ, Name => "out.xyz");
+   
    Put_Line ("T, x1, y1, x2, y2, E");
    Print_Data (Var);
    
-   while T < 1.0e-3 loop
-      --  Time := T + Dt;
-      --  while T < Time loop
-      Update (Hamiltonian'Access, Var, Control);
-      --  end loop;
+   while T < 1.0e1 loop
+      Time := T + Dt;
+      while T < Time loop
+	 if Control.Dt > Time - T then Control.Dt := Time - T; end if;
+	 Update (Hamiltonian'Access, Var, Control);
+      end loop;
       Print_Data (Var);
-      --  Put (T, Fore => 3, Exp => 0, Aft => 3); Put ("    "); 
-      --  Put (Control.Dt); Put ("    ");
-      --  Put (Val (Hamiltonian (X, N))); New_Line;
+      Print_XYZ (XYZ, Var);
    end loop;
    
-   null;
-   
-   --  Put_Line ("--------------------------------");
-   --  for K in X'Range loop
-   --     Put (X (K), Exp => 0, Aft => 3); New_Line;
-   --  end loop;
+
    
 end Auto_Differentiation.Dynamics;

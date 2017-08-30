@@ -177,4 +177,17 @@ package body Forward_AD is
 
    
    
+   -----------------------------------------------------------
+   function Jacobian_Matrix (X : in AD_Vector) return Sparse_Matrix is
+      J : Sparse_Matrix := As_Matrix (Grad (X (X'First)));
+   begin
+      for I in X'First + 1 .. X'Last loop
+	 J := J and Grad (X (I));
+      end loop;
+      return Transpose (J);
+   end Jacobian_Matrix;
+   
+
+   
+   
 end Forward_AD;
