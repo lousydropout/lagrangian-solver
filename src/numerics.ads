@@ -1,18 +1,10 @@
-with Ada.Containers.Vectors, Interfaces.C, Interfaces.C.Pointers, Ada.Text_IO;
 with Ada.Numerics.Generic_Elementary_Functions, Ada.Numerics.Float_Random;
-with Ada.Numerics, Ada.Text_IO;
+with Ada.Numerics, Ada.Containers.Vectors, Ada.Text_IO;
 package Numerics is
    π : constant := Ada.Numerics.π;
    
-   package C renames Interfaces.C;
-   
    
    -------- Define types (Real, Int, Pos, Nat) ----------------------
-   --  type Real is new C.double range C.double'First .. C.double'Last;
-   --  type Int  is new C.long   range C.long'First   .. C.long'Last;
-   --  subtype Pos is Int        range 0              .. Int'Last;
-   --  subtype Nat is Int        range 1              .. Int'Last;
-   
    type Real is new Long_Long_Float 
      range Long_Long_Float'First .. Long_Long_Float'Last;
    subtype Pos is Integer range 0 .. Integer'Last;
@@ -34,11 +26,8 @@ package Numerics is
    
    -------- Define array types -----------------------------------
    type Real_Array is array (Nat range <>) of aliased Real;
-   -- with Convention => C;
    type Int_Array  is array (Nat range <>) of aliased Integer;
-   --  with Convention => C;
    type Real_Matrix is array (Nat range <>, Nat range <>) of aliased Real;
-   --  with Convention => C;
    package Real_Functions is new Ada.Numerics.Generic_Elementary_Functions (Real);
    
    ------- Define Real_IO and Int_IO packages ------------------------
@@ -175,7 +164,6 @@ private
    function Length (X : in Real_Vector) return Integer;
    function Max (X : in Int_Vector) return Integer;
    function Max (X : in Real_Vector) return Real;
-   
    type Sparse_Vector is record
       NMax : Pos := 0;
       X    : Real_Vector;

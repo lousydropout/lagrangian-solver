@@ -1,3 +1,4 @@
+with Interfaces.C, Interfaces.C.Pointers;
 package Numerics.Sparse_Matrices.CSparse is
    
    ------- Define Matrix --------------------------------------------
@@ -14,50 +15,58 @@ package Numerics.Sparse_Matrices.CSparse is
    function Solve (A   : in Sparse_Matrix;
 		   B   : in Sparse_Vector;
 		   Tol : in Real	  := 1.0e-20) return Sparse_Vector;
-   function Solve (LU : in LU_Type;
-		   B  : in Real_Array) return Real_Array
-     with Pre => N_Col (LU) = B'Length;
    function Solve (LU  : in LU_Type;
 		   B   : in Sparse_Vector;
 		   Tol : in Real	  := 1.0e-20) return Sparse_Vector
      with Pre => N_Col (LU) = Length (B);
    
-   
    procedure Free (LU : in out LU_Type);
+   
 private
+   
+   package C renames Interfaces.C;
+   
+   type Creal is new C.double range C.double'First .. C.double'Last;
+   type Cint  is new C.long   range C.long'First   .. C.long'Last;
+   subtype Cpos is Cint        range 0              .. Cint'Last;
+   subtype Cnat is Cint        range 1              .. Cint'Last;
+   
+   type Creal_Array is array (Cnat range <>) of aliased Creal with Convention => C;
+   type Cint_Array is array (Cnat range <>) of aliased Cint with Convention => C;
+   
    ------- Define pointer packages ----------------------------------
-   package Real_Ptrs is new C.Pointers (Index              => Nat,
-					Element            => Real,
-					Element_Array      => Real_Array,
-					Default_Terminator => 0.0);
-   package Int_Ptrs is new C.Pointers (Index              => Nat,
-				       Element            => Int,
-				       Element_Array      => Int_Array,
-				       Default_Terminator => 0);
+   package Creal_Ptrs is new C.Pointers (Index              => Cnat,
+					 Element            => Creal,
+					 Element_Array      => Creal_Array,
+					 Default_Terminator => 0.0);
+   package Cint_Ptrs is new C.Pointers (Index              => Cnat,
+					Element            => Cint,
+					Element_Array      => Cint_Array,
+					Default_Terminator => 0);
 
    ---- Define CS type -----------------------------------------
    type Sparse_Type is
       record
-   	 Nzmax	: Pos	:= 0;
-	 M	: Pos	:= 0;
-	 N	: Pos	:= 0;
-   	 I	: Int_Ptrs.Pointer;
-   	 P	: Int_Ptrs.Pointer;
-   	 X	: Real_Ptrs.Pointer;
-	 Nz	: Pos	:= 0;
+   	 Nzmax	: Cpos	:= 0;
+	 M	: Cpos	:= 0;
+	 N	: Cpos	:= 0;
+   	 I	: Cint_Ptrs.Pointer;
+   	 P	: Cint_Ptrs.Pointer;
+   	 X	: Creal_Ptrs.Pointer;
+	 Nz	: Cpos	:= 0;
       end record with Convention => C;
    type Sparse_Ptr is access Sparse_Type with Convention => C;
    
    type Symbolic_Type is
       record
-	 Pinv		: Int_Ptrs.Pointer;
-	 Q		: Int_Ptrs.Pointer;
-	 Parent		: Int_Ptrs.Pointer;
-	 Cp		: Int_Ptrs.Pointer;
-	 Leftmost	: Int_Ptrs.Pointer;
-	 M2		: Int;
-	 Lnz		: Real;
-	 Unz		: Real;
+	 Pinv		: Cint_Ptrs.Pointer;
+	 Q		: Cint_Ptrs.Pointer;
+	 Parent		: Cint_Ptrs.Pointer;
+	 Cp		: Cint_Ptrs.Pointer;
+	 Leftmost	: Cint_Ptrs.Pointer;
+	 M2		: Cint;
+	 Lnz		: Creal;
+	 Unz		: Creal;
       end record with Convention => C;
    type Symbolic_Ptr is access Symbolic_Type with Convention => C;
    
@@ -65,8 +74,8 @@ private
       record
 	 L	: Sparse_Ptr;
 	 U	: Sparse_Ptr;
-	 Pinv	: Int_Ptrs.Pointer;
-	 B	: Real_Ptrs.Pointer;
+	 Pinv	: Cint_Ptrs.Pointer;
+	 B	: Creal_Ptrs.Pointer;
       end record with Convention => C;
    type Numeric_Ptr  is access Numeric_Type with Convention => C;
    
@@ -74,46 +83,46 @@ private
       record
 	 Symbolic : Symbolic_Ptr;
 	 Numeric  : Numeric_Ptr;
-	 NCol     : Pos := 0;
+	 NCol     : Cpos := 0;
       end record;
    
    ----------- Testing functions -------------------------------------------
-   function Is_Valid (P	: in Real_Ptrs.Pointer;
-		      N	: in Pos) return Boolean;
+   function Is_Valid (P	: in Creal_Ptrs.Pointer;
+		      N	: in Cpos) return Boolean;
 
    
    ------------ C functions -------------------------------------------------
-   function From_Arrays (M  : in Int;
-			 N  : in Int;
-			 Nz : in Int;
-			 I  : in Int_Array;
-			 J  : in Int_Array;
-			 X  : in Real_Array) return Sparse_Ptr
+   function From_Arrays (M  : in Cint;
+			 N  : in Cint;
+			 Nz : in Cint;
+			 I  : in Cint_Array;
+			 J  : in Cint_Array;
+			 X  : in Creal_Array) return Sparse_Ptr
      with Import => True, Convention => C, External_Name => "from_arrays";
    
-   function To_CS (M	 : in Int;
-		   N	 : in Int;
-		   Nzmax : in Int;
-		   I	 : in Int_Array;
-		   P	 : in Int_Array;
-		   X	 : in Real_Array) return Sparse_Ptr
+   function To_CS (M	 : in Cint;
+		   N	 : in Cint;
+		   Nzmax : in Cint;
+		   I	 : in Cint_Array;
+		   P	 : in Cint_Array;
+		   X	 : in Creal_Array) return Sparse_Ptr
      with Import => True, Convention => C, External_Name => "to_cs";
    
-   function CS_Sqr (A	 : in Int    := 0;
+   function CS_Sqr (A	 : in Cint    := 0;
 		    Prob : in Sparse_Ptr;
-		    B	 : in Int    := 0) return Symbolic_Ptr
+		    B	 : in Cint    := 0) return Symbolic_Ptr
      with Import => True, Convention => C, External_Name => "cs_dl_sqr";
    
    function CS_LU (Prob	: in Sparse_Ptr;
 		   S	: in Symbolic_Ptr;
-		   Tol	: in Real    := 1.0e-15) return Numeric_Ptr
+		   Tol	: in Creal    := 1.0e-15) return Numeric_Ptr
      with Import => True, Convention => C, External_Name => "cs_dl_lu";
    
-   function Solve_CS (N_Col : in     Int;
+   function Solve_CS (N_Col : in     Cint;
 		      S	    : in     Symbolic_Ptr;
 		      N	    : in     Numeric_Ptr;
-		      B	    : in     Real_Array;
-		      Err   :    out C.int) return Real_Ptrs.Pointer
+		      B	    : in     Creal_Array;
+		      Err   :    out C.int) return Creal_Ptrs.Pointer
      with Import => True, Convention => C, External_Name => "solve_cs";
    
    function Free (Sparse : in Sparse_Ptr) return Sparse_Ptr
@@ -131,9 +140,13 @@ private
    function To_Sparse (Mat : in Sparse_Matrix) return Sparse_Ptr;
    
    function Solve (LU : in LU_Type;
-		   B  : in Real_Array) return Real_Ptrs.Pointer
+		   B  : in Creal_Array) return Creal_Ptrs.Pointer
      with Post => Is_Valid (Solve'Result, B'Length);
-
    
+   function Solve (LU : in LU_Type;
+		   B  : in Creal_Array) return Creal_Array
+     with Pre => N_Col (LU) = B'Length;
+   function To_Array (X : in Real_Vector) return Creal_Array;
+   function To_Array (X : in Int_Vector) return Cint_Array;   
    
 end Numerics.Sparse_Matrices.CSparse;

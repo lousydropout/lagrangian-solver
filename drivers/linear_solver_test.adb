@@ -35,12 +35,12 @@ begin
    
    ----- Print matrix' info --------------
    Put ("Size of matrix: "); 
-   Put (Mat.N_Row, 0); Put (" x "); Put (Mat.N_Col, 0); New_Line;
-   Put ("Number of entries: "); Put (Mat.Number_Of_Elements, 0); New_Line;
+   Put (N_Row (Mat), 0); Put (" x "); Put (N_Col (Mat), 0); New_Line;
+   Put ("Number of entries: "); Put (Number_Of_Elements (Mat), 0); New_Line;
    
    
    ----- Set size of vectors X and B ----
-   Set_Length (SB, Mat.N_Col); Set_Length (SX, Mat.N_Col); 
+   Set_Length (SB, N_Col (Mat)); Set_Length (SX, N_Col (Mat)); 
    
    
    ----- Begin LU Decomposition ---------
@@ -51,10 +51,10 @@ begin
    
    ------ Begin tests ------------------------
    Put_Line ("Begin testing . . .");
-   for K in 1 .. Int (10) loop
+   for K in 1 .. Integer (10) loop
       Put ("Trial "); Put (K, Width => 2); Put (": "); 
       
-      for I in 1 .. Mat.N_Col loop
+      for I in 1 .. N_Col (Mat) loop
 	 Set (SB, I, (10.0 * Rand) ** 10 * Sin (10.0 * Rand));
       end loop;
       
