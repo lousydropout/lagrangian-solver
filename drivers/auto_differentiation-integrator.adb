@@ -74,7 +74,9 @@ package body Auto_Differentiation.Integrator is
       Y2 := Y1 + R * Cos (2.0 * X (1) + X (2));
       -- print header
       Put_Line (File, "3");
-      Put_Line (File, "Properties=pos:R:2");
+      Put (File, "Properties=pos:R:2   Time=");
+      Put (File, Var.T, Aft => 5, Exp => 0);
+      New_Line(File);
       -- position of ball 1
       Put_Line (File, "0.0     0.0     5.0");
       -- position of ball 2
@@ -92,6 +94,31 @@ package body Auto_Differentiation.Integrator is
       Put (File => File, Item => "5.0");
       New_Line (File => File);
    end Print_XYZ;
+   
+   --- print data ------
+   procedure Print_Data (Var : in Variable;
+			 Hamiltonian : not null access 
+			   function (X : Real_Array; N : Nat) return AD_Type) is
+      use Real_Functions, Real_IO;
+      T : Real renames Var.X (1);
+      S : Real renames Var.X (2);
+      X, Y : Real_Array (1 .. 2);
+   begin
+      X (1) := -Sin (T);
+      Y (1) :=  Cos (T);
+      X (2) := X (1) - Sin (2.0 * T + S);
+      Y (2) := Y (1) + Cos (2.0 * T + S);
+      
+      ---------------------------------------
+      Put (Var.T, Aft => 3, Exp => 0); -- print time
+      for I in 1 .. 2 loop
+	 Put (",  "); Put (X (I), Aft => 3, Exp => 0);
+	 Put (",  "); Put (Y (I), Aft => 3, Exp => 0); -- print positions
+      end loop;
+      Put (",  "); 
+      -- print total energy
+      Put (Val (Hamiltonian (Var.X, 2)), Aft => 10, Exp => 0); New_Line;
+   end Print_Data;
    
    
 end Auto_Differentiation.Integrator;

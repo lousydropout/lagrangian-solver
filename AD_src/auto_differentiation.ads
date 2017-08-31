@@ -28,13 +28,24 @@ package Auto_Differentiation is
    function Grad (X : in AD_Type) return Real_Array;
    function Hessian (X : in AD_Type) return Sparse_Matrix;
    function Length (X : in AD_Type) return Pos;
-
-
+   
+   
+   function "+" (X : in Real;
+		 Y : in AD_Type) return AD_Type;
+   function "+" (X : in AD_Type;
+		 Y : in Real) return AD_Type is (Y + X);
+   function "-" (X : in Real;
+		 Y : in AD_Type) return AD_Type;
+   function "-" (X : in AD_Type;
+		 Y : in Real) return AD_Type is (Y - X);
+   function "/" (X : in Real;
+		 Y : in AD_Type) return AD_Type;
+   
    function "+" (X, Y : in AD_Type) return AD_Type;
    function "-" (X, Y : in AD_Type) return AD_Type;
    function "*" (X, Y : in AD_Type) return AD_Type;
    function "/" (X, Y : in AD_Type) return AD_Type;
-   function "**" (X : in AD_Type; N : in Pos) return AD_Type;
+   function "**" (X : in AD_Type; N : in Integer) return AD_Type;
    
    function Sin (X : in AD_Type) return AD_Type;
    function Cos (X : in AD_Type) return AD_Type;

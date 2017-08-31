@@ -26,6 +26,11 @@ package Auto_Differentiation.Integrator is
 		     Var         : in out Variable;
 		     Control     : in out Control_Type);
 
+   
+   procedure Print_Data (Var : in Variable;
+			 Hamiltonian : not null access 
+			   function (X : Real_Array; N : Nat) return AD_Type);
+   
    procedure Print_XYZ (File : in File_Type;
 			Var  : in Variable);
    

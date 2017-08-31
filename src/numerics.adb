@@ -478,16 +478,20 @@ package body Numerics is
       return Result;
    end "*";
 
-   
-   --  function "**" (Left : in Real; Right : in Integer) return Real is
-   --     Y : constant Real := Left ** Natural (abs (Right));
-   --  begin
-   --     if Right >= 0 then
-   --  	 return Y;
-   --     else
-   --  	 return (-Y);
-   --     end if;
-   --  end "**";
+   -----------   Real_Array functions ---------------------------
+   function "*" (A : in Real_Matrix;
+		 X : in Real_Array) return Real_Array is
+      Y : Real_Array (A'Range (1)) := (others => 0.0);
+      Offset1 : constant Integer := A'First (1) - Y'First;
+      Offset2 : constant Integer := A'First (2) - X'First;
+   begin
+      for I in Y'Range loop
+	 for J in X'Range loop
+	    Y (I) := A (I + Offset1, J + Offset2) * X (J);
+	 end loop;
+      end loop;
+      return Y;
+   end "*";
    
 begin
    Ada.Numerics.Float_Random.Reset (Gen);

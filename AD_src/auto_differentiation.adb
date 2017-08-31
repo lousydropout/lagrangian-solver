@@ -1,7 +1,26 @@
 with Ada.Text_IO;
 
 package body Auto_Differentiation is
+   function "+" (X : in Real;
+		 Y : in AD_Type) return AD_Type is
+      N : Nat := Length (Y);
+   begin
+      return Const (X, N) + Y;
+   end "+";
    
+   function "-" (X : in Real;
+		 Y : in AD_Type) return AD_Type is
+      N : Nat := Length (Y);
+   begin
+      return Const (X, N) - Y;
+   end "-";
+   function "/" (X : in Real;
+		 Y : in AD_Type) return AD_Type is
+      N : Nat := Length (Y);
+   begin
+      return Const (X, N) / Y;
+   end "/";
+
    function Const (X : in Real;
 		   N : in Nat) return AD_Type is
       Y : Real_Array (1 .. N) := (others => 0.0);
@@ -172,7 +191,7 @@ package body Auto_Differentiation is
       end case;
    end "/";
    
-   function "**" (X : in AD_Type; N : in Pos) return AD_Type is
+   function "**" (X : in AD_Type; N : in Integer) return AD_Type is
       Y : Real;
       Z : Real;
       H : Sparse_Matrix;

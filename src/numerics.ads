@@ -58,6 +58,10 @@ package Numerics is
    function "*" (Left  : in Real_Array;
 		 Right : in Real) return Real_Array is (Right * Left);
    
+   -----------   Real_Array functions ---------------------------
+   function "*" (A : in Real_Matrix;
+		 X : in Real_Array) return Real_Array
+     with Pre => A'Length (2) = X'Length;
    -------- Pos2D functions --------------------------------------
    function "+" (X : in Pos2D) return Pos2D is (X);
    function "-" (X : in Pos2D) return Pos2D;
