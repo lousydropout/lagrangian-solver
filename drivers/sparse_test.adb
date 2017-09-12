@@ -7,14 +7,23 @@ procedure Sparse_Test is
    A  : Sparse_Matrix;
    B  : Sparse_Matrix;
    C  : Sparse_Matrix;
-   X  : Sparse_Vector := Sparse ((0.0, 0.0, 0.0, 1.0));
+   X  : Sparse_Vector := Sparse ((0.0, 0.0, 2.0, 1.0));
+   Y  : Sparse_Vector := Sparse ((3.0, 4.0, 0.0, 1.0));
 begin
    
    B := Eye (4); Print (B);
    Put_Line ("---------------------------------------------------------");
-   A := X * X;   Print (A);
+   A := X * Y;   Print (A);
    Put_Line ("---------------------------------------------------------");
    C := A + B;   Print (C);
    Put_Line ("---------------------------------------------------------");
-
+   B := Remove_1stN (C, 1);
+   Print (B);
+   Put_Line ("---------------------------------------------------------");
+   Put_Line ("---------------------------------------------------------");
+   
+   Print (Y);
+   Put_Line ("---------------------------------------------------------");
+   Y := Remove_1stN (X, 2);
+   Print (Y);
 end Sparse_Test;

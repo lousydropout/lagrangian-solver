@@ -110,10 +110,10 @@ package body Auto_Differentiation.Integrator is
       Y (2) := Y (1) + Cos (2.0 * T + S);
       
       ---------------------------------------
-      Put (Var.T, Aft => 3, Exp => 0); -- print time
+      Put (Var.T, Aft => 6, Exp => 0); -- print time
       for I in 1 .. 2 loop
-	 Put (",  "); Put (X (I), Aft => 3, Exp => 0);
-	 Put (",  "); Put (Y (I), Aft => 3, Exp => 0); -- print positions
+	 Put (",  "); Put (X (I), Aft => 4, Exp => 0);
+	 Put (",  "); Put (Y (I), Aft => 4, Exp => 0); -- print positions
       end loop;
       Put (",  "); 
       -- print total energy

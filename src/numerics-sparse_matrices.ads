@@ -126,7 +126,9 @@ package Numerics.Sparse_Matrices is
    function "or" (Left  : in Real_Matrix;
 		  Right : in Sparse_Matrix)  return Sparse_Matrix is (Sparse (Left) or Right);
 
-   
+   function Remove_1stN (A : in Sparse_Matrix;
+			 N : in Pos) return Sparse_Matrix;
+     
    ------- File Readers ---------------------------------------------------
    function Read_Sparse_Triplet (File_Name : in String;
 				 Offset	   : in Integer := 0) return Sparse_Matrix;

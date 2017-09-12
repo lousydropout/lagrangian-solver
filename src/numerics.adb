@@ -357,7 +357,25 @@ package body Numerics is
    end Add;
    
    
-   
+   function Remove_1stN (X : in Sparse_Vector;
+			 N : in Pos) return Sparse_Vector is
+      Y : Sparse_Vector;
+   begin
+      pragma Assert (X.NMax > N);
+      Y.NMax := X.NMax - N;
+      Y.I.Reserve_Capacity (X.X.Length);
+      Y.X.Reserve_Capacity (X.X.Length);
+      
+      for I in 1 .. Pos (X.X.Length) loop
+	 if X.I (I) > N then
+	    Y.I.Append (X.I (I) - N);
+	    Y.X.Append (X.X (I));
+	 end if;
+      end loop;
+      Y.I.Reserve_Capacity (Y.I.Length);
+      Y.X.Reserve_Capacity (Y.X.Length);
+      return Y;
+   end Remove_1stN;
    
    function "+" (X, Y : in Pos2D) return Pos2D is
    begin

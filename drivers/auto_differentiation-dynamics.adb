@@ -52,12 +52,12 @@ procedure Auto_Differentiation.Dynamics is
    function Momenta (Var : in Variable) return Real_Array is
       use Real_Functions;
       X : Real_Array renames Var.X;
-      P : Real_Array := X;
       C : constant Real := Cos (X (1) + X (2));
    begin
-      P (3) := (6.1 + 4.0 * C) * X (3) + (2.0 + C) * X (4);
-      P (4) := (2.0 +       C) * X (3) +  1.1      * X (4);
-      return P;
+      return (X (1), 
+	      X (2),
+	      (6.1 + 4.0 * C) * X (3) + (2.0 + C) * X (4),
+	      (2.0 +       C) * X (3) +  1.1      * X (4));
    end Momenta;
    
    
@@ -70,21 +70,21 @@ procedure Auto_Differentiation.Dynamics is
    -------------------------------
    Time : Real;
    XYZ  : File_Type;
-   DT   : constant Real := 1.0e-1;
+   DT   : constant Real := 1.0e-2;
    
 begin
-   Control.Eps := 1.0e-3;
+   Control.Eps := 1.0e-8;
    Level := Gradient;
    
    X := Momenta (Var);
    
    Create (XYZ, Name => "out.xyz");
-   
+
    Put_Line ("T, x1, y1, x2, y2, E");
    Print_Data (Var, Hamiltonian'Access);
    Print_XYZ (XYZ, Var);
    
-   while T < 1.0e1 loop
+   while T < 1.0e2 loop
       Time := T + Dt;
       while T < Time loop
 	 if Control.Dt > Time - T then Control.Dt := Time - T; end if;

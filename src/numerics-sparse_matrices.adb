@@ -426,6 +426,41 @@ package body Numerics.Sparse_Matrices is
    end To_Triplet;
    
    
+   function Remove_1stN (A : in Sparse_Matrix;
+			 N : in Pos) return Sparse_Matrix is
+      use Ada.Containers;
+      B : Sparse_Matrix;
+      K : Pos := 1;
+   begin
+      B.Format := A.Format;
+      pragma Assert (A.N_Col > N); pragma Assert (A.N_Row > N);
+      B.N_Row := A.N_Row - N;
+      B.N_Col := A.N_Col - N;
+      B.P.Reserve_Capacity (A.P.Length - Count_Type (N));
+      B.I.Reserve_Capacity (A.I.Length);
+      B.X.Reserve_Capacity (A.X.Length);
+      
+      B.P.Append (1);
+      for J in N + 1 .. Pos (A.P.Length) - 1 loop
+	 for I in A.P (J) .. A.P (J + 1) - 1 loop
+	    if A.I (I) > N then
+	       K := K + 1;
+	       B.I.Append (A.I (I) - N);
+	       B.X.Append (A.X (I));
+	    end if;
+	 end loop;
+	 B.P.Append (K);
+      end loop;
+      B.P.Reserve_Capacity (B.P.Length);
+      B.I.Reserve_Capacity (B.I.Length);
+      B.X.Reserve_Capacity (B.X.Length);
+      
+      return B;
+   end Remove_1stN;
+
+   
+   
+   
    procedure Testing_Stuff (A : in Sparse_Matrix) is
       use Real_IO, Int_IO, Ada.Text_IO;
       I, J : Int_Vector;
@@ -448,5 +483,7 @@ package body Numerics.Sparse_Matrices is
       end loop;
       Put_Line ("finished testing stuff."); New_Line;
    end Testing_Stuff;
-      
+   
+   
+   
 end Numerics.Sparse_Matrices;
