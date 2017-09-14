@@ -18,15 +18,6 @@ package body Numerics.Sparse_Matrices.CSparse is
    end LU_Decomposition;
    
    
-   function Solve (A   : in Sparse_Matrix;
-		   B   : in Sparse_Vector;
-		   Tol : in Real	  := 1.0e-20) return Sparse_Vector is
-      LU : LU_Type := LU_Decomposition (A, Tol);
-   begin
-      return Solve (LU, B, Tol);
-   end Solve;
-   
-   
    function Solve (LU  : in LU_Type;
 		   B   : in Sparse_Vector;
 		   Tol : in Real	  := 1.0e-20) return Sparse_Vector is
@@ -107,3 +98,4 @@ package body Numerics.Sparse_Matrices.CSparse is
    end To_Array;
    
 end Numerics.Sparse_Matrices.CSparse;
+

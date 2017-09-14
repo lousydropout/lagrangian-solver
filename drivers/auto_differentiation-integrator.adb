@@ -12,9 +12,9 @@ package body Auto_Differentiation.Integrator is
       N   : Nat  renames Control.N;
       Dt  : Real renames Control.Dt;
       Err : Real renames Control.Err;
-      J   : constant Sparse_Matrix := -Omega (N);
+      J   : constant Sparse_Matrix    := -Omega (N);
+      Old : constant Evaluation_Level :=  Level;
       K1, K2, K3, K4, Y, Z : Real_Array (X'Range);
-      Old : constant Evaluation_Level := Level;
    begin
       pragma Assert (2 * N = Var.N2);
       -- Turn off the calculation of Hessians (not used for explicit schemes):

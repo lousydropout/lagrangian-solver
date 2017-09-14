@@ -143,7 +143,7 @@ package Numerics is
    
 
    --  function "**" (Left : in Real; Right : in Int) return Real;
-
+   function "and" (X, Y : in Sparse_Vector) return Sparse_Vector;
    
 private
    

@@ -12,14 +12,15 @@ package Numerics.Sparse_Matrices.CSparse is
 			      Tol : in Real   := 1.0e-20) return LU_Type
      with Pre => Is_Valid (Mat) and Is_Square_Matrix (Mat);
    
-   function Solve (A   : in Sparse_Matrix;
-		   B   : in Sparse_Vector;
-		   Tol : in Real	  := 1.0e-20) return Sparse_Vector;
    function Solve (LU  : in LU_Type;
 		   B   : in Sparse_Vector;
 		   Tol : in Real	  := 1.0e-20) return Sparse_Vector
      with Pre => N_Col (LU) = Length (B);
    
+   function Solve (A   : in Sparse_Matrix;
+		   B   : in Sparse_Vector;
+		   Tol : in Real	  := 1.0e-20) return Sparse_Vector is
+      (Solve (LU => LU_Decomposition (A, Tol), B => B, Tol => Tol));
    procedure Free (LU : in out LU_Type);
    
 private
@@ -28,8 +29,8 @@ private
    
    type Creal is new C.double range C.double'First .. C.double'Last;
    type Cint  is new C.long   range C.long'First   .. C.long'Last;
-   subtype Cpos is Cint        range 0              .. Cint'Last;
-   subtype Cnat is Cint        range 1              .. Cint'Last;
+   subtype Cpos is Cint       range 0              .. Cint'Last;
+   subtype Cnat is Cint       range 1              .. Cint'Last;
    
    type Creal_Array is array (Cnat range <>) of aliased Creal with Convention => C;
    type Cint_Array is array (Cnat range <>) of aliased Cint with Convention => C;

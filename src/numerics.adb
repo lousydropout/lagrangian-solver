@@ -377,6 +377,25 @@ package body Numerics is
       return Y;
    end Remove_1stN;
    
+   function "and" (X, Y : in Sparse_Vector) return Sparse_Vector is
+      use Ada.Containers;
+      Z : Sparse_Vector;
+   begin
+      Z.NMax := X.NMax + Y.NMax;
+      Z.I.Reserve_Capacity (X.I.Length + Y.I.Length);
+      Z.X.Reserve_Capacity (X.I.Length + Y.I.Length);
+      
+      for I in 1 .. Pos (X.X.Length) loop
+	 Z.I.Append (X.I (I));
+	 Z.X.Append (X.X (I));
+      end loop;
+      for I in 1 .. Pos (Y.X.Length) loop
+	 Z.I.Append (Y.I (I) + X.NMax);
+	 Z.X.Append (Y.X (I));
+      end loop;
+      return Z;
+   end "and";
+   
    function "+" (X, Y : in Pos2D) return Pos2D is
    begin
       return (X.X + Y.X, X.Y + Y.Y);
