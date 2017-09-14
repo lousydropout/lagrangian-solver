@@ -1,7 +1,4 @@
-with Ada.Numerics.Generic_Real_Arrays;
 package body Numerics is
-   
-   package Real_Arrays is new Ada.Numerics.Generic_Real_Arrays (Real);
    
    function Rand return Real is 
       use Ada.Numerics.Float_Random;
