@@ -18,3 +18,4 @@ bubble
 *.Rhistory
 *.csv
 dynamics
+chebyshev_test

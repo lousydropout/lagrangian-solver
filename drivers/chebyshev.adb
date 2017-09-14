@@ -3,6 +3,28 @@ use  Numerics;
 package body Chebyshev is
    
    
+   function CGL_Transform (F : in Real_Array;
+			   L : in Real := -1.0;
+			   R : in Real :=  1.0) return Real_Array is
+      N : constant Nat := F'Length;
+      X : constant Real_Array  := Chebyshev_Gauss_Lobatto (N);
+      G : Real_Array := (2.0 / Real (N - 1)) * F ;
+      T : Real_Matrix (1 .. N, 1 .. N);
+   begin
+      G (1) := 0.5 * G (1);
+      G (N) := 0.5 * G (N);
+      
+      for J in X'Range loop
+	 T (1, J) := 1.0; 
+	 T (2, J) := X (J);
+	 for I in 3 .. N loop
+	    T (I, J) := 2.0 * X (J) * T (I - 1, J) - T (I - 2, J);
+	 end loop;
+      end loop;
+      
+      return (T * G);
+   end CGL_Transform;
+   
    function Chebyshev_Gauss_Lobatto (N : in Nat;
 				     L : in Real := -1.0;
 				     R : in Real :=  1.0) return Real_Array is
@@ -34,7 +56,7 @@ package body Chebyshev is
       D (N, N) :=  (1.0 + 2.0 * Real (M ** 2)) / 6.0;
       -- Diagonals
       for I in D'First (1) + 1 .. D'Last (1) - 1 loop
-	 D (I, I) := 0.5 * X (I) / (1.0 - X (I) ** 2);
+	 D (I, I) := -0.5 * X (I) / (1.0 - X (I) ** 2);
       end loop;
       -- Non-diagonals      
       for I in D'Range (1) loop
@@ -51,7 +73,21 @@ package body Chebyshev is
    end Derivative_Matrix;
 
      
-
-   
-   
+   function Interpolate (A : in Real_Array;
+			 X : in Real) return Real is
+      N : constant Nat := A'Length;
+      T : Real_Array (1 .. N);
+      Y : Real := 0.0;
+   begin
+      T (1) := 1.0; T (2) := X;
+      for I in 3 .. N loop
+	 T (I) := 2.0 * X * T (I - 1) - T (I - 2);
+      end loop;
+      T (1) := 0.5; T (N) := 0.5 * T (N);
+      
+      for I in 1 .. N loop
+	 Y := Y + A (I) * T (I);
+      end loop;
+      return Y;
+   end Interpolate;
 end Chebyshev;
