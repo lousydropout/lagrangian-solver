@@ -8,6 +8,7 @@ Project Main is
 		--  "dynamics",
 		--  "ad_test",
 		"sparse_test",
+		"chebyshev_test",
 		--  "forward_ad-dynamics"
 		--  "bubble");
 		"linear_solver_test",

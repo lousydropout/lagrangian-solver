@@ -515,13 +515,13 @@ package body Numerics is
    -----------   Real_Array functions ---------------------------
    function "*" (A : in Real_Matrix;
 		 X : in Real_Array) return Real_Array is
-      Y : Real_Array (A'Range (1)) := (others => 0.0);
+      Y : Real_Array (1 .. A'Length (1)) := (others => 0.0);
       Offset1 : constant Integer := A'First (1) - Y'First;
       Offset2 : constant Integer := A'First (2) - X'First;
    begin
       for I in Y'Range loop
 	 for J in X'Range loop
-	    Y (I) := A (I + Offset1, J + Offset2) * X (J);
+	    Y (I) := Y (I) + A (I + Offset1, J + Offset2) * X (J);
 	 end loop;
       end loop;
       return Y;

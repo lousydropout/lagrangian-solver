@@ -34,7 +34,7 @@ package body Chebyshev is
       D (N, N) :=  (1.0 + 2.0 * Real (M ** 2)) / 6.0;
       -- Diagonals
       for I in D'First (1) + 1 .. D'Last (1) - 1 loop
-	 D (I, I) := -0.5 * X (I) / (1.0 - X (I) ** 2);
+	 D (I, I) := 0.5 * X (I) / (1.0 - X (I) ** 2);
       end loop;
       -- Non-diagonals      
       for I in D'Range (1) loop
