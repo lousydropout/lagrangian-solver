@@ -18,7 +18,7 @@ package body Numerics is
    
    
    -- Vectorize & To_Array are needed in Triplet_To_Matrix
-   procedure Set (X  : in out Real_Vector;
+   procedure Set (X  : in out RVector;
 		  To : in     Real_Array) is
    begin
       X.Reserve_Capacity (To'Length);
@@ -28,7 +28,7 @@ package body Numerics is
       end loop;
    end Set;
    
-   procedure Set (X  : in out Int_Vector;
+   procedure Set (X  : in out IVector;
 		  To : in     Int_Array) is
    begin
       X.Reserve_Capacity (To'Length);
@@ -38,8 +38,8 @@ package body Numerics is
       end loop;
    end Set;
    
-   function Vectorize (Item : in Real_Array) return Real_Vector is
-      X : Real_Vector;
+   function Vectorize (Item : in Real_Array) return RVector is
+      X : RVector;
    begin
       X.Reserve_Capacity (Item'Length);
       X.Set_Length (0);
@@ -49,8 +49,8 @@ package body Numerics is
       return X;
    end Vectorize;
    
-   function Vectorize (Item : in Int_Array) return Int_Vector is
-      X : Int_Vector;
+   function Vectorize (Item : in Int_Array) return IVector is
+      X : IVector;
    begin
       X.Reserve_Capacity (Item'Length);
       X.Set_Length (0);
@@ -71,7 +71,7 @@ package body Numerics is
    end Norm;
 
    
-   function To_Array (Item : in Real_Vector) return Real_Array is
+   function To_Array (Item : in RVector) return Real_Array is
       Result : Real_Array (1 .. Nat (Item.Length));
       I : Nat := 1;
       use Ada.Text_IO;
@@ -83,7 +83,7 @@ package body Numerics is
       return Result;
    end To_Array;
    
-   function To_Array (Item : in Int_Vector) return Int_Array is
+   function To_Array (Item : in IVector) return Int_Array is
       Result : Int_Array (1 .. Nat (Item.Length));
       I : Nat := 1;
       use Ada.Text_IO;
@@ -100,13 +100,13 @@ package body Numerics is
    ----- Vector and Array functions
    
    
-   procedure Set_Length (V : in out Real_Vector;
+   procedure Set_Length (V : in out RVector;
 			 N : in     Integer) is
    begin
       V.Set_Length (Ada.Containers.Count_Type (N));
    end Set_Length;
 
-   function Length (X : in Real_Vector) return Integer is (Integer (X.Length));
+   function Length (X : in RVector) return Integer is (Integer (X.Length));
    
    
    
@@ -117,7 +117,7 @@ package body Numerics is
    function Abs_Max_IA (Item : in Int_Array) return Integer is separate;
    function Abs_Max_RA (Item : in Real_Array) return Real is separate;
    
-   function Max (X : in Int_Vector) return Integer is
+   function Max (X : in IVector) return Integer is
       Result : Integer;
    begin
       case X.Length is
@@ -132,7 +132,7 @@ package body Numerics is
       end case;
    end Max;
    
-   function Max (X : in Real_Vector) return Real is
+   function Max (X : in RVector) return Real is
       Result : Real;
    begin
       case X.Length is

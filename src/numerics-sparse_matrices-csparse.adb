@@ -77,7 +77,7 @@ package body Numerics.Sparse_Matrices.CSparse is
       LU.NCol     := 0;
    end Free;
    
-   function To_Array (X : in Real_Vector) return Creal_Array is
+   function To_Array (X : in RVector) return Creal_Array is
       Z : Real_Array := To_Array (X);
       Y : Creal_Array (Cint (Z'First) .. Cint (Z'Last));
    begin
@@ -87,7 +87,7 @@ package body Numerics.Sparse_Matrices.CSparse is
       return Y;
    end To_Array;
    
-   function To_Array (X : in Int_Vector) return Cint_Array is
+   function To_Array (X : in IVector) return Cint_Array is
       Z : Int_Array := To_Array (X);
       Y : Cint_Array (Cint (Z'First) .. Cint (Z'Last));
    begin

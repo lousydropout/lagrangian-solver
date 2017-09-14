@@ -147,7 +147,7 @@ private
    function Solve (LU : in LU_Type;
 		   B  : in Creal_Array) return Creal_Array
      with Pre => N_Col (LU) = B'Length;
-   function To_Array (X : in Real_Vector) return Creal_Array;
-   function To_Array (X : in Int_Vector) return Cint_Array;   
+   function To_Array (X : in RVector) return Creal_Array;
+   function To_Array (X : in IVector) return Cint_Array;   
    
 end Numerics.Sparse_Matrices.CSparse;

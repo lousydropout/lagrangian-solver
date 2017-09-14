@@ -139,14 +139,14 @@ package Numerics.Sparse_Matrices is
 private
    
    --  function BiCGSTAB (A   : in     Sparse_Matrix;
-   --  		      B   : in     Real_Vector;
-   --  		      X0  : in     Real_Vector;
+   --  		      B   : in     RVector;
+   --  		      X0  : in     RVector;
    --  		      Err :    out Real;
-   --  		      Tol : in     Real	    := 1.0e-10) return Real_Vector;
+   --  		      Tol : in     Real	    := 1.0e-10) return RVector;
    procedure Triplet_To_Matrix (Result :    out Sparse_Matrix;
-				I      : in     Int_Vector;
-				J      : in     Int_Vector;
-				X      : in     Real_Vector;
+				I      : in     IVector;
+				J      : in     IVector;
+				X      : in     RVector;
 				N_Row  : in     Pos	      := 0;
 				N_Col  : in     Pos	      := 0);
    
@@ -165,9 +165,9 @@ private
    --  	 Format : Sparse_Matrix_Format := CSC;
    --  	 N_Row  : Pos := 0;
    --  	 N_Col  : Pos := 0;
-   --  	 X      : Real_Vector;
-   --  	 I      : Int_Vector;
-   --  	 P      : Int_Vector;
+   --  	 X      : RVector;
+   --  	 I      : IVector;
+   --  	 P      : IVector;
    --     end record;
    
    
@@ -183,9 +183,9 @@ private
    
 
    procedure To_Triplet (A     : in     Sparse_Matrix;
-			 I     :    out Int_Vector;
-			 J     :    out Int_Vector;
-			 X     :    out Real_Vector;
+			 I     :    out IVector;
+			 J     :    out IVector;
+			 X     :    out RVector;
 			 N_Row :    out Pos;
 			 N_Col :    out Pos);
    
@@ -194,9 +194,9 @@ private
 	 Format : Sparse_Matrix_Format := CSC;
 	 N_Row  : Pos := 0;
 	 N_Col  : Pos := 0;
-	 X      : Real_Vector;
-	 I      : Int_Vector;
-	 P      : Int_Vector;
+	 X      : RVector;
+	 I      : IVector;
+	 P      : IVector;
       end record;
 
 end Numerics.Sparse_Matrices;

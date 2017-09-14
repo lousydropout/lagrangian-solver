@@ -5,7 +5,7 @@ procedure Compress (Mat : in out Sparse_Matrix) is
    I          : Int_Array  (1 .. Integer (Mat.X.Length)) := (others => 0);
    Col, Count : Int_Array  (1 .. Mat.N_Col + 1)      := (others => 0);
    Index      : Nat                                  := 1;
-   P          : Int_Vector renames Mat.P;
+   P          : IVector renames Mat.P;
 begin
    Mat.Format := CSC;
    

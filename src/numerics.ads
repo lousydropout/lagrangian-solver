@@ -10,12 +10,6 @@ package Numerics is
    subtype Pos is Integer range 0 .. Integer'Last;
    subtype Nat is Integer range 1 .. Integer'Last;
    
-   ------- Define Real_Vector and Int_Vector packages ------------------------
-   package IV_Package is new Ada.Containers.Vectors (Nat, Integer,  "=");
-   package RV_Package is new Ada.Containers.Vectors (Nat, Real, "=");
-   subtype Int_Vector  is IV_Package.Vector;
-   subtype Real_Vector is RV_Package.Vector;
-   
    type Sparse_Vector is private;
    
    type Pos2D is record
@@ -149,30 +143,36 @@ private
    
    Gen : Ada.Numerics.Float_Random.Generator;
    
+   ------- Define RVector and IVector packages ------------------------
+   package IV_Package is new Ada.Containers.Vectors (Nat, Integer,  "=");
+   package RV_Package is new Ada.Containers.Vectors (Nat, Real, "=");
+   
+   subtype IVector  is IV_Package.Vector;
+   subtype RVector is RV_Package.Vector;
    
    
    
    -- Vectorize & To_Array are needed in Triplet_To_Matrix
-   procedure Set (X  : in out Real_Vector;
+   procedure Set (X  : in out RVector;
 		  To : in     Real_Array);
-   procedure Set (X  : in out Int_Vector;
+   procedure Set (X  : in out IVector;
 		  To : in     Int_Array);
 
-   function Vectorize (Item : in Real_Array) return Real_Vector;
-   function Vectorize (Item : in Int_Array)  return Int_Vector;
-   function To_Array (Item : in Real_Vector) return Real_Array;
-   function To_Array (Item : in Int_Vector) return Int_Array;
+   function Vectorize (Item : in Real_Array) return RVector;
+   function Vectorize (Item : in Int_Array)  return IVector;
+   function To_Array (Item : in RVector) return Real_Array;
+   function To_Array (Item : in IVector) return Int_Array;
 
    ----- Vector and Array functions
-   procedure Set_Length (V : in out Real_Vector;
+   procedure Set_Length (V : in out RVector;
 			 N : in     Integer);
-   function Length (X : in Real_Vector) return Integer;
-   function Max (X : in Int_Vector) return Integer;
-   function Max (X : in Real_Vector) return Real;
+   function Length (X : in RVector) return Integer;
+   function Max (X : in IVector) return Integer;
+   function Max (X : in RVector) return Real;
    type Sparse_Vector is record
       NMax : Pos := 0;
-      X    : Real_Vector;
-      I    : Int_Vector;
+      X    : RVector;
+      I    : IVector;
    end record;
    
 end Numerics;

@@ -3,8 +3,8 @@ separate (Numerics.Sparse_Matrices)
 function Plus2 (Left  : in Sparse_Matrix;
 		Right : in Sparse_Matrix) return Sparse_Matrix is
    use Ada.Text_IO, Ada.Containers;
-   X, Y : Real_Vector;
-   Ai, Aj, Bi, Bj : Int_Vector;
+   X, Y : RVector;
+   Ai, Aj, Bi, Bj : IVector;
    N_Row, N_Col : Pos;
    N : constant Count_Type := Left.X.Length + Right.X.Length;
    C : Sparse_Matrix;

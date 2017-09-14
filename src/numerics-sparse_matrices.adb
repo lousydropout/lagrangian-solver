@@ -127,11 +127,11 @@ package body Numerics.Sparse_Matrices is
    
    
    --  function BiCGSTAB (A   : in     Sparse_Matrix;
-   --  		      B   : in     Real_Vector;
-   --  		      X0  : in     Real_Vector;
+   --  		      B   : in     RVector;
+   --  		      X0  : in     RVector;
    --  		      Err :    out Real;
    --  		      Tol : in     Real	    := 1.0e-10) 
-   --  		     return Real_Vector is separate;
+   --  		     return RVector is separate;
 
    function Number_Of_Elements (X : in Sparse_Matrix) return Integer is (Pos (X.X.Length));
    
@@ -149,9 +149,9 @@ package body Numerics.Sparse_Matrices is
    end Is_Valid;
    
    procedure Triplet_To_Matrix (Result :    out Sparse_Matrix;
-				I      : in     Int_Vector;
-				J      : in     Int_Vector;
-				X      : in     Real_Vector;
+				I      : in     IVector;
+				J      : in     IVector;
+				X      : in     RVector;
 				N_Row  : in     Pos	      := 0;
 				N_Col  : in     Pos	      := 0) is
    begin
@@ -169,9 +169,9 @@ package body Numerics.Sparse_Matrices is
 				return Sparse_Matrix is
       use Ada.Text_IO, Ada.Containers, Real_IO, Int_IO;
       N_Lines : Count_Type := 0;
-      I_Vec : Int_Vector;
-      J_Vec : Int_Vector;
-      X_Vec : Real_Vector;
+      I_Vec : IVector;
+      J_Vec : IVector;
+      X_Vec : RVector;
       Int_Input : Integer;
       Real_Input : Real;
       File : File_Type;
@@ -402,9 +402,9 @@ package body Numerics.Sparse_Matrices is
    
    
    procedure To_Triplet (A     : in     Sparse_Matrix;
-			 I     :    out Int_Vector;
-			 J     :    out Int_Vector;
-			 X     :    out Real_Vector;
+			 I     :    out IVector;
+			 J     :    out IVector;
+			 X     :    out RVector;
 			 N_Row :    out Pos;
 			 N_Col :    out Pos) is
       use Ada.Containers;
@@ -463,8 +463,8 @@ package body Numerics.Sparse_Matrices is
    
    procedure Testing_Stuff (A : in Sparse_Matrix) is
       use Real_IO, Int_IO, Ada.Text_IO;
-      I, J : Int_Vector;
-      X : Real_Vector;
+      I, J : IVector;
+      X : RVector;
       N_Row, N_Col : Pos;
    begin
       New_Line;

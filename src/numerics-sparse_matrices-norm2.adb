@@ -2,8 +2,8 @@ separate (Numerics.Sparse_Matrices)
 
 function Norm2 (Item : in Sparse_Matrix) return Real is
    Sum, Result : Real := 0.0;
-   X : Real_Vector renames Item.X;
-   P : Int_Vector renames Item.P;
+   X : RVector renames Item.X;
+   P : IVector renames Item.P;
    --  use Real_Functions;
 begin
    
