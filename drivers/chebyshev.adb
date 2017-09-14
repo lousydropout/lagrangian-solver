@@ -3,9 +3,7 @@ use  Numerics;
 package body Chebyshev is
    
    
-   function CGL_Transform (F : in Real_Array;
-			   L : in Real := -1.0;
-			   R : in Real :=  1.0) return Real_Array is
+   function CGL_Transform (F : in Real_Array) return Real_Array is
       N : constant Nat := F'Length;
       X : constant Real_Array  := Chebyshev_Gauss_Lobatto (N);
       G : Real_Array := (2.0 / Real (N - 1)) * F ;
@@ -74,20 +72,23 @@ package body Chebyshev is
 
      
    function Interpolate (A : in Real_Array;
-			 X : in Real) return Real is
+			 X : in Real;
+			 L : in Real := -1.0;
+			 R : in Real :=  1.0) return Real is
       N : constant Nat := A'Length;
       T : Real_Array (1 .. N);
-      Y : Real := 0.0;
+      Y : Real := -1.0 + 2.0 * (X - L) / (R - L);
+      F : Real := 0.0;
    begin
-      T (1) := 1.0; T (2) := X;
+      T (1) := 1.0; T (2) := Y;
       for I in 3 .. N loop
-	 T (I) := 2.0 * X * T (I - 1) - T (I - 2);
+	 T (I) := 2.0 * Y * T (I - 1) - T (I - 2);
       end loop;
       T (1) := 0.5; T (N) := 0.5 * T (N);
       
       for I in 1 .. N loop
-	 Y := Y + A (I) * T (I);
+	 F := F + A (I) * T (I);
       end loop;
-      return Y;
+      return F;
    end Interpolate;
 end Chebyshev;
