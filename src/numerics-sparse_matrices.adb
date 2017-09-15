@@ -12,7 +12,8 @@ package body Numerics.Sparse_Matrices is
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    ------- Functions for Creating Sparse Matrices -------------------
-   function Sparse (X : in Real_Matrix) return Sparse_Matrix is
+   function Sparse (X	: in Real_Matrix;
+		    Eps	: in Real	 := 1.0e-20) return Sparse_Matrix is
       use Ada.Containers;
       Y : Sparse_Matrix;
       N : constant Count_Type := Count_Type (X'Length (1) * X'Length (2));
@@ -23,11 +24,13 @@ package body Numerics.Sparse_Matrices is
       Y.I.Reserve_Capacity (N);
       Y.P.Reserve_Capacity (N);
       Y.X.Reserve_Capacity (N);
-      for I in 1 .. Pos (X'Length (1)) loop
-	 for J in 1 .. Pos (X'Length (2)) loop
-	    Y.I.Append (I); 
-	    Y.P.Append (J);
-	    Y.X.Append (X (I, J));
+      for I in X'Range (1) loop
+      	 for J in X'Range (2) loop
+	    if abs (X (I, J)) > Eps then
+	       Y.I.Append (I); 
+	       Y.P.Append (J);
+	       Y.X.Append (X (I, J));
+	    end if;
 	 end loop;
       end loop;
       Compress (Y);
@@ -72,7 +75,7 @@ package body Numerics.Sparse_Matrices is
 
    function Triplet_To_Matrix (I      : in Int_Array;
 			       J      : in Int_Array;
-			       X      : in Real_Array;
+			       X      : in Real_Vector;
 			       N_Row  : in Pos := 0;
 			       N_Col  : in Pos := 0;
 			       Format : in Sparse_Matrix_Format := CSC) 
@@ -291,7 +294,7 @@ package body Numerics.Sparse_Matrices is
 		      J	   : in     Integer;
 		      β	   : in     Real;
 		      W	   : in out Int_Array;
-		      X	   : in out Real_Array;
+		      X	   : in out Real_Vector;
 		      Mark : in     Integer;
 		      C	   : in out Sparse_Matrix;
 		      Nz   : in out Integer) is
@@ -484,6 +487,10 @@ package body Numerics.Sparse_Matrices is
       Put_Line ("finished testing stuff."); New_Line;
    end Testing_Stuff;
    
-   
-   
+   function "*" (A : in Sparse_Matrix;
+		 X : in Real_Vector) return Sparse_Vector is
+      Y : Sparse_Vector := Sparse (X);
+   begin
+      return A * Y;
+   end "*";
 end Numerics.Sparse_Matrices;

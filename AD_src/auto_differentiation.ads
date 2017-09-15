@@ -17,15 +17,15 @@ package Auto_Differentiation is
    function Const (X : in Real;
 		   N : in Nat) return AD_Type;
    function Zero (N : in Nat) return AD_Type;
-   function Var (X	: in Real_Array;
+   function Var (X	: in Real_Vector;
    		 Length	: in Nat;
    		 Start	: in Nat := 1) return AD_Vector;
-   function Var (X : in Real_Array) return AD_Vector is 
+   function Var (X : in Real_Vector) return AD_Vector is 
       (Var (X => X, Length => X'Length));
    
    function Val (X : in AD_Type) return Real;
    function Grad (X : in AD_Type) return Sparse_Vector;
-   function Grad (X : in AD_Type) return Real_Array;
+   --  function Grad (X : in AD_Type) return Real_Vector;
    function Hessian (X : in AD_Type) return Sparse_Matrix;
    function Length (X : in AD_Type) return Pos;
    

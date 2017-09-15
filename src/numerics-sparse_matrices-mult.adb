@@ -5,7 +5,7 @@ function Mult (Left, Right : in Sparse_Matrix) return Sparse_Matrix is
    A  : Sparse_Matrix renames Left;
    B  : Sparse_Matrix renames Right;
    C  : Sparse_Matrix;
-   X  : Real_Array (1 .. A.N_Row) := (others => 0.0);
+   X  : Real_Vector (1 .. A.N_Row) := (others => 0.0);
    W  : Int_Array  (1 .. A.N_Row) := (others => 0);
    Nz : Pos := 1;
    N_Row : constant Count_Type := Count_Type (A.N_Row + 1);

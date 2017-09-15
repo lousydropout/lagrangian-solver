@@ -1,20 +1,104 @@
-with Numerics;
-use  Numerics;
+with Numerics, Chebyshev, Numerics.Sparse_Matrices.CSparse;
+use  Numerics, Chebyshev;
 
 package body Auto_Differentiation.Integrator is
    
+   function Collocation (Lagrangian : not null access 
+			   function (X : Real_Vector; N : Nat) return AD_Type;
+			 Var        : in     Variable;
+			 Control    : in out Control_Type) return Real_Vector is
+      use Numerics.Sparse_Matrices.CSparse;
+      M   : Nat  renames Control.M;
+      N   : Nat  renames Control.N;
+      Dt  : Real renames Control.Dt;
+      Err : Real renames Control.Err;
+      Old : constant Evaluation_Level :=  Level;
+      
+      Q  : Real_Vector (1 .. 2 * N * M);
+      DQ : Sparse_Vector;
+      F : Sparse_Vector;
+      J : Sparse_Matrix;
+      Tmp : Integer := 2 * N;
+      Res : Real := 1.0;
+   begin
+      Level := Hessian;
+      ------------------------------------------------
+      for I in 1 .. M loop
+	 Q ((I - 1) * 2 * N .. I * 2 * N) := Var.X;
+      end loop;
+      ------------------------------------------------
+      
+      while Res > 1.0e-6 loop
+	 FJ (Lagrangian, Var, Control, Q, F, J);
+	 DQ := Solve (J, F);
+	 Q (Tmp + 1 .. Tmp * M) := Q (Tmp + 1 .. Tmp * M) - To_Array (DQ);
+	 Res := Norm (F);
+      end loop;
+      ------------------------------------------------
+      Level := Old;
+      return Q (Tmp * (M - 1) .. 1 * Tmp * M);
+   end Collocation;
+   
+   
+   
+   procedure FJ (Lagrangian : not null access 
+		   function (X : Real_Vector; N : Nat) return AD_Type;
+		 Var     : in     Variable;
+		 Control : in     Control_Type;
+		 Q       : in     Real_Vector;
+		 F       :    out Sparse_Vector;
+		 J       :    out Sparse_Matrix) is
+      Dt   : Real renames Control.Dt;
+      M    : Nat  renames Control.M;
+      N    : Nat  renames Control.N;
+      L    : AD_Type;
+      X    : Real_Vector (1 .. 2 * N);
+      Tmp  : Integer;
+      Eye2 : constant Sparse_Matrix := Eye (2);
+      TL   : constant Sparse_Matrix := Top_Left     and Eye2;
+      TR   : constant Sparse_Matrix := Top_Right    and Eye2;
+      BL   : constant Sparse_Matrix := Bottom_Left  and Eye2;
+      BR   : constant Sparse_Matrix := Bottom_Right and Eye2;
+      Time : constant Real_Vector
+	:= Chebyshev_Gauss_Lobatto (M, Var.T, Var.T + Dt);
+      D    : constant Sparse_Matrix
+	:= Sparse (Derivative_Matrix (M, Var.T, Var.T + Dt));
+      U, V : Sparse_Vector;
+      A, B : Sparse_Matrix;
+   begin
+      pragma Assert (Q'Length = 2 * N * M);
+      X := Q (1 .. 2 * N);
+      L := Lagrangian (X, N);
+      U := TL * X + BR * Grad (L);
+      V := (TR * X + BL * Grad (L));
+      A := (TL     + BR * Hessian (L));
+      B := (TR     + BL * Hessian (L));
+      for K in 2 .. Time'Last - 1 loop
+	 Tmp := 2 * N * (K - 1);
+	 X := Q (Tmp + 1 .. Tmp + 2 * N);
+	 L := Lagrangian (X, N);
+	 U := U or (TL * X + BR * Grad (L));
+	 V := V or (TR * X + BL * Grad (L));
+	 A := A or (TL     + BR * Hessian (L));
+	 B := B or (TR     + BL * Hessian (L));
+      end loop;
+      F := (D and Eye (2 * N)) * U - V; F := Remove_1stN (F, 2 * N);
+      J := (D and Eye (2 * N)) * A - B; J := Remove_1stN (J, 2 * N);
+   end FJ;
+   
+   
    function Bogack_Shampine (Hamiltonian : not null access 
-			       function (X : Real_Array; N : Nat) return AD_Type;
+			       function (X : Real_Vector; N : Nat) return AD_Type;
 			     Var	 : in     Variable;
 			     Control     : in out Control_Type)
-			    return Real_Array is
-      X   : Real_Array renames Var.X;
+			    return Real_Vector is
+      X   : Real_Vector renames Var.X;
       N   : Nat  renames Control.N;
       Dt  : Real renames Control.Dt;
       Err : Real renames Control.Err;
       J   : constant Sparse_Matrix    := -Omega (N);
       Old : constant Evaluation_Level :=  Level;
-      K1, K2, K3, K4, Y, Z : Real_Array (X'Range);
+      K1, K2, K3, K4, Y, Z : Real_Vector (X'Range);
    begin
       pragma Assert (2 * N = Var.N2);
       -- Turn off the calculation of Hessians (not used for explicit schemes):
@@ -35,17 +119,17 @@ package body Auto_Differentiation.Integrator is
    
    
    procedure Update (Hamiltonian : not null access 
-		    	       function (X : Real_Array; N : Nat) return AD_Type;
+		    	       function (X : Real_Vector; N : Nat) return AD_Type;
 		     Var         : in out Variable;
 		     Control     : in out Control_Type) is
       use Real_Functions;
-      X   : Real_Array renames Var.X;
+      X   : Real_Vector renames Var.X;
       T   : Real renames Var.T;
       N   : Nat  renames Control.N;
       Dt  : Real renames Control.Dt;
       Err : Real renames Control.Err;
       Eps : Real renames Control.Eps;
-      Y   : Real_Array (X'Range);
+      Y   : Real_Vector (X'Range);
    begin
       pragma Assert (2 * N = Var.N2);
       
@@ -64,7 +148,7 @@ package body Auto_Differentiation.Integrator is
    procedure Print_XYZ (File : in File_Type;
 			Var  : in Variable) is
       use Real_Functions, Real_IO;
-      X :  Real_Array renames Var.X;
+      X :  Real_Vector renames Var.X;
       X1, Y1, X2, Y2 : Real;
       R : constant Real := 10.0;
    begin
@@ -76,7 +160,7 @@ package body Auto_Differentiation.Integrator is
       Put_Line (File, "3");
       Put (File, "Properties=pos:R:2   Time=");
       Put (File, Var.T, Aft => 5, Exp => 0);
-      New_Line(File);
+      New_Line (File);
       -- position of ball 1
       Put_Line (File, "0.0     0.0     5.0");
       -- position of ball 2
@@ -98,11 +182,11 @@ package body Auto_Differentiation.Integrator is
    --- print data ------
    procedure Print_Data (Var : in Variable;
 			 Hamiltonian : not null access 
-			   function (X : Real_Array; N : Nat) return AD_Type) is
+			   function (X : Real_Vector; N : Nat) return AD_Type) is
       use Real_Functions, Real_IO;
       T : Real renames Var.X (1);
       S : Real renames Var.X (2);
-      X, Y : Real_Array (1 .. 2);
+      X, Y : Real_Vector (1 .. 2);
    begin
       X (1) := -Sin (T);
       Y (1) :=  Cos (T);

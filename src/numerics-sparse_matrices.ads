@@ -38,10 +38,11 @@ package Numerics.Sparse_Matrices is
    function Diag (X : in Sparse_Matrix) return Sparse_Vector
      with Pre => Is_Square_Matrix (X);
    function Diag (X : in Sparse_Vector) return Sparse_Matrix;
-   function Sparse (X : in Real_Matrix) return Sparse_Matrix;
+   function Sparse (X	: in Real_Matrix;
+		    Eps	: in Real	 := 1.0e-20) return Sparse_Matrix;
    function Triplet_To_Matrix (I      : in Int_Array;
 			       J      : in Int_Array;
-			       X      : in Real_Array;
+			       X      : in Real_Vector;
 			       N_Row  : in Pos := 0;
 			       N_Col  : in Pos := 0;
 			       Format : in Sparse_Matrix_Format := CSC) 
@@ -113,6 +114,8 @@ package Numerics.Sparse_Matrices is
    function "*" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Mult;
    function "*" (A : in Sparse_Matrix;
 		 X : in Sparse_Vector) return Sparse_Vector renames Mult_M_SV;
+   function "*" (A : in Sparse_Matrix;
+		 X : in Real_Vector) return Sparse_Vector;
    
    function "and" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Kronecker;
    function "or"  (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Direct_Sum;
@@ -176,7 +179,7 @@ private
 		      J	   : in     Integer;
 		      β	   : in     Real;
 		      W	   : in out Int_Array;
-		      X	   : in out Real_Array;
+		      X	   : in out Real_Vector;
 		      Mark : in     Integer;
 		      C	   : in out Sparse_Matrix;
 		      Nz   : in out Integer);

@@ -3,10 +3,10 @@ use  Numerics;
 package body Chebyshev is
    
    
-   function CGL_Transform (F : in Real_Array) return Real_Array is
-      N : constant Nat := F'Length;
-      X : constant Real_Array  := Chebyshev_Gauss_Lobatto (N);
-      G : Real_Array := (2.0 / Real (N - 1)) * F ;
+   function CGL_Transform (F : in Real_Vector) return Real_Vector is
+      N : constant Nat        := F'Length;
+      X : constant Real_Vector := Chebyshev_Gauss_Lobatto (N, -1.0, 1.0);
+      G : Real_Vector := (2.0 / Real (N - 1)) * F ;
       T : Real_Matrix (1 .. N, 1 .. N);
    begin
       G (1) := 0.5 * G (1);
@@ -24,11 +24,11 @@ package body Chebyshev is
    end CGL_Transform;
    
    function Chebyshev_Gauss_Lobatto (N : in Nat;
-				     L : in Real := -1.0;
-				     R : in Real :=  1.0) return Real_Array is
+				     L : in Real := 0.0;
+				     R : in Real := 1.0) return Real_Vector is
       use Real_Functions;
       K : constant Real := (R - L) / 2.0;
-      X : Real_Array (1 .. N);
+      X : Real_Vector (1 .. N);
       Y : Real;
    begin
       for I in X'Range loop
@@ -39,13 +39,14 @@ package body Chebyshev is
    end Chebyshev_Gauss_Lobatto;
    
    
-   function Derivative_Matrix (N    : in Nat;
-			       L, R : in Real) return Real_Matrix is
+   function Derivative_Matrix (N : in Nat;
+			       L : in Real := 0.0;
+			       R : in Real := 1.0) return Real_Matrix is
       use Real_Functions;
       M : constant Pos         := N - 1;
       K : constant Real        := 2.0 / (R - L);
-      X : constant Real_Array  := Chebyshev_Gauss_Lobatto (N);
-      P : Real_Array  (1 .. N) := (others => 1.0);
+      X : constant Real_Vector  := Chebyshev_Gauss_Lobatto (N, -1.0, 1.0);
+      P : Real_Vector  (1 .. N) := (others => 1.0);
       D : Real_Matrix (1 .. N, 1 .. N);
    begin
       P (1) := 2.0; P (N) := 2.0;
@@ -69,14 +70,27 @@ package body Chebyshev is
       
       return D;
    end Derivative_Matrix;
+   
+   
+   procedure CGL (D :    out Real_Matrix;
+		  X :    out Real_Vector;
+		  N : in     Nat;
+		  L : in     Real	 := 0.0;
+		  R : in     Real	 := 1.0) is
+   begin
+      X := Chebyshev_Gauss_Lobatto (N, L, R);
+      D := Derivative_Matrix (N, L, R);
+   end CGL;
 
+   
+   
      
-   function Interpolate (A : in Real_Array;
+   function Interpolate (A : in Real_Vector;
 			 X : in Real;
-			 L : in Real := -1.0;
-			 R : in Real :=  1.0) return Real is
+			 L : in Real := 0.0;
+			 R : in Real := 1.0) return Real is
       N : constant Nat := A'Length;
-      T : Real_Array (1 .. N);
+      T : Real_Vector (1 .. N);
       Y : Real := -1.0 + 2.0 * (X - L) / (R - L);
       F : Real := 0.0;
    begin

@@ -23,7 +23,7 @@ package body Auto_Differentiation is
 
    function Const (X : in Real;
 		   N : in Nat) return AD_Type is
-      Y : Real_Array (1 .. N) := (others => 0.0);
+      Y : Real_Vector (1 .. N) := (others => 0.0);
    begin
       case Level is
 	 when Value =>
@@ -38,7 +38,7 @@ package body Auto_Differentiation is
    function Var (X    : in Real;
    		 I, N : in Nat;
    		 Dx   : in Real	:= 1.0) return AD_Type is
-      Y : Real_Array (1 .. N) := (others => 0.0);
+      Y : Real_Vector (1 .. N) := (others => 0.0);
    begin
       Y (I) := Dx;
       case Level is
@@ -61,7 +61,7 @@ package body Auto_Differentiation is
    end Var;
    
    
-   function Var (X	: in Real_Array;
+   function Var (X	: in Real_Vector;
    		 Length	: in Nat;
    		 Start	: in Nat := 1) return AD_Vector is
       Result : AD_Vector (1 .. X'Length);
@@ -87,7 +87,7 @@ package body Auto_Differentiation is
    
    function Val (X : in AD_Type) return Real is (X.Val);
    function Grad (X : in AD_Type) return Sparse_Vector is (X.Grad);
-   function Grad (X : in AD_Type) return Real_Array is (To_Array (X.Grad));
+   --  function Grad (X : in AD_Type) return Real_Vector is (To_Array (X.Grad));
    function Hessian (X : in AD_Type) return Sparse_Matrix is (X.Hessian);
    function Length (X : in AD_Type) return Pos is (X.N);
    

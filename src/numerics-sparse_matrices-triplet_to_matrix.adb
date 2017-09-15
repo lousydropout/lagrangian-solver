@@ -2,7 +2,7 @@ separate (Numerics.Sparse_Matrices)
 
 function Triplet_To_Matrix (I      : in Int_Array;
 			    J      : in Int_Array;
-			    X      : in Real_Array;
+			    X      : in Real_Vector;
 			    N_Row  : in Pos := 0;
 			    N_Col  : in Pos := 0;
 			    Format : in Sparse_Matrix_Format := CSC) return Sparse_Matrix is

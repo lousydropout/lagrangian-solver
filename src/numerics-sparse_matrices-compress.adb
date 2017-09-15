@@ -1,7 +1,7 @@
 separate (Numerics.Sparse_Matrices)
 
 procedure Compress (Mat : in out Sparse_Matrix) is
-   X          : Real_Array (1 .. Integer (Mat.X.Length)) := (others => 0.0);
+   X          : Real_Vector (1 .. Integer (Mat.X.Length)) := (others => 0.0);
    I          : Int_Array  (1 .. Integer (Mat.X.Length)) := (others => 0);
    Col, Count : Int_Array  (1 .. Mat.N_Col + 1)      := (others => 0);
    Index      : Nat                                  := 1;

@@ -1,7 +1,7 @@
 separate (Numerics)
 
 function Dot_Product (Left_I, Right_J : in Int_Array;
-		      Left_X, Right_Y : in Real_Array) return Real is
+		      Left_X, Right_Y : in Real_Vector) return Real is
    Result : Real     := 0.0;
    I      : Nat  := Left_I'First;
    J      : Nat  := Right_J'First;

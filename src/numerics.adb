@@ -6,17 +6,26 @@ package body Numerics is
       return Real (Random (Gen));
    end Rand;
    
-   function Rand (N : in Nat) return Real_Array is
+   function Rand (N : in Nat) return Real_Vector is
       use Ada.Numerics.Float_Random;
-      X : Real_Array (1 .. N) := (others => Rand);
+      X : Real_Vector (1 .. N) := (others => Rand);
    begin
       return X;
    end Rand;
    
    
+   --  function Solve (A : in Real_Matrix;
+   --  		   B : in Real_Vector) return Real_Vector is
+   --     C : RA.Real_Vector := RA.Real_Vector (B);
+   --  begin
+   --     C := RA.Solve (A, C);
+   --     return Real_Vector (C);
+   --  end Solve;
+   
+   
    -- Vectorize & To_Array are needed in Triplet_To_Matrix
    procedure Set (X  : in out RVector;
-		  To : in     Real_Array) is
+		  To : in     Real_Vector) is
    begin
       X.Reserve_Capacity (To'Length);
       X.Set_Length (0);
@@ -35,7 +44,7 @@ package body Numerics is
       end loop;
    end Set;
    
-   function Vectorize (Item : in Real_Array) return RVector is
+   function Vectorize (Item : in Real_Vector) return RVector is
       X : RVector;
    begin
       X.Reserve_Capacity (Item'Length);
@@ -57,7 +66,7 @@ package body Numerics is
       return X;
    end Vectorize;
    
-   function Norm (X : in Real_Array) return Real is
+   function Norm (X : in Real_Vector) return Real is
       Y : Real := 0.0;
       use Real_Functions;
    begin
@@ -68,8 +77,8 @@ package body Numerics is
    end Norm;
 
    
-   function To_Array (Item : in RVector) return Real_Array is
-      Result : Real_Array (1 .. Nat (Item.Length));
+   function To_Array (Item : in RVector) return Real_Vector is
+      Result : Real_Vector (1 .. Nat (Item.Length));
       I : Nat := 1;
       use Ada.Text_IO;
    begin
@@ -110,9 +119,9 @@ package body Numerics is
    -------- Max and Abs_Max functions ------------------
    
    function Max_Int_Array (Item : in Int_Array) return Integer is separate;
-   function Max_Real_Array (Item : in Real_Array) return Real is separate;
+   function Max_Real_Array (Item : in Real_Vector) return Real is separate;
    function Abs_Max_IA (Item : in Int_Array) return Integer is separate;
-   function Abs_Max_RA (Item : in Real_Array) return Real is separate;
+   function Abs_Max_RA (Item : in Real_Vector) return Real is separate;
    
    function Max (X : in IVector) return Integer is
       Result : Integer;
@@ -147,10 +156,10 @@ package body Numerics is
 
    -------- Binary Operators ---------------------------
    function Dot_Product (Left_I, Right_J : in Int_Array;
-   			 Left_X, Right_Y : in Real_Array) return Real is separate;
+   			 Left_X, Right_Y : in Real_Vector) return Real is separate;
    
    
-   function Sparse (X	: in Real_Array;
+   function Sparse (X	: in Real_Vector;
 		    N	: in Pos	:= 0;
 		    Tol	: in Real	:= 1.0e-20) return Sparse_Vector is
       use IV_Package, RV_Package, Ada.Containers;
@@ -235,9 +244,9 @@ package body Numerics is
    
    function "*" (A : in Real_Matrix;
 		 B : in Sparse_Vector) return Sparse_Vector is
-      C : Real_Array (A'Range (2)) := (others => 0.0);
+      C : Real_Vector (A'Range (2)) := (others => 0.0);
       J : constant Int_Array  := To_Array (B.I);
-      X : constant Real_Array := To_Array (B.X);
+      X : constant Real_Vector := To_Array (B.X);
    begin
       
       for K in J'Range loop
@@ -263,8 +272,8 @@ package body Numerics is
    function Length (X : in Sparse_Vector) return Pos is (X.NMax);
 
    
-   function To_Array (X	  : in Sparse_Vector) return Real_Array is
-      Y : Real_Array (1 .. X.NMax);
+   function To_Array (X	  : in Sparse_Vector) return Real_Vector is
+      Y : Real_Vector (1 .. X.NMax);
    begin
       if Pos (X.X.Length) = X.NMax then
 	 Y := To_Array (X.X);
@@ -374,7 +383,7 @@ package body Numerics is
       return Y;
    end Remove_1stN;
    
-   function "and" (X, Y : in Sparse_Vector) return Sparse_Vector is
+   function "or" (X, Y : in Sparse_Vector) return Sparse_Vector is
       use Ada.Containers;
       Z : Sparse_Vector;
    begin
@@ -391,7 +400,7 @@ package body Numerics is
 	 Z.X.Append (Y.X (I));
       end loop;
       return Z;
-   end "and";
+   end "or";
    
    function "+" (X, Y : in Pos2D) return Pos2D is
    begin
@@ -419,8 +428,8 @@ package body Numerics is
       return Sqrt (X.X**2 + X.Y**2);
    end Norm;
    
-   function To_Array (Xvec : in Pos2D_Vector) return Real_Array is
-      Result : Real_Array (1 .. 2 * Xvec'Length);
+   function To_Array (Xvec : in Pos2D_Vector) return Real_Vector is
+      Result : Real_Vector (1 .. 2 * Xvec'Length);
       K      : Nat := 1;
    begin
       for X of Xvec loop
@@ -473,8 +482,8 @@ package body Numerics is
    
    
    -------- Real array functions ----------------
-   function "-" (X : in Real_Array) return Real_Array is
-      Y : Real_Array (X'Range);
+   function "-" (X : in Real_Vector) return Real_Vector is
+      Y : Real_Vector (X'Range);
    begin
       for I in X'Range loop
 	 Y (I) := -X (I);
@@ -482,29 +491,33 @@ package body Numerics is
       return Y;
    end "-";
    
-   function "+" (X : in Real_Array;
-		 Y : in Real_Array) return Real_Array is
-      Z : Real_Array (X'Range);
+   function "+" (X : in Real_Vector;
+		 Y : in Real_Vector) return Real_Vector is
+      Z : Real_Vector (1 .. X'Length);
+      Offset_Y : constant Integer := Y'First - X'First;
+      Offset_Z : constant Integer := 1 - X'First;
    begin
       for I in X'Range loop
-	 Z (I) := X (I) + Y (I);
+	 Z (I + Offset_Z) := X (I) + Y (I + Offset_Y);
       end loop;
       return Z;
    end "+";
    
-   function "-" (X : in Real_Array;
-		 Y : in Real_Array) return Real_Array is
-      Z : Real_Array (X'Range);
+   function "-" (X : in Real_Vector;
+		 Y : in Real_Vector) return Real_Vector is
+      Z : Real_Vector (1 .. X'Length);
+      Offset_Y : constant Integer := Y'First - X'First;
+      Offset_Z : constant Integer := 1 - X'First;
    begin
       for I in X'Range loop
-	 Z (I) := X (I) - Y (I);
+	 Z (I + Offset_Z) := X (I) - Y (I + Offset_Y);
       end loop;
       return Z;
    end "-";
    
    function "*" (Left  : in Real;
-		 Right : in Real_Array) return Real_Array is
-      Result : Real_Array (Right'Range);
+		 Right : in Real_Vector) return Real_Vector is
+      Result : Real_Vector (Right'Range);
    begin
       for I in Result'Range loop
 	 Result (I) := Left * Right (I);
@@ -512,11 +525,11 @@ package body Numerics is
       return Result;
    end "*";
 
-   -----------   Real_Array functions ---------------------------
+   -----------   Real_Vector functions ---------------------------
    function "*" (A : in Real_Matrix;
-		 X : in Real_Array) return Real_Array is
-      Y : Real_Array (1 .. A'Length (1)) := (others => 0.0);
-      Offset1 : constant Integer := A'First (1) - Y'First;
+		 X : in Real_Vector) return Real_Vector is
+      Y : Real_Vector (1 .. A'Length (1)) := (others => 0.0);
+      Offset1 : constant Integer := A'First (1) - 1;
       Offset2 : constant Integer := A'First (2) - X'First;
    begin
       for I in Y'Range loop

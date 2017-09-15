@@ -40,7 +40,7 @@ procedure Auto_Differentiation.Dynamics is
    end PE;
    
    --- Set up Hamiltonian -----
-   function Hamiltonian (X : in Real_Array; N : in Nat) return AD_Type is
+   function Hamiltonian (X : in Real_Vector; N : in Nat) return AD_Type is
       Q : AD_Vector := Var  (X (1     ..     N), 2 * N,     1);
       P : AD_Vector := Var  (X (N + 1 .. 2 * N), 2 * N, N + 1);
    begin
@@ -49,9 +49,9 @@ procedure Auto_Differentiation.Dynamics is
    end Hamiltonian;
    -------------------------------
    
-   function Momenta (Var : in Variable) return Real_Array is
+   function Momenta (Var : in Variable) return Real_Vector is
       use Real_Functions;
-      X : Real_Array renames Var.X;
+      X : Real_Vector renames Var.X;
       C : constant Real := Cos (X (1) + X (2));
    begin
       return (X (1), 
@@ -65,7 +65,7 @@ procedure Auto_Differentiation.Dynamics is
    Var : Variable :=  (N2 => 2 * N,
 		       X  => (0.0, 0.0, -2.0, 10.0),
 		       T  => 0.0);
-   X : Real_Array renames Var.X;
+   X : Real_Vector renames Var.X;
    T : Real       renames Var.T;
    -------------------------------
    Time : Real;

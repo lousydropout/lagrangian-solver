@@ -5,7 +5,7 @@ procedure Convert (Mat : in out Sparse_Matrix) is
    Row   : Int_Array  (1 .. N + 1)   := (others => 0);
    Count : Int_Array  (1 .. N + 1)   := (others => 0);
    Nmax  : constant Nat := Nat (Mat.X.Length);
-   X     : Real_Array (1 .. Nmax)    := (others => 0.0);
+   X     : Real_Vector (1 .. Nmax)    := (others => 0.0);
    I     : Int_Array  (1 .. Nmax)    := (others => 0);
    Index : Nat                       := 1;
    Tmp   : Nat                       := 1;

@@ -21,7 +21,7 @@ package body Numerics.Sparse_Matrices.CSparse is
    function Solve (LU  : in LU_Type;
 		   B   : in Sparse_Vector;
 		   Tol : in Real	  := 1.0e-20) return Sparse_Vector is
-      Y : Real_Array := To_Array (B);
+      Y : Real_Vector := To_Array (B);
       X : Creal_Array (Cint (Y'First) .. Cint (Y'Last));
    begin
       for I in X'Range loop
@@ -78,7 +78,7 @@ package body Numerics.Sparse_Matrices.CSparse is
    end Free;
    
    function To_Array (X : in RVector) return Creal_Array is
-      Z : Real_Array := To_Array (X);
+      Z : Real_Vector := To_Array (X);
       Y : Creal_Array (Cint (Z'First) .. Cint (Z'Last));
    begin
       for I in Y'Range loop

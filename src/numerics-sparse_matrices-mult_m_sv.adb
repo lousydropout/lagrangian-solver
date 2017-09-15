@@ -3,8 +3,8 @@ separate (Numerics.Sparse_Matrices)
 function Mult_M_SV (A : in Sparse_Matrix;
 		    X : in Sparse_Vector) return Sparse_Vector is 
    I : constant Int_Array  := To_Array (X.I);
-   B : constant Real_Array := To_Array (X.X);
-   V : Real_Array (1 .. A.N_Row) := (others => 0.0);
+   B : constant Real_Vector := To_Array (X.X);
+   V : Real_Vector (1 .. A.N_Row) := (others => 0.0);
    N : Pos;
    
 begin

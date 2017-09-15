@@ -11,7 +11,7 @@ Project Main is
 		"chebyshev_test",
 		--  "forward_ad-dynamics"
 		--  "bubble");
-		"linear_solver_test",
+		--  "linear_solver_test",
 		"vector_test");
   for Source_Dirs use ("src", "AD_src", "drivers");
   for Object_Dir use "obj";

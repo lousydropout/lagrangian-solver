@@ -4,7 +4,7 @@ procedure Remove_Duplicates (Mat : in out Sparse_Matrix) is
    N, Iter : Pos := 0;
    J : Int_Array  (1 .. Nat (Mat.P.Length)) := (others => 0);
    I : Int_Array  (1 .. Nat (Mat.I.Length));
-   X : Real_Array (1 .. Nat (Mat.X.Length));
+   X : Real_Vector (1 .. Nat (Mat.X.Length));
 begin
    for K in 1 .. Nat (Mat.P.Length) - 1 loop
       Iter := 0;
