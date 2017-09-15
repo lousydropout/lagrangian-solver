@@ -36,6 +36,7 @@ package body Numerics.Sparse_Matrices is
       Compress (Y);
       return Y;
    end Sparse;
+   
    function As_Matrix (X : in Sparse_Vector) return Sparse_Matrix is
       A : Sparse_Matrix;
       Eps : constant Real := 10.0 * Real'Small;
@@ -45,31 +46,15 @@ package body Numerics.Sparse_Matrices is
       A.I := X.I;
       A.P.Reserve_Capacity (2);
       A.P.Append (1);
-      A.P.Append (Nat (X.I.Length) + 1);
+      A.P.Append (Pos (X.I.Length) + 1);
       return A;
    end As_Matrix;
    
    function "*" (Left, Right : in Sparse_Vector) return Sparse_Matrix is
-      use Ada.Containers;
-      A, B : Sparse_Matrix;
-      Eps : constant Real := 10.0 * Real'Small;
+      A : Sparse_Matrix := As_Matrix (Left);
+      B : Sparse_Matrix := As_Matrix (Right);
    begin
-      A.Format := CSC; A.N_Col := 1; A.N_Row := Left.NMax;
-      A.X := Left.X;
-      A.I := Left.I;
-      A.P.Reserve_Capacity (2);
-      A.P.Append (1);
-      A.P.Append (Nat (Left.I.Length) + 1);
-	 
-      
-      B.Format := CSC; B.N_Col := 1; B.N_Row := Right.NMax;
-      B.X := Right.X;
-      B.I := Right.I;
-      B.P.Reserve_Capacity (2);
-      B.P.Append (1);
-      B.P.Append (Nat (Right.I.Length) + 1);
-      
-      return (A * Transpose (B));
+      return A * Transpose (B);
    end "*";
    
 

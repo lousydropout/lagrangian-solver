@@ -8,12 +8,13 @@ package Auto_Differentiation.Integrator is
 	 T : Real;
       end record;
    
-   type Control_Type (N : Nat) is
+   type Control_Type is
       record
+	 N   : Nat;
 	 Dt  : Real := 1.0;
 	 Eps : Real := 1.0e-10;
 	 Err : Real := 1.0;
-	 M   : Nat  := 3;
+	 M   : Nat  := 9;
       end record;
    
    procedure FJ (Lagrangian : not null access 
@@ -47,6 +48,9 @@ package Auto_Differentiation.Integrator is
    
    procedure Print_XYZ (File : in File_Type;
 			Var  : in Variable);
+   
+   
+   procedure Print_Data_L (Var : in Variable);
    
    
 private

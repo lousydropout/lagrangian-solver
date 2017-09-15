@@ -24,10 +24,9 @@ package body Auto_Differentiation.Integrator is
       Level := Hessian;
       ------------------------------------------------
       for I in 1 .. M loop
-	 Q ((I - 1) * 2 * N .. I * 2 * N) := Var.X;
+	 Q ((I - 1) * 2 * N + 1 .. I * 2 * N) := Var.X;
       end loop;
       ------------------------------------------------
-      
       while Res > 1.0e-6 loop
 	 FJ (Lagrangian, Var, Control, Q, F, J);
 	 DQ := Solve (J, F);
@@ -35,8 +34,10 @@ package body Auto_Differentiation.Integrator is
 	 Res := Norm (F);
       end loop;
       ------------------------------------------------
+      Control.Err := Res;
       Level := Old;
-      return Q (Tmp * (M - 1) .. 1 * Tmp * M);
+
+      return Q;
    end Collocation;
    
    
@@ -73,7 +74,7 @@ package body Auto_Differentiation.Integrator is
       V := (TR * X + BL * Grad (L));
       A := (TL     + BR * Hessian (L));
       B := (TR     + BL * Hessian (L));
-      for K in 2 .. Time'Last - 1 loop
+      for K in 2 .. Time'Last loop
 	 Tmp := 2 * N * (K - 1);
 	 X := Q (Tmp + 1 .. Tmp + 2 * N);
 	 L := Lagrangian (X, N);
@@ -84,6 +85,7 @@ package body Auto_Differentiation.Integrator is
       end loop;
       F := (D and Eye (2 * N)) * U - V; F := Remove_1stN (F, 2 * N);
       J := (D and Eye (2 * N)) * A - B; J := Remove_1stN (J, 2 * N);
+      
    end FJ;
    
    
@@ -203,6 +205,26 @@ package body Auto_Differentiation.Integrator is
       -- print total energy
       Put (Val (Hamiltonian (Var.X, 2)), Aft => 10, Exp => 0); New_Line;
    end Print_Data;
+   
+   procedure Print_Data_L (Var : in Variable) is
+      use Real_Functions, Real_IO;
+      T : Real renames Var.X (1);
+      S : Real renames Var.X (2);
+      X, Y : Real_Vector (1 .. 2);
+   begin
+      X (1) := -Sin (T);
+      Y (1) :=  Cos (T);
+      X (2) := X (1) - Sin (2.0 * T + S);
+      Y (2) := Y (1) + Cos (2.0 * T + S);
+      
+      ---------------------------------------
+      Put (Var.T, Aft => 6, Exp => 0); -- print time
+      for I in 1 .. 2 loop
+	 Put (",  "); Put (X (I), Aft => 4, Exp => 0);
+	 Put (",  "); Put (Y (I), Aft => 4, Exp => 0); -- print positions
+      end loop;
+      New_Line;
+   end Print_Data_L;
    
    
 end Auto_Differentiation.Integrator;

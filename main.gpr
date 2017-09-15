@@ -4,6 +4,7 @@ Project Main is
   for Main use (--  "forward_ad-test",
 		--  "forward_ad-bubble",
 		"auto_differentiation-dynamics",
+		"auto_differentiation-lagrangian",
 		--  "forward_ad-jacobian",
 		--  "dynamics",
 		--  "ad_test",

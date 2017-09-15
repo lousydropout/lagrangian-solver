@@ -1,10 +1,10 @@
 separate (Numerics.Sparse_Matrices)
 
 procedure Convert (Mat : in out Sparse_Matrix) is
-   N     : constant Nat := Nat'Max (Mat.N_Col, Mat.N_Row);
+   N     : constant Pos := Pos'Max (Mat.N_Col, Mat.N_Row);
    Row   : Int_Array  (1 .. N + 1)   := (others => 0);
    Count : Int_Array  (1 .. N + 1)   := (others => 0);
-   Nmax  : constant Nat := Nat (Mat.X.Length);
+   Nmax  : constant Pos := Pos (Mat.X.Length);
    X     : Real_Vector (1 .. Nmax)    := (others => 0.0);
    I     : Int_Array  (1 .. Nmax)    := (others => 0);
    Index : Nat                       := 1;

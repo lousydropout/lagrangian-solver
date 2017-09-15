@@ -145,13 +145,13 @@ package body Auto_Differentiation is
 	 when Gradient =>
 	    Tmp := X.Grad * Y.Grad;
 	    return (N       => X.N, 
-		    Val     => X.Val  * Y.Val, 
+		    Val     => X.Val * Y.Val, 
 		    Grad    => X.Val * Y.Grad + Y.Val * X.Grad,
 		    Hessian => H0);
 	 when Hessian =>
 	    Tmp := X.Grad * Y.Grad;
 	    return (N       => X.N, 
-		    Val     => X.Val  * Y.Val, 
+		    Val     => X.Val * Y.Val, 
 		    Grad    => X.Val * Y.Grad + Y.Val * X.Grad,
 		    Hessian => 
 		      X.Val * Y.Hessian + 
