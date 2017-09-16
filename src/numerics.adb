@@ -78,7 +78,7 @@ package body Numerics is
 
    
    function To_Array (Item : in RVector) return Real_Vector is
-      Result : Real_Vector (1 .. Nat (Item.Length));
+      Result : Real_Vector (1 .. Pos (Item.Length));
       I : Nat := 1;
       use Ada.Text_IO;
    begin
@@ -90,7 +90,7 @@ package body Numerics is
    end To_Array;
    
    function To_Array (Item : in IVector) return Int_Array is
-      Result : Int_Array (1 .. Nat (Item.Length));
+      Result : Int_Array (1 .. Pos (Item.Length));
       I : Nat := 1;
       use Ada.Text_IO;
    begin
@@ -168,7 +168,7 @@ package body Numerics is
       Y.NMax := (if N < X'Length then X'Length else N);
       Y.X.Reserve_Capacity (Count_Type (X'Length));
       Y.I.Reserve_Capacity (Count_Type (X'Length));
-      for I in 1 .. Nat (X'Length) loop
+      for I in X'Range loop
 	 if abs (X (I)) > Tol then
 	    Y.X.Append (X (I));
 	    Y.I.Append (I);

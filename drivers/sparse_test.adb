@@ -3,26 +3,31 @@ use  Numerics, Numerics.Sparse_Matrices;
 
 with Ada.Text_IO; use Ada.Text_IO;
 procedure Sparse_Test is
-   use Real_IO;
+   use Real_IO, Int_IO;
    A  : Sparse_Matrix;
    --  B  : Sparse_Matrix;
    C  : Sparse_Matrix;
    X  : Sparse_Vector := Sparse ((0.0, 2.0, 1.0));
    Y  : Sparse_Vector := Sparse ((3.0, 0.0));
    Z  : Sparse_Vector;
-   B  : constant Sparse_Matrix := Sparse (((1.0, 0.0),
+   B  : constant Sparse_Matrix := Sparse (((0.0, 0.0),
 					   (0.0, 0.0)));
    
    U : Real_Vector (13 .. 14);
    V : Real_Vector (1 .. 4);
 begin
    
-   U := (1.0, 2.0);
+   U := (0.0, 0.0);
+   Z := Sparse (U);
+   Put ("length (Z) = "); Put (Length (Z)); New_Line;
+   Z := B * Z;
+   Print (B);
+   Print (Z);
    V (1 .. 2) :=  U;
    V (3 .. 4) := V (1 .. 2) - U;
-   for Item of V loop
-      Put (Item); New_Line;
-   end loop;
+   --  for Item of V loop
+   --     Put (Item); New_Line;
+   --  end loop;
    --  B := Eye (2); 
    --  Print (B);
    --  Put_Line ("---------------------------------------------------------");

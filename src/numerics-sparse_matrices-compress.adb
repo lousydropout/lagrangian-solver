@@ -15,7 +15,7 @@ begin
    
    Cumulative_Sum (Count); Col := Count;
    
-   for K in 1 .. Nat (Mat.X.Length) loop
+   for K in 1 .. Pos (Mat.X.Length) loop
       Index       := Col (P (K));
       Col (P (K)) := Col (P (K)) + 1;
       I (Index)   := Mat.I (K); 

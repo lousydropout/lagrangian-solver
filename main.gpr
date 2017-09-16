@@ -3,14 +3,14 @@ Project Main is
   for Languages use ("Ada", "C");
   for Main use (--  "forward_ad-test",
 		--  "forward_ad-bubble",
-		"auto_differentiation-dynamics",
-		"auto_differentiation-lagrangian",
-		"auto_differentiation-pendulum",
+		--  "auto_differentiation-dynamics",
+		--  "auto_differentiation-lagrangian",
+		--  "auto_differentiation-pendulum",
 		--  "forward_ad-jacobian",
 		--  "dynamics",
 		--  "ad_test",
 		"sparse_test",
-		"chebyshev_test",
+		--  "chebyshev_test",
 		--  "forward_ad-dynamics"
 		--  "bubble");
 		--  "linear_solver_test",
@@ -22,7 +22,7 @@ Project Main is
   
   package Compiler is
      for Default_Switches ("Ada")
-       use ("-O2",                      -- optimize for testing (fast compiling)
+       use ("-O1",                      -- optimize for testing (fast compiling)
 	    "-gnata",                   -- assertions
 	    "-fno-inline",              -- turn off inline for smaller executable
 	    "-gnatVa",                  -- turn on all validity checking options

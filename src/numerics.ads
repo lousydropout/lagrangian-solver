@@ -4,6 +4,11 @@ with Ada.Numerics.Generic_Real_Arrays;
 package Numerics is
    π : constant := Ada.Numerics.π;
    
+   --  type Sparse_Vector is record
+   --     NMax : Pos := 0;
+   --     X    : RVector;
+   --     I    : IVector;
+   --  end record;
    
    -------- Define types (Real, Int, Pos, Nat) ----------------------
    type Real is new Long_Long_Float 
