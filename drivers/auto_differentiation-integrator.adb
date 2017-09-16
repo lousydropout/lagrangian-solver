@@ -7,7 +7,7 @@ package body Auto_Differentiation.Integrator is
 			   function (X : Real_Vector; N : Nat) return AD_Type;
 			 Var        : in     Variable;
 			 Control    : in out Control_Type) return Real_Vector is
-      use Numerics.Sparse_Matrices.CSparse;
+      use Numerics.Sparse_Matrices.CSparse, Real_IO, Ada.Text_IO;
       M   : Nat  renames Control.M;
       N   : Nat  renames Control.N;
       Dt  : Real renames Control.Dt;
@@ -32,6 +32,7 @@ package body Auto_Differentiation.Integrator is
 	 DQ := Solve (J, F);
 	 Q (Tmp + 1 .. Tmp * M) := Q (Tmp + 1 .. Tmp * M) - To_Array (DQ);
 	 Res := Norm (F);
+	 Put ("Res = "); Put (Res); New_Line;
       end loop;
       ------------------------------------------------
       Control.Err := Res;
@@ -55,11 +56,11 @@ package body Auto_Differentiation.Integrator is
       L    : AD_Type;
       X    : Real_Vector (1 .. 2 * N);
       Tmp  : Integer;
-      Eye2 : constant Sparse_Matrix := Eye (2);
-      TL   : constant Sparse_Matrix := Top_Left     and Eye2;
-      TR   : constant Sparse_Matrix := Top_Right    and Eye2;
-      BL   : constant Sparse_Matrix := Bottom_Left  and Eye2;
-      BR   : constant Sparse_Matrix := Bottom_Right and Eye2;
+      EyeN : constant Sparse_Matrix := Eye (N);
+      TL   : constant Sparse_Matrix := Top_Left     and EyeN;
+      TR   : constant Sparse_Matrix := Top_Right    and EyeN;
+      BL   : constant Sparse_Matrix := Bottom_Left  and EyeN;
+      BR   : constant Sparse_Matrix := Bottom_Right and EyeN;
       Time : constant Real_Vector
 	:= Chebyshev_Gauss_Lobatto (M, Var.T, Var.T + Dt);
       D    : constant Sparse_Matrix
@@ -85,7 +86,6 @@ package body Auto_Differentiation.Integrator is
       end loop;
       F := (D and Eye (2 * N)) * U - V; F := Remove_1stN (F, 2 * N);
       J := (D and Eye (2 * N)) * A - B; J := Remove_1stN (J, 2 * N);
-      
    end FJ;
    
    

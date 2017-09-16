@@ -13,6 +13,7 @@ forward_ad-dynamics
 forward_ad-jacobian
 auto_differentiation-dynamics
 auto_differentiation-lagrangian
+auto_differentiation-pendulum
 bubble
 *.xyz
 *.gif
