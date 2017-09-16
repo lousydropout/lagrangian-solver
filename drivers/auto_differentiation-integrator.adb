@@ -27,13 +27,15 @@ package body Auto_Differentiation.Integrator is
 	 Q ((I - 1) * 2 * N + 1 .. I * 2 * N) := Var.X;
       end loop;
       ------------------------------------------------
-      while Res > 1.0e-6 loop
+      while Res > 1.0e-10 loop
 	 FJ (Lagrangian, Var, Control, Q, F, J);
 	 DQ := Solve (J, F);
 	 Q (Tmp + 1 .. Tmp * M) := Q (Tmp + 1 .. Tmp * M) - To_Array (DQ);
 	 Res := Norm (F);
-	 Put ("Res = "); Put (Res); New_Line;
+	 Put ("Res = "); Put (Res, Aft => 3); 
+	 New_Line;
       end loop;
+      New_Line;
       ------------------------------------------------
       Control.Err := Res;
       Level := Old;
