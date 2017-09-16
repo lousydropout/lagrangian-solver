@@ -5,7 +5,7 @@ procedure Auto_Differentiation.Pendulum is
    use Real_IO, Real_Functions;
    --  Set Up Parameters -----------------
    Control : Control_Type
-     := (N => 1, Dt => 0.5, Eps => 1.0e-10, Err => 1.0, M => 8);
+     := (N => 1, Dt => 2.0, Eps => 1.0e-10, Err => 1.0, M => 11);
    N : Nat renames Control.N;
    -------------------------------
    
@@ -31,8 +31,8 @@ procedure Auto_Differentiation.Pendulum is
    Y    : Real_Vector (1 .. 2 * N * Control.M);
    A, B : Real_Vector (1 .. N * Control.M);
    File : File_Type;
-   Time : Real := T;
    Dt   : constant Real := 0.05;
+   Time : Real := T - Dt;
 begin
    
    Create (File, Name => "pendulum.csv");
@@ -48,7 +48,8 @@ begin
       A := CGL_Transform (A);
       B := CGL_Transform (B);
       
-      while Time < T + Control.Dt loop
+      while Time <= T + Control.Dt loop
+	 Time := Time + Dt;
 	 θ    := Interpolate (A => A, X => Time, L => T, R => T + Control.Dt);
 	 ω    := Interpolate (A => B, X => Time, L => T, R => T + Control.Dt);
 	 Put (File, Time);          Put (File, ",  ");
@@ -56,7 +57,6 @@ begin
 	 Put (File, -ω  * Sin (θ)); Put (File, ",  ");
 	 Put (File, 1.0 - Sin (θ)); Put (File, ",  ");
 	 Put (File, -ω  * Cos (θ)); New_Line (File);
-	 Time := Time + Dt;
       end loop;
       
       θ := Y (Y'Last - 1);

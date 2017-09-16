@@ -50,7 +50,8 @@ package Auto_Differentiation.Integrator is
 			Var  : in Variable);
    
    
-   procedure Print_Data_L (Var : in Variable);
+   procedure Print_Data_L (File	: in File_Type;
+			   Var	: in Variable);
    
    
 private

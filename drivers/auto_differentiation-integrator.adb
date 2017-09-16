@@ -32,10 +32,10 @@ package body Auto_Differentiation.Integrator is
 	 DQ := Solve (J, F);
 	 Q (Tmp + 1 .. Tmp * M) := Q (Tmp + 1 .. Tmp * M) - To_Array (DQ);
 	 Res := Norm (F);
-	 Put ("Res = "); Put (Res, Aft => 3); 
-	 New_Line;
+	 --  Put ("Res = "); Put (Res, Aft => 3); 
+	 --  New_Line;
       end loop;
-      New_Line;
+      --  New_Line;
       ------------------------------------------------
       Control.Err := Res;
       Level := Old;
@@ -208,7 +208,8 @@ package body Auto_Differentiation.Integrator is
       Put (Val (Hamiltonian (Var.X, 2)), Aft => 10, Exp => 0); New_Line;
    end Print_Data;
    
-   procedure Print_Data_L (Var : in Variable) is
+   procedure Print_Data_L (File	: in File_Type;
+			   Var	: in Variable) is
       use Real_Functions, Real_IO;
       T : Real renames Var.X (1);
       S : Real renames Var.X (2);
@@ -222,8 +223,9 @@ package body Auto_Differentiation.Integrator is
       ---------------------------------------
       Put (Var.T, Aft => 6, Exp => 0); -- print time
       for I in 1 .. 2 loop
+	 -- print positions
 	 Put (",  "); Put (X (I), Aft => 4, Exp => 0);
-	 Put (",  "); Put (Y (I), Aft => 4, Exp => 0); -- print positions
+	 Put (",  "); Put (Y (I), Aft => 4, Exp => 0);
       end loop;
       New_Line;
    end Print_Data_L;

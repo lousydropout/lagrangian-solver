@@ -1,11 +1,11 @@
-with Numerics, Ada.Text_IO, Auto_Differentiation.Integrator;
-use  Numerics, Ada.Text_IO, Auto_Differentiation.Integrator;
+with Numerics, Ada.Text_IO, Auto_Differentiation.Integrator, Chebyshev;
+use  Numerics, Ada.Text_IO, Auto_Differentiation.Integrator, Chebyshev;
 
 procedure Auto_Differentiation.Lagrangian is
-
+   use Real_IO;
    --  Set Up Parameters -----------------
    Control : Control_Type
-     := (N => 2, Dt => 0.3, Eps => 1.0e-10, Err => 1.0, M => 31);
+     := (N => 2, Dt => 0.005, Eps => 1.0e-10, Err => 1.0, M => 4);
    N       : Nat renames Control.N;
    α       : constant Real := 100.0;
    -------------------------------
@@ -43,7 +43,7 @@ procedure Auto_Differentiation.Lagrangian is
       Q_Dot : AD_Vector := Var  (X (N + 1 .. 2 * N), 2 * N, N + 1);
    begin
       pragma Assert (abs (X (1) + X (2)) < π, "singularity error: t + s = pi");
-      return  (KE (Q, Q_Dot, N) - PE (Q, N));
+      return  KE (Q, Q_Dot, N) - PE (Q, N);
    end Lagrangian;
    -------------------------------
    -- Initial Conditions ----
@@ -51,22 +51,55 @@ procedure Auto_Differentiation.Lagrangian is
 		       X  => (0.0, 0.0, -2.0, 10.0),
 		       T  => 0.0);
    X : Real_Vector renames Var.X;
-   T : Real       renames Var.T;
    -------------------------------
    XYZ  : File_Type;
-   DT   : constant Real := 1.0e-2;
-   Y : Real_Vector (1 .. 2 * N * Control.M);
-   Tmp : Integer := 2 * N;
+   Y    : Real_Vector (1 .. 2 * N * Control.M);
+   Dt   : constant Real := 0.01;
+   Time : Real := Var.T;
+   PTime : Real;
+   Tmp  : Integer := 2 * N;
+   A, B, C, D : Real_Vector (1 .. Control.M);
 begin
    
    Create (XYZ, Name => "out.xyz");
 
    Put_Line ("T, x1, y1, x2, y2");
-   Print_Data_L (Var);
+   Print_Data_L (XYZ, Var);
+   Print_XYZ (XYZ, Var);
+   
+   while Var.T < 5.2 loop
+      Y := Collocation (Lagrangian'Access, Var, Control);
 
-   Y := Collocation (Lagrangian'Access, Var, Control);
-   X := Y (Tmp * (Control.M - 1) + 1 .. Tmp * Control.M);
+      for I in 1 .. Control.M loop
+	 A (I) := Y (2 * N * (I - 1) + 1);
+	 B (I) := Y (2 * N * (I - 1) + 2);
+	 C (I) := Y (2 * N * (I - 1) + 3);
+	 D (I) := Y (2 * N * (I - 1) + 4);
+      end loop;
+      
+      A := CGL_Transform (A);
+      B := CGL_Transform (B);
+      C := CGL_Transform (C);
+      D := CGL_Transform (D);
+      
+      PTime := Var.T + Control.Dt;
+      while Time < PTime loop
+	 Var.X (1) := Interpolate (A, Time, Var.T, Var.T + Control.Dt);
+	 Var.X (2) := Interpolate (B, Time, Var.T, Var.T + Control.Dt);
+	 Var.X (3) := Interpolate (C, Time, Var.T, Var.T + Control.Dt);
+	 Var.X (4) := Interpolate (D, Time, Var.T, Var.T + Control.Dt);
+	 Var.T     := Time;
+	 Print_XYZ (XYZ, Var);
+	 Print_Data_L (XYZ, Var);
+	 Time := Time + Dt;
+      end loop;
+      Var.T := PTime;
+      for I in 1 .. 2 * N loop
+	 Var.X (I) := Y (Y'Last - 2 * N + I);
+      end loop;
 
-   Print_Data_L (Var);
+   end loop;
+
+   Print_Data_L (XYZ, Var);
    Close (XYZ);
 end Auto_Differentiation.Lagrangian;
