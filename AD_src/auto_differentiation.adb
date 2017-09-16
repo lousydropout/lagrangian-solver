@@ -23,24 +23,23 @@ package body Auto_Differentiation is
 
    function Const (X : in Real;
 		   N : in Nat) return AD_Type is
-      Y : Real_Vector (1 .. N) := (others => 0.0);
+      Y : Sparse_Vector := Zero (N);
    begin
       case Level is
 	 when Value =>
 	    return (N, X, G0, H0);
 	 when Gradient =>
-	    return (N, X, Sparse (Y), H0);
+	    return (N, X, Y, H0);
 	 when Hessian =>
-	    return (N, X, Sparse (Y), Zero (N));
+	    return (N, X, Y, Zero (N));
       end case;
    end Const;
    
    function Var (X    : in Real;
    		 I, N : in Nat;
    		 Dx   : in Real	:= 1.0) return AD_Type is
-      Y : Real_Vector (1 .. N) := (others => 0.0);
+      Y : Sparse_Vector := Dx * One (I, N);
    begin
-      Y (I) := Dx;
       case Level is
 	 when Value =>
 	    return (N => N,
@@ -50,12 +49,12 @@ package body Auto_Differentiation is
 	 when Gradient =>
 	    return (N => N,
 		    Val => X,
-		    Grad => Sparse (Y),
+		    Grad => Y,
 		    Hessian => H0);
 	 when Hessian =>
 	    return (N => N,
 		    Val => X,
-		    Grad => Sparse (Y),
+		    Grad => Y,
 		    Hessian => zero (N));
       end case;
    end Var;
@@ -67,9 +66,9 @@ package body Auto_Differentiation is
       Result : AD_Vector (1 .. X'Length);
    begin
       for I in X'Range loop
-   	 Result (I - X'First + 1) := Var (X  => X (I), 
-   					  I  => I - X'First + Start,
-   					  N  => Length);
+   	 Result (I - X'First + 1) := Var (X => X (I), 
+   					  I => I - X'First + Start,
+   					  N => Length);
       end loop;
       return Result;
    end Var;
@@ -77,9 +76,9 @@ package body Auto_Differentiation is
    function Zero (N : in Nat) return AD_Type is
       Result : AD_Type;
    begin
-      Result.N := N;
-      Result.Val := 0.0;
-      Set_Length (Result.Grad, N);
+      Result.N       := N;
+      Result.Val     := 0.0;
+      Result.Grad    := Zero (N);
       Result.Hessian := Zero (N);
       return Result;
    end Zero;
@@ -87,7 +86,6 @@ package body Auto_Differentiation is
    
    function Val (X : in AD_Type) return Real is (X.Val);
    function Grad (X : in AD_Type) return Sparse_Vector is (X.Grad);
-   --  function Grad (X : in AD_Type) return Real_Vector is (To_Array (X.Grad));
    function Hessian (X : in AD_Type) return Sparse_Matrix is (X.Hessian);
    function Length (X : in AD_Type) return Pos is (X.N);
    

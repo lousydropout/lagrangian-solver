@@ -4,12 +4,6 @@ with Ada.Numerics.Generic_Real_Arrays;
 package Numerics is
    π : constant := Ada.Numerics.π;
    
-   --  type Sparse_Vector is record
-   --     NMax : Pos := 0;
-   --     X    : RVector;
-   --     I    : IVector;
-   --  end record;
-   
    -------- Define types (Real, Int, Pos, Nat) ----------------------
    type Real is new Long_Long_Float 
      range Long_Long_Float'First .. Long_Long_Float'Last;
@@ -47,7 +41,8 @@ package Numerics is
    
    function Sparse (X	: in Real_Vector;
 		    N	: in Pos	:= 0;
-		    Tol	: in Real	:= 1.0e-20) return Sparse_Vector;
+		    Tol	: in Real	:= 10.0 * Real'Small)
+		   return Sparse_Vector;
    
    -----------   Real_Vector functions ---------------------------
    function "-" (X : in Real_Vector) return Real_Vector;
@@ -93,6 +88,8 @@ package Numerics is
    
    ------- Sparse_Vector Functions ----------------------------------------
    procedure Print (X : in Sparse_Vector); 
+   function Zero (N : in Pos) return Sparse_Vector;
+   function One (I, N : in Nat) return Sparse_Vector;
    function To_Array (X	  : in Sparse_Vector) return Real_Vector;
    procedure Set_Length (X : in out Sparse_Vector;
 			 N : in     Pos);

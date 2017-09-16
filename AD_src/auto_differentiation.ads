@@ -77,7 +77,7 @@ private
 	 Hessian : Sparse_Matrix;
       end record;
    
-   G0 : constant Sparse_Vector := Sparse ((0.0, 0.0));
+   G0 : constant Sparse_Vector := Zero (1);
    H0 : constant Sparse_Matrix := Zero (1);
 end Auto_Differentiation;
 

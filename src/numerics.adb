@@ -101,8 +101,21 @@ package body Numerics is
       return Result;
    end To_Array;
    
+   function Zero (N : in Pos) return Sparse_Vector is
+      X : Real_Vector (1 .. 1) := (others => 0.0);
+      Y : Sparse_Vector := Sparse (X);
+   begin
+      Y.NMax := N;
+      return Y;
+   end Zero;
    
-   
+   function One (I, N : in Nat) return Sparse_Vector is
+      X : Real_Vector (1 .. 1) := (others => 1.0);
+      Y : Sparse_Vector;
+   begin
+      Y := Zero (I - 1) or Sparse (X) or Zero (N - I);
+      return Y;
+   end One;
    ----- Vector and Array functions
    
    
@@ -161,9 +174,11 @@ package body Numerics is
    
    function Sparse (X	: in Real_Vector;
 		    N	: in Pos	:= 0;
-		    Tol	: in Real	:= 1.0e-20) return Sparse_Vector is
+		    Tol	: in Real	:= 10.0 * Real'Small)
+		   return Sparse_Vector is
       use IV_Package, RV_Package, Ada.Containers;
       Y : Sparse_Vector;
+      Offset : constant Integer := 1 - X'First;
    begin
       Y.NMax := (if N < X'Length then X'Length else N);
       Y.X.Reserve_Capacity (Count_Type (X'Length));
@@ -171,7 +186,7 @@ package body Numerics is
       for I in X'Range loop
 	 if abs (X (I)) > Tol then
 	    Y.X.Append (X (I));
-	    Y.I.Append (I);
+	    Y.I.Append (I + Offset);
 	 end if;
       end loop;
       return Y;

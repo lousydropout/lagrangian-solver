@@ -13,10 +13,13 @@ package body Numerics.Sparse_Matrices is
    ------------------------------------------------------------------
    ------- Functions for Creating Sparse Matrices -------------------
    function Sparse (X	: in Real_Matrix;
-		    Eps	: in Real	 := 1.0e-20) return Sparse_Matrix is
+		    Eps	: in Real	 := 10.0 * Real'Small) 
+		   return Sparse_Matrix is
       use Ada.Containers;
       Y : Sparse_Matrix;
       N : constant Count_Type := Count_Type (X'Length (1) * X'Length (2));
+      Offset_1 : constant Integer := 1 - X'First (1);
+      Offset_2 : constant Integer := 1 - X'First (2);
    begin
       Y.N_Row := X'Length (1);
       Y.N_Col := X'Length (2);
@@ -27,8 +30,8 @@ package body Numerics.Sparse_Matrices is
       for I in X'Range (1) loop
       	 for J in X'Range (2) loop
 	    if abs (X (I, J)) > Eps then
-	       Y.I.Append (I); 
-	       Y.P.Append (J);
+	       Y.I.Append (I + Offset_1); 
+	       Y.P.Append (J + Offset_2);
 	       Y.X.Append (X (I, J));
 	    end if;
 	 end loop;
@@ -38,7 +41,7 @@ package body Numerics.Sparse_Matrices is
    end Sparse;
    
    function As_Matrix (X : in Sparse_Vector) return Sparse_Matrix is
-      A : Sparse_Matrix;
+      A   : Sparse_Matrix;
       Eps : constant Real := 10.0 * Real'Small;
    begin
       A.Format := CSC; A.N_Col := 1; A.N_Row := X.NMax;

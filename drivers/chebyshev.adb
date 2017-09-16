@@ -6,7 +6,7 @@ package body Chebyshev is
    function CGL_Transform (F : in Real_Vector) return Real_Vector is
       N : constant Nat        := F'Length;
       X : constant Real_Vector := Chebyshev_Gauss_Lobatto (N, -1.0, 1.0);
-      G : Real_Vector := (2.0 / Real (N - 1)) * F ;
+      G : Real_Vector := (2.0 / Real (N - 1)) * F;
       T : Real_Matrix (1 .. N, 1 .. N);
    begin
       G (1) := 0.5 * G (1);

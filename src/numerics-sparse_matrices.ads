@@ -39,7 +39,8 @@ package Numerics.Sparse_Matrices is
      with Pre => Is_Square_Matrix (X);
    function Diag (X : in Sparse_Vector) return Sparse_Matrix;
    function Sparse (X	: in Real_Matrix;
-		    Eps	: in Real	 := 1.0e-20) return Sparse_Matrix;
+		    Eps	: in Real	 := 10.0 * Real'Small) 
+		   return Sparse_Matrix;
    function Triplet_To_Matrix (I      : in Int_Array;
 			       J      : in Int_Array;
 			       X      : in Real_Vector;
