@@ -104,8 +104,6 @@ package body Numerics.Sparse_Matrices is
    function Mult (Left, Right : in Sparse_Matrix) return Sparse_Matrix is separate;
    function Plus (Left  : in Sparse_Matrix;
 		  Right : in Sparse_Matrix) return Sparse_Matrix is separate;
-   function Plus2 (Left  : in Sparse_Matrix;
-		   Right : in Sparse_Matrix) return Sparse_Matrix is separate;
    function Minus (Left  : in Sparse_Matrix;
 		   Right : in Sparse_Matrix) return Sparse_Matrix is separate;
    function Kronecker (A, B : in Sparse_Matrix) return Sparse_Matrix is separate;

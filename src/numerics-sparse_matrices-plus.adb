@@ -6,16 +6,18 @@ function Plus (Left  : in Sparse_Matrix;
    A : Sparse_Matrix renames Left;
    B : Sparse_Matrix renames Right;
    C : Sparse_Matrix;
-   N_Col  : Nat renames Left.N_Col;
-   N_Row  : constant Count_Type := Count_Type (Left.N_Row);
+   N_Col  : Nat renames A.N_Col;
+   N_Row  : constant Count_Type := Count_Type (A.N_Row);
    Res    : constant Count_Type := Count_Type'Max (A.X.Length, B.X.Length);
    Sum    : Pos := 1;
    P      : Pos;
-   N, M   : Nat;
-   L, R   : Nat;
+   N, M   : Pos;
+   L, R   : Pos;
    AI, BI : Nat;
 begin
-   
+   if A.X.Length = 0 then return B;
+   elsif B.X.Length = 0 then return A;
+   end if;
    C.Format := CSC; C.N_Col := N_Col; C.N_Row := Pos (N_Row);
    
    C.P.Reserve_Capacity (Count_Type (N_Col + 1));
@@ -29,8 +31,8 @@ begin
       	 C.I.Reserve_Capacity (C.X.Capacity + N_Row);
       end if;
 
-      N := Left.P (I);   L := Left.P (I + 1) - 1;
-      M := Right.P (I);  R := Right.P (I + 1) - 1;
+      N := A.P (I);  L := A.P (I + 1) - 1;
+      M := B.P (I);  R := B.P (I + 1) - 1;
       P := 0;
       while N <= L and M <= R loop
 	 P := P + 1;

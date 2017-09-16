@@ -80,9 +80,6 @@ package Numerics.Sparse_Matrices is
    function Plus (Left  : in Sparse_Matrix;
 		  Right : in Sparse_Matrix) return Sparse_Matrix
      with Pre => Has_Same_Dimensions (Left, Right);
-   function Plus2 (Left  : in Sparse_Matrix;
-		   Right : in Sparse_Matrix) return Sparse_Matrix
-     with Pre => Has_Same_Dimensions (Left, Right);
    function Minus (Left  : in Sparse_Matrix;
 		   Right : in Sparse_Matrix) return Sparse_Matrix
      with Pre => Has_Same_Dimensions (Left, Right);
@@ -110,7 +107,7 @@ package Numerics.Sparse_Matrices is
    
    function "*" (Left, Right : in Sparse_Vector) return Sparse_Matrix;
    
-   function "+" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Plus2;
+   function "+" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Plus;
    function "-" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Minus;
    function "*" (Left, Right : in Sparse_Matrix) return Sparse_Matrix renames Mult;
    function "*" (A : in Sparse_Matrix;
