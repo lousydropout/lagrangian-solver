@@ -54,19 +54,11 @@ package Auto_Differentiation.Integrator is
 			   Var	: in Variable);
    
    
+   procedure Setup (N : in Nat;
+		    K : in Nat);
+   
 private
    
-   Top_Left     : constant Sparse_Matrix := Sparse (((1.0, 0.0),
-						     (0.0, 0.0)));
-   
-   Top_Right    : constant Sparse_Matrix := Sparse (((0.0, 1.0),
-						     (0.0, 0.0)));
-   
-   Bottom_Left  : constant Sparse_Matrix := Sparse (((0.0, 0.0),
-						     (1.0, 0.0)));
-   
-   Bottom_Right : constant Sparse_Matrix := Sparse (((0.0, 0.0),
-						     (0.0, 1.0)));
-
-   
+   TL, TR, BR, BL : Sparse_Matrix;
+   MatA, MatB, MatC, MatD : Sparse_Matrix;
 end Auto_Differentiation.Integrator;

@@ -3,21 +3,48 @@ use  Numerics, Chebyshev;
 
 package body Auto_Differentiation.Integrator is
    
+   procedure Setup (N : in Nat;
+		    K : in Nat) is
+      Top_Left     : constant Sparse_Matrix := Sparse (((1.0, 0.0),
+							(0.0, 0.0)));
+      Top_Right    : constant Sparse_Matrix := Sparse (((0.0, 1.0),
+							(0.0, 0.0)));
+      Bottom_Left  : constant Sparse_Matrix := Sparse (((0.0, 0.0),
+							(1.0, 0.0)));
+      Bottom_Right : constant Sparse_Matrix := Sparse (((0.0, 0.0),
+							(0.0, 1.0)));
+      EyeN  : constant Sparse_Matrix := Eye (N);
+      EyeK  : constant Sparse_Matrix := Eye (K);
+      Eye2N : constant Sparse_Matrix := Eye (2 * N);
+      D     : constant Sparse_Matrix := Sparse (Derivative_Matrix (K, 0.0, 1.0));
+   begin
+      TL   := Top_Left     and EyeN;
+      TR   := Top_Right    and EyeN;
+      BL   := Bottom_Left  and EyeN;
+      BR   := Bottom_Right and EyeN;
+      
+      MatC := D and Eye2N; -- temporary, overwritten below
+      MatA := MatC * (EyeK and TL);
+      MatB := MatC * (EyeK and BR);
+      MatC := EyeK and TR;
+      MatD := EyeK and BL;
+   end Setup;
+   
+   
+   
    function Collocation (Lagrangian : not null access 
 			   function (X : Real_Vector; N : Nat) return AD_Type;
 			 Var        : in     Variable;
 			 Control    : in out Control_Type) return Real_Vector is
       K   : Nat  renames Control.K;
       N   : Nat  renames Control.N;
-      Dt  : Real renames Control.Dt;
-      Err : Real renames Control.Err;
       Old : constant Evaluation_Level :=  Level;
+      Tmp : constant Integer := 2 * N;
       
-      Q  : Real_Vector (1 .. 2 * N * K);
-      DQ : Sparse_Vector;
-      F : Sparse_Vector;
-      J : Sparse_Matrix;
-      Tmp : Integer := 2 * N;
+      Q   : Real_Vector (1 .. 2 * N * K);
+      DQ  : Sparse_Vector;
+      F   : Sparse_Vector;
+      J   : Sparse_Matrix;
       Res : Real := 1.0;
    begin
       Level := Hessian;
@@ -31,10 +58,7 @@ package body Auto_Differentiation.Integrator is
 	 DQ := Numerics.Sparse_Matrices.CSparse.Solve (J, F);
 	 Q (Tmp + 1 .. Tmp * K) := Q (Tmp + 1 .. Tmp * K) - To_Array (DQ);
 	 Res := Norm (F);
-	 --  Put ("Res = "); Put (Res, Aft => 3); 
-	 --  New_Line;
       end loop;
-      --  New_Line;
       ------------------------------------------------
       Control.Err := Norm (DQ) / Norm (Q);
       Level := Old;
@@ -42,52 +66,40 @@ package body Auto_Differentiation.Integrator is
       return Q;
    end Collocation;
    
-   
-   
    procedure FJ (Lagrangian : not null access 
-		   function (X : Real_Vector; N : Nat) return AD_Type;
-		 Var     : in     Variable;
-		 Control : in     Control_Type;
-		 Q       : in     Real_Vector;
-		 F       :    out Sparse_Vector;
-		 J       :    out Sparse_Matrix) is
-      Dt   : Real renames Control.Dt;
-      K    : Nat  renames Control.K;
+		    function (X : Real_Vector; N : Nat) return AD_Type;
+		  Var     : in     Variable;
+		  Control : in     Control_Type;
+		  Q       : in     Real_Vector;
+		  F       :    out Sparse_Vector;
+		  J       :    out Sparse_Matrix) is
       N    : Nat  renames Control.N;
       L    : AD_Type;
       X    : Real_Vector (1 .. 2 * N);
       Tmp  : Integer;
-      EyeN : constant Sparse_Matrix := Eye (N);
-      TL   : constant Sparse_Matrix := Top_Left     and EyeN;
-      TR   : constant Sparse_Matrix := Top_Right    and EyeN;
-      BL   : constant Sparse_Matrix := Bottom_Left  and EyeN;
-      BR   : constant Sparse_Matrix := Bottom_Right and EyeN;
-      Time : constant Real_Vector
-	:= Chebyshev_Gauss_Lobatto (K, Var.T, Var.T + Dt);
-      D    : constant Sparse_Matrix
-	:= Sparse (Derivative_Matrix (K, Var.T, Var.T + Dt));
-      U, V : Sparse_Vector;
-      A, B : Sparse_Matrix;
+      U    : Sparse_Vector;
+      V    : Sparse_Matrix;
+      A    : constant Sparse_Matrix := MatA - Control.Dt * MatC;
+      B    : constant Sparse_Matrix := MatB - Control.Dt * MatD;
    begin
-      pragma Assert (Q'Length = 2 * N * K);
+      pragma Assert (Q'Length = 2 * N * Control.K);
+      -------------------------------------
       X := Q (1 .. 2 * N);
       L := Lagrangian (X, N);
-      U := TL * X + BR * Grad (L);
-      V := (TR * X + BL * Grad (L));
-      A := (TL     + BR * Hessian (L));
-      B := (TR     + BL * Hessian (L));
-      for K in 2 .. Time'Last loop
+      U := Grad (L); 
+      V := Hessian (L);
+      for K in 2 .. Control.K loop
 	 Tmp := 2 * N * (K - 1);
 	 X := Q (Tmp + 1 .. Tmp + 2 * N);
 	 L := Lagrangian (X, N);
-	 U := U or (TL * X + BR * Grad (L));
-	 V := V or (TR * X + BL * Grad (L));
-	 A := A or (TL     + BR * Hessian (L));
-	 B := B or (TR     + BL * Hessian (L));
+	 U := U or Grad (L);
+	 V := V or Hessian (L);
       end loop;
-      F := (D and Eye (2 * N)) * U - V; F := Remove_1stN (F, 2 * N);
-      J := (D and Eye (2 * N)) * A - B; J := Remove_1stN (J, 2 * N);
+      -------------------------------------
+      F := A * Q - B * U; F := Remove_1stN (F, 2 * N);
+      J := A     - B * V; J := Remove_1stN (J, 2 * N);
    end FJ;
+   
    
    
    function Bogack_Shampine (Hamiltonian : not null access 

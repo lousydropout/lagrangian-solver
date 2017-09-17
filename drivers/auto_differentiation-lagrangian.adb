@@ -2,7 +2,7 @@ with Numerics, Ada.Text_IO, Auto_Differentiation.Integrator, Chebyshev;
 use  Numerics, Ada.Text_IO, Auto_Differentiation.Integrator, Chebyshev;
 
 procedure Auto_Differentiation.Lagrangian is
-   use Real_IO;
+
    --  Set Up Parameters -----------------
    Control : Control_Type
      := (N => 2, Dt => 0.005, Eps => 1.0e-10, Err => 1.0, K => 4);
@@ -52,13 +52,12 @@ procedure Auto_Differentiation.Lagrangian is
 		       T  => 0.0);
    X : Real_Vector renames Var.X;
    -------------------------------
-   XYZ  : File_Type;
-   Y    : Real_Vector (1 .. 2 * N * Control.K);
-   Dt   : constant Real := 0.01;
-   Time : Real := Var.T;
+   XYZ   : File_Type;
+   Y     : Real_Vector (1 .. 2 * N * Control.K);
+   Dt    : constant Real := 0.01;
+   Time  : Real := Var.T;
    PTime : Real;
-   Tmp  : Integer := 2 * N;
-   A, B, C, D : Real_Vector (1 .. Control.K);
+   A     : array (1 .. 2 * N) of Real_Vector (1 .. Control.K);
 begin
    
    Create (XYZ, Name => "out.xyz");
@@ -67,27 +66,26 @@ begin
    Print_Data_L (XYZ, Var);
    Print_XYZ (XYZ, Var);
    
+   Setup (N, Control.K);
+   
    while Var.T < 5.2 loop
       Y := Collocation (Lagrangian'Access, Var, Control);
-
-      for I in 1 .. Control.K loop
-	 A (I) := Y (2 * N * (I - 1) + 1);
-	 B (I) := Y (2 * N * (I - 1) + 2);
-	 C (I) := Y (2 * N * (I - 1) + 3);
-	 D (I) := Y (2 * N * (I - 1) + 4);
+      
+      for I in 1 .. 2 * N loop
+	 for K in 1 .. Control.K loop
+	    A (I) (K) := Y (2 * N * (K - 1) + I);
+	 end loop;
       end loop;
       
-      A := CGL_Transform (A);
-      B := CGL_Transform (B);
-      C := CGL_Transform (C);
-      D := CGL_Transform (D);
+      for I in 1 .. 2 * N loop
+	 A (I) := CGL_Transform (A (I));
+      end loop;
       
       PTime := Var.T + Control.Dt;
       while Time < PTime loop
-	 Var.X (1) := Interpolate (A, Time, Var.T, Var.T + Control.Dt);
-	 Var.X (2) := Interpolate (B, Time, Var.T, Var.T + Control.Dt);
-	 Var.X (3) := Interpolate (C, Time, Var.T, Var.T + Control.Dt);
-	 Var.X (4) := Interpolate (D, Time, Var.T, Var.T + Control.Dt);
+	 for I in 1 .. 2 * N loop
+	    Var.X (I) := Interpolate (A (I), Time, Var.T, Var.T + Control.Dt);
+	 end loop;
 	 Var.T     := Time;
 	 Print_XYZ (XYZ, Var);
 	 Print_Data_L (XYZ, Var);
