@@ -4,12 +4,12 @@ Project Main is
   for Main use (--  "forward_ad-test",
 		--  "forward_ad-bubble",
 		--  "auto_differentiation-dynamics",
-		"auto_differentiation-lagrangian");
-		--  "auto_differentiation-pendulum",
+		"auto_differentiation-pendulum",
+		"auto_differentiation-lagrangian",
 		--  "forward_ad-jacobian",
 		--  "dynamics",
 		--  "ad_test",
-		--  "sparse_test");
+		"sparse_test");
 		--  "chebyshev_test",
 		--  "forward_ad-dynamics"
 		--  "bubble");

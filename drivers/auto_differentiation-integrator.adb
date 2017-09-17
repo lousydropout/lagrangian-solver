@@ -3,31 +3,40 @@ use  Numerics, Chebyshev;
 
 package body Auto_Differentiation.Integrator is
    
+   function Is_Setup return Boolean is
+      Okay : Boolean := True;
+   begin
+      if N_Col (MatA) = 0 or else N_Row (MatA) = 0 or else
+	 N_Col (MatB) = 0 or else N_Row (MatB) = 0 or else
+	 N_Col (MatC) = 0 or else N_Row (MatC) = 0 or else
+	 N_Col (MatD) = 0 or else N_Row (MatD) = 0 
+      then 
+	 Okay := False;
+      end if;
+      return Okay;
+   end Is_Setup;
+   
    procedure Setup (N : in Nat;
 		    K : in Nat) is
-      Top_Left     : constant Sparse_Matrix := Sparse (((1.0, 0.0),
-							(0.0, 0.0)));
-      Top_Right    : constant Sparse_Matrix := Sparse (((0.0, 1.0),
-							(0.0, 0.0)));
-      Bottom_Left  : constant Sparse_Matrix := Sparse (((0.0, 0.0),
-							(1.0, 0.0)));
-      Bottom_Right : constant Sparse_Matrix := Sparse (((0.0, 0.0),
-							(0.0, 1.0)));
+      Top_Left     : Sparse_Matrix := Sparse (((1.0, 0.0), (0.0, 0.0)));
+      Top_Right    : Sparse_Matrix := Sparse (((0.0, 1.0), (0.0, 0.0)));
+      Bottom_Left  : Sparse_Matrix := Sparse (((0.0, 0.0), (1.0, 0.0)));
+      Bottom_Right : Sparse_Matrix := Sparse (((0.0, 0.0), (0.0, 1.0)));
       EyeN  : constant Sparse_Matrix := Eye (N);
       EyeK  : constant Sparse_Matrix := Eye (K);
       Eye2N : constant Sparse_Matrix := Eye (2 * N);
       D     : constant Sparse_Matrix := Sparse (Derivative_Matrix (K, 0.0, 1.0));
    begin
-      TL   := Top_Left     and EyeN;
-      TR   := Top_Right    and EyeN;
-      BL   := Bottom_Left  and EyeN;
-      BR   := Bottom_Right and EyeN;
+      Top_Left     := Top_Left     and EyeN;
+      Top_Right    := Top_Right    and EyeN;
+      Bottom_Left  := Bottom_Left  and EyeN;
+      Bottom_Right := Bottom_Right and EyeN;
       
       MatC := D and Eye2N; -- temporary, overwritten below
-      MatA := MatC * (EyeK and TL);
-      MatB := MatC * (EyeK and BR);
-      MatC := EyeK and TR;
-      MatD := EyeK and BL;
+      MatA := MatC * (EyeK and Top_Left);
+      MatB := MatC * (EyeK and Bottom_Right);
+      MatC := EyeK and Top_Right;
+      MatD := EyeK and Bottom_Left;
    end Setup;
    
    

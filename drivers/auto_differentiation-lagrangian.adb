@@ -5,7 +5,7 @@ procedure Auto_Differentiation.Lagrangian is
 
    --  Set Up Parameters -----------------
    Control : Control_Type
-     := (N => 2, Dt => 0.005, Eps => 1.0e-10, Err => 1.0, K => 4);
+     := (N => 2, Dt => 0.01, Eps => 1.0e-10, Err => 1.0, K => 7);
    N       : Nat renames Control.N;
    α       : constant Real := 100.0;
    -------------------------------
@@ -58,6 +58,7 @@ procedure Auto_Differentiation.Lagrangian is
    Time  : Real := Var.T;
    PTime : Real;
    A     : array (1 .. 2 * N) of Real_Vector (1 .. Control.K);
+
 begin
    
    Create (XYZ, Name => "out.xyz");
@@ -72,28 +73,28 @@ begin
       Y := Collocation (Lagrangian'Access, Var, Control);
       
       for I in 1 .. 2 * N loop
-	 for K in 1 .. Control.K loop
-	    A (I) (K) := Y (2 * N * (K - 1) + I);
-	 end loop;
+   	 for K in 1 .. Control.K loop
+   	    A (I) (K) := Y (2 * N * (K - 1) + I);
+   	 end loop;
       end loop;
       
       for I in 1 .. 2 * N loop
-	 A (I) := CGL_Transform (A (I));
+   	 A (I) := CGL_Transform (A (I));
       end loop;
       
       PTime := Var.T + Control.Dt;
       while Time < PTime loop
-	 for I in 1 .. 2 * N loop
-	    Var.X (I) := Interpolate (A (I), Time, Var.T, Var.T + Control.Dt);
-	 end loop;
-	 Var.T     := Time;
-	 Print_XYZ (XYZ, Var);
-	 Print_Data_L (XYZ, Var);
-	 Time := Time + Dt;
+   	 for I in 1 .. 2 * N loop
+   	    Var.X (I) := Interpolate (A (I), Time, Var.T, Var.T + Control.Dt);
+   	 end loop;
+   	 Var.T     := Time;
+   	 Print_XYZ (XYZ, Var);
+   	 Print_Data_L (XYZ, Var);
+   	 Time := Time + Dt;
       end loop;
       Var.T := PTime;
       for I in 1 .. 2 * N loop
-	 Var.X (I) := Y (Y'Last - 2 * N + I);
+   	 Var.X (I) := Y (Y'Last - 2 * N + I);
       end loop;
 
    end loop;

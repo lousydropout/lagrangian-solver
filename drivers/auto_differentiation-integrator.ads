@@ -28,7 +28,8 @@ package Auto_Differentiation.Integrator is
    function Collocation (Lagrangian : not null access 
 			   function (X : Real_Vector; N : Nat) return AD_Type;
 			 Var        : in     Variable;
-			 Control    : in out Control_Type) return Real_Vector;
+			 Control    : in out Control_Type) return Real_Vector
+   with Pre => Is_Setup = True;
    
    function Bogack_Shampine (Hamiltonian : not null access 
 			       function (X : Real_Vector; N : Nat) return AD_Type;
@@ -57,8 +58,10 @@ package Auto_Differentiation.Integrator is
    procedure Setup (N : in Nat;
 		    K : in Nat);
    
+   function Is_Setup return Boolean;
+   
 private
    
-   TL, TR, BR, BL : Sparse_Matrix;
    MatA, MatB, MatC, MatD : Sparse_Matrix;
+   
 end Auto_Differentiation.Integrator;

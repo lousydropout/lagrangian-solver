@@ -9,7 +9,7 @@ function Mult (Left, Right : in Sparse_Matrix) return Sparse_Matrix is
    W  : Int_Array  (1 .. A.N_Row) := (others => 0);
    Nz : Pos := 1;
    N_Row : constant Count_Type := Count_Type (A.N_Row + 1);
-   N_Res : constant Count_Type := Count_Type (A.N_Row * B.N_Col / 100);
+   N_Res : Count_Type := Count_Type (A.N_Row * B.N_Col / 20);
    
 begin
    

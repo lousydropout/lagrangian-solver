@@ -30,9 +30,9 @@ package body Numerics.Sparse_Matrices is
       for I in X'Range (1) loop
       	 for J in X'Range (2) loop
 	    if abs (X (I, J)) > Eps then
+	       Y.X.Append (X (I, J));
 	       Y.I.Append (I + Offset_1); 
 	       Y.P.Append (J + Offset_2);
-	       Y.X.Append (X (I, J));
 	    end if;
 	 end loop;
       end loop;
@@ -54,8 +54,8 @@ package body Numerics.Sparse_Matrices is
    end As_Matrix;
    
    function "*" (Left, Right : in Sparse_Vector) return Sparse_Matrix is
-      A : Sparse_Matrix := As_Matrix (Left);
-      B : Sparse_Matrix := As_Matrix (Right);
+      A : constant Sparse_Matrix := As_Matrix (Left);
+      B : constant Sparse_Matrix := As_Matrix (Right);
    begin
       return A * Transpose (B);
    end "*";
