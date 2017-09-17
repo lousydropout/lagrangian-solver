@@ -5,7 +5,7 @@ procedure Auto_Differentiation.Lagrangian is
    use Real_IO;
    --  Set Up Parameters -----------------
    Control : Control_Type
-     := (N => 2, Dt => 0.005, Eps => 1.0e-10, Err => 1.0, M => 4);
+     := (N => 2, Dt => 0.005, Eps => 1.0e-10, Err => 1.0, K => 4);
    N       : Nat renames Control.N;
    α       : constant Real := 100.0;
    -------------------------------
@@ -53,12 +53,12 @@ procedure Auto_Differentiation.Lagrangian is
    X : Real_Vector renames Var.X;
    -------------------------------
    XYZ  : File_Type;
-   Y    : Real_Vector (1 .. 2 * N * Control.M);
+   Y    : Real_Vector (1 .. 2 * N * Control.K);
    Dt   : constant Real := 0.01;
    Time : Real := Var.T;
    PTime : Real;
    Tmp  : Integer := 2 * N;
-   A, B, C, D : Real_Vector (1 .. Control.M);
+   A, B, C, D : Real_Vector (1 .. Control.K);
 begin
    
    Create (XYZ, Name => "out.xyz");
@@ -70,7 +70,7 @@ begin
    while Var.T < 5.2 loop
       Y := Collocation (Lagrangian'Access, Var, Control);
 
-      for I in 1 .. Control.M loop
+      for I in 1 .. Control.K loop
 	 A (I) := Y (2 * N * (I - 1) + 1);
 	 B (I) := Y (2 * N * (I - 1) + 2);
 	 C (I) := Y (2 * N * (I - 1) + 3);

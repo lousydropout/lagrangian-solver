@@ -7,14 +7,13 @@ package body Auto_Differentiation.Integrator is
 			   function (X : Real_Vector; N : Nat) return AD_Type;
 			 Var        : in     Variable;
 			 Control    : in out Control_Type) return Real_Vector is
-      use Numerics.Sparse_Matrices.CSparse, Real_IO, Ada.Text_IO;
-      M   : Nat  renames Control.M;
+      K   : Nat  renames Control.K;
       N   : Nat  renames Control.N;
       Dt  : Real renames Control.Dt;
       Err : Real renames Control.Err;
       Old : constant Evaluation_Level :=  Level;
       
-      Q  : Real_Vector (1 .. 2 * N * M);
+      Q  : Real_Vector (1 .. 2 * N * K);
       DQ : Sparse_Vector;
       F : Sparse_Vector;
       J : Sparse_Matrix;
@@ -23,21 +22,21 @@ package body Auto_Differentiation.Integrator is
    begin
       Level := Hessian;
       ------------------------------------------------
-      for I in 1 .. M loop
+      for I in 1 .. K loop
 	 Q ((I - 1) * 2 * N + 1 .. I * 2 * N) := Var.X;
       end loop;
       ------------------------------------------------
       while Res > 1.0e-10 loop
 	 FJ (Lagrangian, Var, Control, Q, F, J);
-	 DQ := Solve (J, F);
-	 Q (Tmp + 1 .. Tmp * M) := Q (Tmp + 1 .. Tmp * M) - To_Array (DQ);
+	 DQ := Numerics.Sparse_Matrices.CSparse.Solve (J, F);
+	 Q (Tmp + 1 .. Tmp * K) := Q (Tmp + 1 .. Tmp * K) - To_Array (DQ);
 	 Res := Norm (F);
 	 --  Put ("Res = "); Put (Res, Aft => 3); 
 	 --  New_Line;
       end loop;
       --  New_Line;
       ------------------------------------------------
-      Control.Err := Res;
+      Control.Err := Norm (DQ) / Norm (Q);
       Level := Old;
 
       return Q;
@@ -53,7 +52,7 @@ package body Auto_Differentiation.Integrator is
 		 F       :    out Sparse_Vector;
 		 J       :    out Sparse_Matrix) is
       Dt   : Real renames Control.Dt;
-      M    : Nat  renames Control.M;
+      K    : Nat  renames Control.K;
       N    : Nat  renames Control.N;
       L    : AD_Type;
       X    : Real_Vector (1 .. 2 * N);
@@ -64,13 +63,13 @@ package body Auto_Differentiation.Integrator is
       BL   : constant Sparse_Matrix := Bottom_Left  and EyeN;
       BR   : constant Sparse_Matrix := Bottom_Right and EyeN;
       Time : constant Real_Vector
-	:= Chebyshev_Gauss_Lobatto (M, Var.T, Var.T + Dt);
+	:= Chebyshev_Gauss_Lobatto (K, Var.T, Var.T + Dt);
       D    : constant Sparse_Matrix
-	:= Sparse (Derivative_Matrix (M, Var.T, Var.T + Dt));
+	:= Sparse (Derivative_Matrix (K, Var.T, Var.T + Dt));
       U, V : Sparse_Vector;
       A, B : Sparse_Matrix;
    begin
-      pragma Assert (Q'Length = 2 * N * M);
+      pragma Assert (Q'Length = 2 * N * K);
       X := Q (1 .. 2 * N);
       L := Lagrangian (X, N);
       U := TL * X + BR * Grad (L);

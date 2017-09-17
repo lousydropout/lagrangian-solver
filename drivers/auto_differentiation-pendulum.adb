@@ -5,7 +5,7 @@ procedure Auto_Differentiation.Pendulum is
    use Real_IO, Real_Functions;
    --  Set Up Parameters -----------------
    Control : Control_Type
-     := (N => 1, Dt => 2.0, Eps => 1.0e-10, Err => 1.0, M => 11);
+     := (N => 1, Dt => 2.0, Eps => 1.0e-10, Err => 1.0, K => 11);
    N : Nat renames Control.N;
    -------------------------------
    
@@ -28,8 +28,8 @@ procedure Auto_Differentiation.Pendulum is
    ω : Real renames Var.X (2);
    T : Real renames Var.T;
    -------------------------------
-   Y    : Real_Vector (1 .. 2 * N * Control.M);
-   A, B : Real_Vector (1 .. N * Control.M);
+   Y    : Real_Vector (1 .. 2 * N * Control.K);
+   A, B : Real_Vector (1 .. N * Control.K);
    File : File_Type;
    Dt   : constant Real := 0.05;
    Time : Real := T - Dt;
@@ -40,7 +40,7 @@ begin
    
    while T < 5.0 loop
       Y := Collocation (Lagrangian'Access, Var, Control);
-      for I in 1 .. Control.M loop
+      for I in 1 .. Control.K loop
 	 A (I) := Y (2 * I - 1);
 	 B (I) := Y (2 * I);
       end loop;

@@ -14,7 +14,7 @@ package Auto_Differentiation.Integrator is
 	 Dt  : Real := 1.0;
 	 Eps : Real := 1.0e-10;
 	 Err : Real := 1.0;
-	 M   : Nat  := 9;
+	 K   : Nat  := 9;
       end record;
    
    procedure FJ (Lagrangian : not null access 

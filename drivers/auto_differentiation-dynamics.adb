@@ -4,7 +4,7 @@ use  Numerics, Ada.Text_IO, Auto_Differentiation.Integrator;
 procedure Auto_Differentiation.Dynamics is
    use Real_IO, Int_IO;
    --  Set Up Parameters -----------------
-   Control : Control_Type := (N => 2, Dt => 1.0, Eps => 1.0e-10, Err => 1.0, M => 9);
+   Control : Control_Type := (N => 2, Dt => 1.0, Eps => 1.0e-10, Err => 1.0, K => 9);
    N       : Nat renames Control.N;
    α       : constant Real := 100.0;
    -------------------------------
@@ -84,7 +84,7 @@ begin
    Print_Data (Var, Hamiltonian'Access);
    Print_XYZ (XYZ, Var);
    
-   while T < 1.0e2 loop
+   while T < 5.2 loop
       Time := T + Dt;
       while T < Time loop
 	 if Control.Dt > Time - T then Control.Dt := Time - T; end if;
