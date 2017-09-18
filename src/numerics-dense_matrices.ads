@@ -2,6 +2,8 @@ with Numerics;
 use  Numerics;
 package Numerics.Dense_Matrices is
    
+   Error : exception;
+   
    function Outer (X, Y : in Real_Vector) return Real_Matrix;
    function "*" (X, Y : in Real_Vector) return Real_Matrix renames Outer;
    
@@ -12,10 +14,6 @@ package Numerics.Dense_Matrices is
    
    function "+" (A : in Real_Matrix) return Real_Matrix is (A);
    function "-" (A : in Real_Matrix) return Real_Matrix;
-   
-   function "*" (A : in Real_Matrix;
-		 X : in Real_Vector) return Real_Vector
-     with Pre => A'Length (2) = X'Length;
    
    function "+" (A : in Real_Matrix;
 		 B : in Real_Matrix) return Real_Matrix
@@ -40,6 +38,7 @@ package Numerics.Dense_Matrices is
 			       U :    out Real_Matrix)
      with Pre => A'Length (1) = A'Length (2);
    
+   procedure Print (X : in Real_Vector);
    procedure Print (A : in Real_Matrix);
    procedure Print (A : in Int_Matrix);
    
@@ -83,6 +82,30 @@ package Numerics.Dense_Matrices is
    function Diag (A : in Real_Matrix) return Real_Vector
      with Pre => A'Length (1) = A'Length (2);
    function Diag (X : in Real_Vector) return Real_Matrix;
+   
+   function "and" (A, B : in Real_Matrix) return Real_Matrix;
+   function "or" (A, B : in Real_Matrix) return Real_Matrix;
+   
+   function Remove_1st_N (X : in Real_Vector;
+			  N : in Pos) return Real_Vector
+     with Pre => X'Length > N;
+   function Remove_1st_N (A : in Real_Matrix;
+			  N : in Pos) return Real_Matrix
+     with Pre => A'Length (1) > N and A'Length (2) > N;
+   
+   procedure Copy (From	 : in     Real_Vector;
+		   To	 : in out Real_Vector;
+		   Start : in     Pos)
+     with Pre => To'Length >= From'Length and To'First <= Start;
+   
+   procedure Copy (From	   : in     Real_Matrix;
+		   To	   : in out Real_Matrix;
+		   Start_I : in     Pos;
+		   Start_J : in     Pos)
+     with Pre => To'Length (1) >= From'Length (1)
+     and To'Length (2) >= From'Length (2)
+     and To'First (1) <= Start_I
+     and To'First (2) <= Start_J;
    
 private
    

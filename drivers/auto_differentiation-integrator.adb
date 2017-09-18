@@ -4,7 +4,6 @@ use  Numerics, Chebyshev;
 package body Auto_Differentiation.Integrator is
    
    function Is_Setup return Boolean is
-      use Int_IO;
       Okay : Boolean := True;
    begin
       if N_Col (MatA) = 0 or else N_Row (MatA) = 0 or else
@@ -13,12 +12,6 @@ package body Auto_Differentiation.Integrator is
 	 N_Col (MatD) = 0 or else N_Row (MatD) = 0 
       then 
 	 Okay := False;
-      else
-	 Put ("size (MatA) = ");
-	 Put (N_Row (MatA), Width => 1);
-	 Put (" x ");
-	 Put (N_Col (MatA), Width => 1);
-	 New_Line;
       end if;
       return Okay;
    end Is_Setup;
@@ -52,6 +45,7 @@ package body Auto_Differentiation.Integrator is
 			   function (X : Real_Vector; N : Nat) return AD_Type;
 			 Var        : in     Variable;
 			 Control    : in out Control_Type) return Real_Vector is
+      use Ada.Text_IO, Real_IO;
       K   : Nat  renames Control.K;
       N   : Nat  renames Control.N;
       Old : constant Evaluation_Level :=  Level;
@@ -74,7 +68,9 @@ package body Auto_Differentiation.Integrator is
 	 DQ := Numerics.Sparse_Matrices.CSparse.Solve (J, F);
 	 Q (Tmp + 1 .. Tmp * K) := Q (Tmp + 1 .. Tmp * K) - To_Array (DQ);
 	 Res := Norm (F);
+	 --  Put (Res); New_Line;
       end loop;
+      --  New_Line;
       ------------------------------------------------
       Control.Err := Norm (DQ) / Norm (Q);
       Level := Old;

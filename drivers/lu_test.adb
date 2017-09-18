@@ -1,10 +1,10 @@
-with Numerics, Numerics.Dense_Matrices, Ada.Text_IO, Auto_Differentiation_Dense;
+with Numerics, Numerics.Dense_Matrices, Ada.Text_IO, Dense_AD;
 use  Numerics, Numerics.Dense_Matrices, Ada.Text_IO;
 
 procedure LU_Test is
    use Real_IO, Int_IO;
    N : constant Nat := 5;
-   package AD is new Auto_Differentiation_Dense (N); use AD;
+   package AD is new Dense_AD (N); use AD;
    
    Example_1 : constant Real_Matrix := ((1.0, 3.0, 5.0),
 					(2.0, 4.0, 7.0),

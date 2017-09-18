@@ -64,33 +64,21 @@ package body Numerics.Dense_Matrices is
    end "-";
       
    function "*" (A : in Real_Matrix;
-		 X : in Real_Vector) return Real_Vector is
-      B : Real_Vector (1 .. A'Length (1)) := (others => 0.0);
-      Offset_1 : constant Integer := A'First (1) - 1;
-      Offset_2 : constant Integer := A'First (2) - X'First;
-   begin
-      for I in B'Range loop
-	 for J in X'Range loop
-	    B (I) := B (I) + A (I + Offset_1, J + Offset_2) * X (J);
-	 end loop;
-      end loop;
-      return B;
-   end "*";
-   
-   function "*" (A : in Real_Matrix;
 		 B : in Real_Matrix) return Real_Matrix is
       C : Real_Matrix (1 .. A'Length (1), 1 .. B'Length (2))
 	:= (others => (others => 0.0));
-      Aoff_1 : constant Integer := A'First (1) - 1;
+      Coff_1 : constant Integer := 1 - A'First (1);
+      Coff_2 : constant Integer := 1 - B'First (2);
       Boff_1 : constant Integer := B'First (1) - A'First (2);
-      Boff_2 : constant Integer := B'First (2) - 1;
+      Tmp : Real;
    begin
-      for I in C'Range (1) loop
-	 for J in C'Range (2) loop
+      for I in A'Range (1) loop
+	 for J in B'Range (2) loop
+	    Tmp := 0.0;
 	    for K in A'Range (2) loop
-	       C (I, J) := C (I, J) 
-		 + A (I + Aoff_1, K) * B (K + Boff_1, J + Boff_2);
+	       Tmp := Tmp + A (I, K) * B (K + Boff_1, J);
 	    end loop;
+	    C (I + Coff_1, J + Coff_2) := Tmp;
 	 end loop;
       end loop;
       return C;
@@ -203,6 +191,14 @@ package body Numerics.Dense_Matrices is
          end loop;
       end loop;
    end LU_Decomposition;
+   
+   procedure Print (X : in Real_Vector) is
+      use Real_IO, Ada.Text_IO;
+   begin
+      for Item of X loop
+	 Put (Item, Aft => 3, Exp => 0); New_Line;
+      end loop;
+   end Print;
    
    procedure Print (A : in Real_Matrix) is
       use Real_IO, Ada.Text_IO;
@@ -375,4 +371,99 @@ package body Numerics.Dense_Matrices is
       end loop;
       return Inv;
    end Inverse;
+   
+   
+   function "and" (A, B : in Real_Matrix) return Real_Matrix is
+      Offset_1 : constant Integer := 1 - A'First (1) - B'First (1);
+      Offset_2 : constant Integer := 1 - A'First (2) - B'First (2);
+      Al_1     : constant Nat := A'Length (1);
+      Al_2     : constant Nat := A'Length (2);
+      Bl_1     : constant Nat := B'Length (1);
+      Bl_2     : constant Nat := B'Length (2);
+      C        : Real_Matrix (1 .. Al_1 * Bl_1, 1 .. Al_2 * Bl_2);
+   begin
+      for Ai in A'Range (1) loop
+	 for Bi in B'Range (1) loop
+	    for Aj in A'Range (2) loop
+	       for Bj in B'Range (2) loop
+		  C (Bl_1 * (Ai - A'First (1)) + Bi,
+		     Bl_2 * (Aj - A'First (2)) + Bj)
+		    := A (Ai, Aj) * B (Bi, Bj);
+	       end loop;
+	    end loop;
+	 end loop;
+      end loop;
+      return C;
+   end "and";
+      
+   function "or" (A, B : in Real_Matrix) return Real_Matrix is
+      Al_1     : constant Nat := A'Length (1);
+      Al_2     : constant Nat := A'Length (2);
+      Bl_1     : constant Nat := B'Length (1);
+      Bl_2     : constant Nat := B'Length (2);
+      C        : Real_Matrix (1 .. Al_1 + Bl_1, 1 .. Al_2 + Bl_2)
+	:= (others => (others => 0.0));
+   begin
+      for I in A'Range (1) loop
+	 for J in A'Range (2) loop
+	    C (I + 1 - A'First (1), J + 1 - A'First (2)) := A (I, J);
+	 end loop;
+      end loop;
+      
+      for I in B'Range (1) loop
+	 for J in B'Range (2) loop
+	    C (Al_1 + I + 1 - B'First (1), 
+	       Al_2 + J + 1 - B'First (2))
+	      := B (I, J);
+	 end loop;
+      end loop;
+      
+      return C;
+   end "or";
+   
+   function Remove_1st_N (X : in Real_Vector;
+			  N : in Pos) return Real_Vector is
+      Y : Real_Vector (1 .. X'Length - N);
+   begin
+      for I in Y'Range loop
+	 Y (I) := X (X'First - 1 + I + N);
+      end loop;
+      return Y;
+   end Remove_1st_N;
+   
+   function Remove_1st_N (A : in Real_Matrix;
+			  N : in Pos) return Real_Matrix is
+      B : Real_Matrix (1 .. A'Length (1) - N,
+		       1 .. A'Length (2) - N);
+   begin
+      for I in B'Range (1) loop
+	 for J in B'Range (2) loop
+	    B (I, J) := A (A'First (1) - 1 + I + N, 
+			   A'First (2) - 1 + J + N);
+	 end loop;
+      end loop;
+      return B;
+   end Remove_1st_N;
+   
+   procedure Copy (From	 : in     Real_Vector;
+		   To	 : in out Real_Vector;
+		   Start : in     Pos) is
+   begin
+      for I in From'Range loop
+	 To (I + Start - From'First) := From (I);
+      end loop;
+   end Copy;
+   
+   procedure Copy (From	   : in     Real_Matrix;
+		   To	   : in out Real_Matrix;
+		   Start_I : in     Pos;
+		   Start_J : in     Pos) is
+   begin
+      for I in From'Range (1) loop
+	 for J in From'Range (2) loop
+	    To (I + Start_I - From'First (1), J + Start_J - From'First (2))
+	      := From (I, J);
+	 end loop;
+      end loop;
+   end Copy;
 end Numerics.Dense_Matrices;

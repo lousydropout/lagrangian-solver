@@ -1,9 +1,9 @@
-package body Auto_Differentiation_Dense is
+package body Dense_AD is
    
    function Var (X  : in Real;
 		 I  : in Nat;
 		 Dx : in Real := 1.0) return AD_Type is
-      Y : Real_Vector := G0;
+      Y : Vector := G0;
    begin
       Y (I) := Dx;
       case Level is
@@ -13,7 +13,7 @@ package body Auto_Differentiation_Dense is
       end case;
    end Var;
    
-   function Var (X : in Real_Vector) return AD_Vector is
+   function Var (X : in Vector) return AD_Vector is
       Result : AD_Vector;
    begin
       for I in X'Range loop
@@ -33,12 +33,12 @@ package body Auto_Differentiation_Dense is
       return X.Val;
    end Val;
    
-   function Grad (X : in AD_Type) return Real_Vector is
+   function Grad (X : in AD_Type) return Vector is
    begin
       return X.Grad;
    end Grad;
    
-   function Hessian (X : in AD_Type) return Real_Matrix is
+   function Hessian (X : in AD_Type) return Matrix is
    begin
       return X.Hessian;
    end Hessian;
@@ -64,7 +64,7 @@ package body Auto_Differentiation_Dense is
    end "-";
    
    function "*" (X, Y : in AD_Type) return AD_Type is
-      Tmp : Real_Matrix (1 .. N, 1 .. N);
+      Tmp : Matrix;
    begin
       case Level is
 	 when Value => return (X.Val * Y.Val, G0, H0);
@@ -84,7 +84,7 @@ package body Auto_Differentiation_Dense is
       Z  : constant Real := 1.0 / Y.Val;
       Z2 : constant Real := Z * Z;
       Z3 : constant Real := Z2 * Z;
-      Tmp : Real_Matrix (1 .. N, 1 .. N);
+      Tmp : Matrix;
    begin
       case Level is
 	 when Value => 
@@ -109,7 +109,7 @@ package body Auto_Differentiation_Dense is
    function "**" (X : in AD_Type; K : in Integer) return AD_Type is
       Y : Real;
       Z : Real;
-      H : Real_Matrix (1 .. N, 1 .. N);
+      H : Matrix;
    begin
       if K < 0 then pragma Assert (X.Val /= 0.0); end if;
       case K is
@@ -184,7 +184,7 @@ package body Auto_Differentiation_Dense is
       C : constant Real := Cos (X.Val);
       T : Real;
       Y : Real;
-      Z : Real_Vector (1 .. N);
+      Z : Vector;
    begin
       pragma Assert (C /= 0.0);
       T := Sin (X.Val) / C;
@@ -211,7 +211,7 @@ package body Auto_Differentiation_Dense is
    function Exp (X : in AD_Type) return AD_Type is
       use Real_Functions;
       Y : constant Real := Exp (X.Val);
-      G : Real_Vector (1 .. N);
+      G : Vector;
    begin
       case Level is
 	 when Value =>
@@ -235,7 +235,7 @@ package body Auto_Differentiation_Dense is
    function Log (X : in AD_Type) return AD_Type is
       use Real_Functions;
       Y : Real;
-      Z : Real_Vector (1 .. N);
+      Z : Vector;
    begin
       pragma Assert (X.Val > 0.0);
       Y := 1.0 / X.Val;
@@ -291,4 +291,4 @@ package body Auto_Differentiation_Dense is
    begin
       null;
    end Print;
-end Auto_Differentiation_Dense;
+end Dense_AD;
