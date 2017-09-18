@@ -111,6 +111,7 @@ package body Auto_Differentiation_Dense is
       Z : Real;
       H : Real_Matrix (1 .. N, 1 .. N);
    begin
+      if K < 0 then pragma Assert (X.Val /= 0.0); end if;
       case K is
       	 when 0 => return (1.0, G0, H0);
       	 when 1 =>
@@ -123,14 +124,14 @@ package body Auto_Differentiation_Dense is
 			  Hessian => H0);
 	       when Gradient =>
 		  Y := Real (K) * X.Val ** (K - 1);
-		  return (Val  => X.Val ** Natural (K),
+		  return (Val  => X.Val ** K,
 			  Grad => Y * X.Grad,
 			  Hessian => H0);
 	       when Hessian =>
 		  Y := Real (K) * X.Val ** (K - 1);
 		  Z := Real (K * (K - 1)) * X.Val ** (K - 2);
 		  H := Y * X.Hessian + Z * Outer (X.Grad, X.Grad);
-		  return (Val  => X.Val ** (K),
+		  return (Val  => X.Val ** K,
 			  Grad => Y * X.Grad,
 			  Hessian => H);
 	    end case;

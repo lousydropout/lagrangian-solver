@@ -21,3 +21,4 @@ bubble
 *.csv
 dynamics
 chebyshev_test
+lu_test

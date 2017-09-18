@@ -194,6 +194,7 @@ package body Auto_Differentiation is
       Z : Real;
       H : Sparse_Matrix;
    begin
+      if K < 0 then pragma Assert (X.Val /= 0.0); end if;
       case N is
       	 when 0 =>
 	    case Level is
@@ -207,21 +208,21 @@ package body Auto_Differentiation is
 	    case Level is
 	       when Value =>
 		  return (N    => X.N,
-			  Val  => X.Val ** Natural (N),
+			  Val  => X.Val ** N,
 			  Grad => G0,
 			  Hessian => H0);
 	       when Gradient =>
-		  Y := Real (N) * X.Val ** Natural (N - 1);
+		  Y := Real (N) * X.Val ** (N - 1);
 		  return (N    => X.N,
-			  Val  => X.Val ** Natural (N),
+			  Val  => X.Val ** N,
 			  Grad => Y * X.Grad,
 			  Hessian => H0);
 	       when Hessian =>
-		  Y := Real (N) * X.Val ** Natural (N - 1);
-		  Z := Real (N * (N - 1)) * X.Val ** Natural (N - 2);
+		  Y := Real (N) * X.Val ** (N - 1);
+		  Z := Real (N * (N - 1)) * X.Val ** (N - 2);
 		  H := Y * X.Hessian + Z * X.grad * X.grad;
 		  return (N    => X.N,
-			  Val  => X.Val ** Natural (N),
+			  Val  => X.Val ** N,
 			  Grad => Y * X.Grad,
 			  Hessian => H);
 	    end case;
