@@ -196,7 +196,11 @@ package body Auto_Differentiation is
    begin
       case N is
       	 when 0 =>
-      	    return (0.0 * Zero (N));
+	    case Level is
+	       when Value => return (N, 1.0, G0, H0);
+	       when Gradient => return (N, 1.0, Zero (N), H0);
+	       when Hessian => return (N, 1.0, Zero (N), Zero (N));
+	    end case;
       	 when 1 =>
       	    return X;
       	 when others =>

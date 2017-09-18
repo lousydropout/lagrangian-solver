@@ -9,6 +9,7 @@ Project Main is
 		--  "forward_ad-jacobian",
 		--  "dynamics",
 		--  "ad_test",
+		"lu_test",
 		"sparse_test");
 		--  "chebyshev_test",
 		--  "forward_ad-dynamics"

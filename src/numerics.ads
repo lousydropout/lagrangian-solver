@@ -20,14 +20,10 @@ package Numerics is
    
    -------- Define array types -----------------------------------
    type Real_Vector is array (Nat range <>) of Real;
-   type Int_Array  is array (Nat range <>) of Integer;
    type Real_Matrix is array (Nat range <>, Nat range <>) of Real;
+   type Int_Array  is array (Nat range <>) of Integer;
+   type Int_Matrix is array (Nat range <>, Nat range <>) of Integer;
    package Real_Functions is new Ada.Numerics.Generic_Elementary_Functions (Real);
-   --  package RA is new Ada.Numerics.Generic_Real_Arrays (Real); 
-   --  subtype Real_Matrix is RA.Real_Matrix;
-   --  function Solve (A : in Real_Matrix;
-   --  		   B : in Real_Vector) return Real_Vector
-   --    with Pre => A'Length (1) = A'Length (2);
    
    ------- Define Real_IO and Int_IO packages ------------------------
    package Int_IO  is new Ada.Text_IO.Integer_IO (Integer);
