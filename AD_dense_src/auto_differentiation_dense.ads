@@ -36,23 +36,19 @@ package Auto_Differentiation_Dense is
    function "+" (X : in AD_Type) return AD_Type is (X);
    function "-" (X : in AD_Type) return AD_Type;
    
-   function "+" (X : in Real;
-		 Y : in AD_Type) return AD_Type is (Const (X) + Y);
-   function "-" (X : in Real;
-		 Y : in AD_Type) return AD_Type is (Const (X) - Y);
-   function "+" (X : in AD_Type;
-		 Y : in Real) return AD_Type is (X + Const (Y));
-   function "-" (X : in AD_Type;
-		 Y : in Real) return AD_Type is (X - Const (Y));
-   function "*" (X : in Real;
-		 Y : in AD_Type) return AD_Type;
-   function "*" (X : in AD_Type;
-		 Y : in Real) return AD_Type is (Y * X);
-   function "/" (X : in AD_Type;
-		 Y : in Real) return AD_Type is ((1.0 / Y) * X)
+   function "+" (X : in Real; Y : in AD_Type) return AD_Type;
+   function "+" (X : in AD_Type; Y : in Real) return AD_Type is (Y + X);
+   
+   function "-" (X : in Real; Y : in AD_Type) return AD_Type;
+   function "-" (X : in AD_Type; Y : in Real) return AD_Type;
+   
+   function "*" (X : in Real; Y : in AD_Type) return AD_Type;
+   function "*" (X : in AD_Type; Y : in Real) return AD_Type is (Y * X);
+   
+   function "/" (X : in Real; Y : in AD_Type) return AD_Type is (X * (Y ** (-1)));
+   function "/" (X : in AD_Type; Y : in Real) return AD_Type is ((1.0 / Y) * X)
      with Pre => Y /= 0.0;
-   function "/" (X : in Real;
-		 Y : in AD_Type) return AD_Type is (X * (Y ** (-1)));
+		 
    ------------- procedures ----------------------
    procedure Print (X : in AD_Type);
    

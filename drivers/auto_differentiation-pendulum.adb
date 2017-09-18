@@ -33,12 +33,13 @@ procedure Auto_Differentiation.Pendulum is
    File : File_Type;
    Dt   : constant Real := 0.05;
    Time : Real := T - Dt;
+   Okay : Boolean;
 begin
    
    Create (File, Name => "pendulum.csv");
    Put_Line (File, "time, x, u, y, v");
    Setup (N, Control.K);
-
+   Okay := Is_Setup;
    while T < 5.0 loop
       Y := Collocation (Lagrangian'Access, Var, Control);
       for I in 1 .. Control.K loop

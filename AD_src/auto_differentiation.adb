@@ -1,37 +1,44 @@
 with Ada.Text_IO;
 
 package body Auto_Differentiation is
-   function "+" (X : in Real;
-		 Y : in AD_Type) return AD_Type is
-      N : Nat := Length (Y);
+   
+   function "+" (X : in Real; Y : in AD_Type) return AD_Type is
    begin
-      return Const (X, N) + Y;
+      return (N       => Y.N, 
+	      Val     => X + Y.Val,
+	      Grad    => Y.Grad,
+	      Hessian => Y.Hessian);
    end "+";
    
-   function "-" (X : in Real;
-		 Y : in AD_Type) return AD_Type is
-      N : Nat := Length (Y);
+   function "-" (X : in Real; Y : in AD_Type) return AD_Type is
    begin
-      return Const (X, N) - Y;
+      return (N       => Y.N, 
+	      Val     => X - Y.Val, 
+	      Grad    => -Y.Grad, 
+	      Hessian => -Y.Hessian);
    end "-";
+   
+   function "-" (X : in AD_Type; Y : in Real) return AD_Type is
+   begin
+      return (N       => X.N, 
+	      Val     => X.Val - Y, 
+	      Grad    => X.Grad, 
+	      Hessian => X.Hessian);
+   end "-";
+   
    function "/" (X : in Real;
 		 Y : in AD_Type) return AD_Type is
-      N : Nat := Length (Y);
    begin
-      return Const (X, N) / Y;
+      return X * (Y ** (-1));
    end "/";
 
    function Const (X : in Real;
 		   N : in Nat) return AD_Type is
-      Y : Sparse_Vector := Zero (N);
    begin
       case Level is
-	 when Value =>
-	    return (N, X, G0, H0);
-	 when Gradient =>
-	    return (N, X, Y, H0);
-	 when Hessian =>
-	    return (N, X, Y, Zero (N));
+	 when Value    => return (N, X, G0,       H0);
+	 when Gradient => return (N, X, Zero (N), H0);
+	 when Hessian  => return (N, X, Zero (N), Zero (N));
       end case;
    end Const;
    
@@ -41,21 +48,18 @@ package body Auto_Differentiation is
       Y : Sparse_Vector := Dx * One (I, N);
    begin
       case Level is
-	 when Value =>
-	    return (N => N,
-		    Val => X,
-		    Grad => G0,
-		    Hessian => H0);
-	 when Gradient =>
-	    return (N => N,
-		    Val => X,
-		    Grad => Y,
-		    Hessian => H0);
-	 when Hessian =>
-	    return (N => N,
-		    Val => X,
-		    Grad => Y,
-		    Hessian => zero (N));
+	 when Value => return (N => N,
+			       Val => X,
+			       Grad => G0,
+			       Hessian => H0);
+	 when Gradient => return (N => N,
+				  Val => X,
+				  Grad => Y,
+				  Hessian => H0);
+	 when Hessian => return (N => N,
+				 Val => X,
+				 Grad => Y,
+				 Hessian => zero (N));
       end case;
    end Var;
    
@@ -92,42 +96,36 @@ package body Auto_Differentiation is
    function "+" (X, Y : in AD_Type) return AD_Type is
    begin
       case Level is
-	 when Value =>
-	    return (N       => X.N, 
-		    Val     => X.Val  + Y.Val, 
-		    Grad    => G0,
-		    Hessian => H0);
-	 when Gradient =>
-	    return (N       => X.N, 
-		    Val     => X.Val  + Y.Val, 
-		    Grad    => X.Grad + Y.Grad,
-		    Hessian => H0);
-	 when Hessian =>
-	    return (N       => X.N, 
-		    Val     => X.Val  + Y.Val, 
-		    Grad    => X.Grad + Y.Grad,
-		    Hessian => X.Hessian + Y.Hessian);
+	 when Value => return (N       => X.N, 
+			       Val     => X.Val  + Y.Val, 
+			       Grad    => G0,
+			       Hessian => H0);
+	 when Gradient => return (N       => X.N, 
+				  Val     => X.Val  + Y.Val, 
+				  Grad    => X.Grad + Y.Grad,
+				  Hessian => H0);
+	 when Hessian => return (N       => X.N, 
+				 Val     => X.Val  + Y.Val, 
+				 Grad    => X.Grad + Y.Grad,
+				 Hessian => X.Hessian + Y.Hessian);
       end case;
    end "+";
    
    function "-" (X, Y : in AD_Type) return AD_Type is
    begin
       case Level is
-	 when Value =>
-	    return (N       => X.N, 
-		    Val     => X.Val  - Y.Val, 
-		    Grad    => G0,
-		    Hessian => H0);
-	 when Gradient =>
-	    return (N       => X.N, 
-		    Val     => X.Val  - Y.Val, 
-		    Grad    => X.Grad - Y.Grad,
-		    Hessian => H0);
-	 when Hessian =>
-	    return (N       => X.N, 
-		    Val     => X.Val  - Y.Val, 
-		    Grad    => X.Grad - Y.Grad,
-		    Hessian => X.Hessian - Y.Hessian);
+	 when Value => return (N       => X.N, 
+			       Val     => X.Val  - Y.Val, 
+			       Grad    => G0,
+			       Hessian => H0);
+	 when Gradient => return (N       => X.N, 
+				  Val     => X.Val  - Y.Val, 
+				  Grad    => X.Grad - Y.Grad,
+				  Hessian => H0);
+	 when Hessian => return (N       => X.N, 
+				 Val     => X.Val  - Y.Val, 
+				 Grad    => X.Grad - Y.Grad,
+				 Hessian => X.Hessian - Y.Hessian);
       end case;
    end "-";
    
@@ -135,11 +133,10 @@ package body Auto_Differentiation is
       Tmp : Sparse_Matrix;
    begin
       case Level is
-	 when Value =>
-	    return (N       => X.N, 
-		    Val     => X.Val  * Y.Val, 
-		    Grad    => G0,
-		    Hessian => H0);
+	 when Value => return (N       => X.N, 
+			       Val     => X.Val  * Y.Val, 
+			       Grad    => G0,
+			       Hessian => H0);
 	 when Gradient =>
 	    Tmp := X.Grad * Y.Grad;
 	    return (N       => X.N, 
@@ -194,7 +191,7 @@ package body Auto_Differentiation is
       Z : Real;
       H : Sparse_Matrix;
    begin
-      if K < 0 then pragma Assert (X.Val /= 0.0); end if;
+      if N < 0 then pragma Assert (X.Val /= 0.0); end if;
       case N is
       	 when 0 =>
 	    case Level is

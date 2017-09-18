@@ -272,6 +272,21 @@ package body Auto_Differentiation_Dense is
    	      Hessian => X * Y.Hessian);
    end "*";
    
+   function "+" (X : in Real; Y : in AD_Type) return AD_Type is
+   begin
+      return (Val => X + Y.Val, Grad => Y.Grad, Hessian => Y.Hessian);
+   end "+";
+   
+   function "-" (X : in Real; Y : in AD_Type) return AD_Type is
+   begin
+      return (Val => X - Y.Val, Grad => -Y.Grad, Hessian => -Y.Hessian);
+   end "-";
+   
+   function "-" (X : in AD_Type; Y : in Real) return AD_Type is
+   begin
+      return (Val => X.Val - Y, Grad => X.Grad, Hessian => X.Hessian);
+   end "-";
+
    procedure print (X : in AD_Type) is
    begin
       null;

@@ -30,16 +30,19 @@ package Auto_Differentiation is
    function Length (X : in AD_Type) return Pos;
    
    
-   function "+" (X : in Real;
-		 Y : in AD_Type) return AD_Type;
-   function "+" (X : in AD_Type;
-		 Y : in Real) return AD_Type is (Y + X);
-   function "-" (X : in Real;
-		 Y : in AD_Type) return AD_Type;
-   function "-" (X : in AD_Type;
-		 Y : in Real) return AD_Type is (Y - X);
-   function "/" (X : in Real;
-		 Y : in AD_Type) return AD_Type;
+   
+   function "+" (X : in Real; Y : in AD_Type) return AD_Type;
+   function "+" (X : in AD_Type; Y : in Real) return AD_Type is (Y + X);
+   
+   function "-" (X : in Real; Y : in AD_Type) return AD_Type;
+   function "-" (X : in AD_Type; Y : in Real) return AD_Type;
+   
+   function "*" (Y : in Real; X : in AD_Type) return AD_Type;
+   function "*" (X : in AD_Type; Y : in Real) return AD_Type is (Y * X);
+   
+   function "/" (X : in Real; Y : in AD_Type) return AD_Type;
+   function "/" (X : in AD_Type; Y : in Real) return AD_Type  is ((1.0 / Y) * X)
+     with Pre => Y /= 0.0;
    
    function "+" (X, Y : in AD_Type) return AD_Type;
    function "-" (X, Y : in AD_Type) return AD_Type;
@@ -55,11 +58,6 @@ package Auto_Differentiation is
    
    function "+" (X : in AD_Type) return AD_Type is (X);
    function "-" (X : in AD_Type) return AD_Type;
-   
-   function "*" (Y : in Real; X : in AD_Type) return AD_Type;
-   function "*" (X : in AD_Type; Y : in Real) return AD_Type is (Y * X);
-   function "/" (X : in AD_Type; Y : in Real) return AD_Type  is ((1.0 / Y) * X)
-     with Pre => Y /= 0.0;
    
    function "+" (X, Y : in AD_2D) return AD_2D;
    function "-" (X, Y : in AD_2D) return AD_2D;
