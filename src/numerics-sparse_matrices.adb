@@ -1,5 +1,18 @@
 package body Numerics.Sparse_Matrices is
    
+   procedure Dense (Sp : in     Sparse_Matrix;
+		    A  :    out Real_Matrix) is
+      Offset_1 : constant Integer := A'First (1) - 1;
+      Offset_2 : constant Integer := A'First (2) - 1;
+   begin
+      for X of A loop X := 0.0; end loop;
+      for J in 1 .. N_Col (Sp) loop
+	 for P in Sp.P (J) .. Sp.P (J + 1) - 1 loop
+	    A (Sp.I (P) + Offset_1, J + Offset_2) := Sp.X (P);
+	 end loop;
+      end loop;
+   end Dense;
+
    procedure Print (Mat : in Sparse_Matrix) is separate;
    
    ------------------------------------------------------------------
@@ -12,8 +25,8 @@ package body Numerics.Sparse_Matrices is
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    ------- Functions for Creating Sparse Matrices -------------------
-   function Sparse (X	: in Real_Matrix;
-		    Eps	: in Real	 := 10.0 * Real'Small) 
+   function Sparse (X   : in Real_Matrix;
+		    Tol : in Real	 := 10.0 * Real'Small) 
 		   return Sparse_Matrix is
       use Ada.Containers;
       Y : Sparse_Matrix;
@@ -29,7 +42,7 @@ package body Numerics.Sparse_Matrices is
       Y.X.Reserve_Capacity (N);
       for I in X'Range (1) loop
       	 for J in X'Range (2) loop
-	    if abs (X (I, J)) > Eps then
+	    if abs (X (I, J)) > Tol then
 	       Y.X.Append (X (I, J));
 	       Y.I.Append (I + Offset_1); 
 	       Y.P.Append (J + Offset_2);
@@ -415,8 +428,8 @@ package body Numerics.Sparse_Matrices is
    end To_Triplet;
    
    
-   function Remove_1stN (A : in Sparse_Matrix;
-			 N : in Pos) return Sparse_Matrix is
+   function Remove_1st_N (A : in Sparse_Matrix;
+			  N : in Pos) return Sparse_Matrix is
       use Ada.Containers;
       B : Sparse_Matrix;
       K : Pos := 1;
@@ -445,7 +458,7 @@ package body Numerics.Sparse_Matrices is
       B.X.Reserve_Capacity (B.X.Length);
       
       return B;
-   end Remove_1stN;
+   end Remove_1st_N;
 
    
    

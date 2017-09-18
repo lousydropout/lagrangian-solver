@@ -6,7 +6,7 @@ procedure Auto_Differentiation.Pendulum is
    
    --  Set Up Parameters -----------------
    Control : Control_Type
-     := (N => 1, Dt => 1.0, Eps => 1.0e-10, Err => 1.0, K => 31);
+     := (N => 1, Dt => 0.1, Eps => 1.0e-10, Err => 1.0, K => 7);
    N : Nat renames Control.N;
    -------------------------------
    
@@ -40,7 +40,7 @@ begin
    Put_Line (File, "time, x, u, y, v");
    Setup (N, Control.K);
    Okay := Is_Setup;
-   while T < 5.0 loop
+   while T < 100.0 loop
       Y := Collocation (Lagrangian'Access, Var, Control);
       for I in 1 .. Control.K loop
    	 A (I) := Y (2 * I - 1);

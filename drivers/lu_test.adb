@@ -19,7 +19,6 @@ procedure LU_Test is
    L2, U2 : Real_Matrix (Example_2'Range (1), Example_2'Range (2));
    P2     : Int_Array  (Example_2'Range (1));
    
-   Num : Integer;
    X : Real_Vector := (-1.0, 3.0, 2.0);
 begin
 

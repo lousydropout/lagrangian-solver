@@ -378,8 +378,8 @@ package body Numerics is
    end Add;
    
    
-   function Remove_1stN (X : in Sparse_Vector;
-			 N : in Pos) return Sparse_Vector is
+   function Remove_1st_N (X : in Sparse_Vector;
+			  N : in Pos) return Sparse_Vector is
       Y : Sparse_Vector;
    begin
       pragma Assert (X.NMax > N);
@@ -396,7 +396,7 @@ package body Numerics is
       Y.I.Reserve_Capacity (Y.I.Length);
       Y.X.Reserve_Capacity (Y.X.Length);
       return Y;
-   end Remove_1stN;
+   end Remove_1st_N;
    
    function "or" (X, Y : in Sparse_Vector) return Sparse_Vector is
       use Ada.Containers;

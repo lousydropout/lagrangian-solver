@@ -108,8 +108,8 @@ package body Auto_Differentiation.Integrator is
 	 V := V or Hessian (L);
       end loop;
       -------------------------------------
-      F := A * Q - B * U; F := Remove_1stN (F, 2 * N);
-      J := A     - B * V; J := Remove_1stN (J, 2 * N);
+      F := A * Q - B * U; F := Remove_1st_N (F, 2 * N);
+      J := A     - B * V; J := Remove_1st_N (J, 2 * N);
    end FJ;
    
    

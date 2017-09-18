@@ -5,13 +5,13 @@ procedure Pendulum is
    use Int_IO, Real_IO, Real_Functions;
    -----------------------------------------------
    N : constant Nat := 1;
-   K : constant Nat := 31;
+   K : constant Nat := 16;
    -----------------------------------------------
    package AD_Package is new Dense_AD (2 * N); 
    package Integrator is new AD_Package.Integrator (K);
    use AD_Package, Integrator;
    -----------------------------------------------
-   Control : Control_Type := (Dt => 1.0, Eps => 1.0e-10, Err => 1.0);
+   Control : Control_Type := (Dt => 0.5, Dtn => 1.0e3, Eps => 1.0e-6, Err => 1.0);
    -----------------------------------------------
    function Lagrangian (X : in Vector) return AD_Type is
       θ : AD_Type := Var (X => X (1), I => 1);
@@ -32,29 +32,36 @@ procedure Pendulum is
    -------------------------------
 
    Y : Real_Vector (1 .. 2 * N * K);
-   A, B : Real_Vector (1 .. N * K);
+   A    : array (1 .. 2 * N) of Real_Vector (1 .. K);
    File : File_Type;
    Dt   : constant Real := 0.05;
    Time : Real := T;
+
 begin
-   
+
    Create (File, Name => "pendulum.csv");
    Put_Line (File, "time, x, u, y, v");
       
-   while T < 5.0 loop
-      Y := Collocation (Lagrangian'Access, Var, Control);
-      for I in 1 .. K loop
-   	 A (I) := Y (2 * I - 1);
-   	 B (I) := Y (2 * I);
+   while T < 1_000.0 loop
+      Y := Update (Lagrangian'Access, Var, Control, Sparse);
+      Put ("Error = "); Put (Control.Err, Aft => 2);
+      Put ("  DT = "); Put (Control.Dt, Aft => 2);
+      Put ("  Dtn = "); Put (Control.Dtn, Aft => 2);
+      New_Line;
+      for J in 1 .. 2 * N loop
+	 for I in 1 .. K loop
+	    A (J) (I) := Y (2 * (I - 1) + J);
+	 end loop;
       end loop;
       
-      A := CGL_Transform (A);
-      B := CGL_Transform (B);
+      for J in 1 .. 2 * N loop
+	 A (J) := CGL_Transform (A (J));
+      end loop;
       
       while Time <= T + Control.Dt loop
    	 Time := Time + Dt;
-   	 θ    := Interpolate (A => A, X => Time, L => T, R => T + Control.Dt);
-   	 ω    := Interpolate (A => B, X => Time, L => T, R => T + Control.Dt);
+   	 θ := Interpolate (A => A (1), X => Time, L => T, R => T + Control.Dt);
+   	 ω := Interpolate (A => A (2), X => Time, L => T, R => T + Control.Dt);
    	 Put (File, Time);          Put (File, ",  ");
    	 Put (File,       Cos (θ)); Put (File, ",  ");
    	 Put (File, -ω  * Sin (θ)); Put (File, ",  ");

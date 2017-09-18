@@ -112,8 +112,8 @@ package Numerics is
    function "*" (A : in Real_Matrix;
 		 B : in Sparse_Vector) return Sparse_Vector;
    
-   function Remove_1stN (X : in Sparse_Vector;
-			 N : in Pos) return Sparse_Vector;
+   function Remove_1st_N (X : in Sparse_Vector;
+			  N : in Pos) return Sparse_Vector;
    
    ------- Norm --------------------------
    function Norm (X : in Sparse_Vector) return Real;

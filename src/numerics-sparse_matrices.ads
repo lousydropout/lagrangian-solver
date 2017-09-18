@@ -39,7 +39,7 @@ package Numerics.Sparse_Matrices is
      with Pre => Is_Square_Matrix (X);
    function Diag (X : in Sparse_Vector) return Sparse_Matrix;
    function Sparse (X	: in Real_Matrix;
-		    Eps	: in Real	 := 10.0 * Real'Small) 
+		    Tol	: in Real	 := 10.0 * Real'Small) 
 		   return Sparse_Matrix;
    function Triplet_To_Matrix (I      : in Int_Array;
 			       J      : in Int_Array;
@@ -59,7 +59,9 @@ package Numerics.Sparse_Matrices is
 		  X    : in     Real)
      with Pre => I <= N_Row (Mat) and J <= N_Col (Mat);
    
-   
+   procedure Dense (Sp : in     Sparse_Matrix;
+		    A  :    out Real_Matrix)
+     with Pre => A'Length (1) = N_Row (Sp) and A'Length (2) = N_Col (Sp);
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    ------- Testing Functions ----------------------------------------
@@ -127,8 +129,8 @@ package Numerics.Sparse_Matrices is
    function "or" (Left  : in Real_Matrix;
 		  Right : in Sparse_Matrix)  return Sparse_Matrix is (Sparse (Left) or Right);
 
-   function Remove_1stN (A : in Sparse_Matrix;
-			 N : in Pos) return Sparse_Matrix;
+   function Remove_1st_N (A : in Sparse_Matrix;
+			  N : in Pos) return Sparse_Matrix;
      
    ------- File Readers ---------------------------------------------------
    function Read_Sparse_Triplet (File_Name : in String;
