@@ -204,18 +204,16 @@ package body Dense_AD.Integrator is
       Control.Err := Norm (Y - Y1);
    end Iterate;
    
-   procedure Setup is
+   function Setup return Array_Of_Sparse_Matrix is
+      Sp  : Array_Of_Sparse_Matrix;
+      Tmp : Sparse_Matrix;
    begin
-      Sp_C := D and Eye2N; -- temporary, overwritten below
-      Sp_A := Sp_C * (EyeK and Top_Left);
-      Sp_B := Sp_C * (EyeK and Bottom_Right);
-      Sp_C := EyeK and Top_Right;
-      Sp_D := EyeK and Bottom_Left;
-      
-      Dense (Sp => Sp_A, A => Mat_A);
-      Dense (Sp => Sp_B, A => Mat_B);
-      Dense (Sp => Sp_C, A => Mat_C);
-      Dense (Sp => Sp_D, A => Mat_D);
+      Tmp := D and Eye2N; -- temporary, overwritten below
+      Sp (1) := Tmp * (EyeK and Top_Left);
+      Sp (2) := Tmp * (EyeK and Bottom_Right);
+      Sp (3) := EyeK and Top_Right;
+      Sp (4) := EyeK and Bottom_Left;
+      return Sp;
    end Setup;
    
    
@@ -327,8 +325,8 @@ package body Dense_AD.Integrator is
       Tmp  : Integer;
       U    : Sparse_Vector;
       V    : Sparse_Matrix;
-      A    : constant Sparse_Matrix := Sp_A - Control.Dt * Sp_C;
-      B    : constant Sparse_Matrix := Sp_B - Control.Dt * Sp_D;
+      A    : constant Sparse_Matrix := Sp (1) - Control.Dt * Sp (3);
+      B    : constant Sparse_Matrix := Sp (2) - Control.Dt * Sp (4);
    begin
       pragma Assert (Q'Length = N * K);
       -------------------------------------
@@ -384,9 +382,5 @@ package body Dense_AD.Integrator is
       New_Line (File => File);
    end Print_XYZ;
 
-
-begin
-   
-   Setup;
    
 end Dense_AD.Integrator;

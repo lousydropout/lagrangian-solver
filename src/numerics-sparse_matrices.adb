@@ -12,7 +12,14 @@ package body Numerics.Sparse_Matrices is
 	 end loop;
       end loop;
    end Dense;
-
+   
+   function Dense (Sp : in Sparse_Matrix) return Real_Matrix is
+      A : Real_Matrix (1 .. N_Row (Sp), 1 .. N_Col (Sp));
+   begin
+      Dense (Sp, A);
+      return A;
+   end Dense;
+   
    procedure Print (Mat : in Sparse_Matrix) is separate;
    
    ------------------------------------------------------------------

@@ -62,6 +62,8 @@ package Numerics.Sparse_Matrices is
    procedure Dense (Sp : in     Sparse_Matrix;
 		    A  :    out Real_Matrix)
      with Pre => A'Length (1) = N_Row (Sp) and A'Length (2) = N_Col (Sp);
+   
+   function Dense (Sp : in Sparse_Matrix) return Real_Matrix;
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    ------- Testing Functions ----------------------------------------

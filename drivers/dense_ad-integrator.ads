@@ -103,8 +103,9 @@ private
 		    F       :    out Sparse_Vector;
 		    J       :    out Sparse_Matrix);
    
+   type Array_Of_Sparse_Matrix is array (1 .. 4) of Sparse_Matrix;
    
-   procedure Setup;
+   function Setup return Array_Of_Sparse_Matrix;
    
    Grid   : constant Real_Vector := Chebyshev_Gauss_Lobatto (K, 0.0, 1.0);
    Der    : constant Real_Matrix := Derivative_Matrix (K, 0.0, 1.0);
@@ -125,8 +126,10 @@ private
    Bottom_Right : constant Sparse_Matrix
      := Sparse (((0.0, 0.0), (0.0, 1.0))) and EyeN;
    
-   Sp_A, Sp_B, Sp_C, Sp_D : Sparse_Matrix;
-   Mat_A, Mat_B, Mat_C, Mat_D : Real_Matrix (1 .. NK, 1 .. NK)
-     := (others => (others => 0.0));
+   Sp    : constant Array_Of_Sparse_Matrix := Setup;
+   Mat_A : constant Real_Matrix := Dense (Sp (1));
+   Mat_B : constant Real_Matrix := Dense (Sp (2));
+   Mat_C : constant Real_Matrix := Dense (Sp (3));
+   Mat_D : constant Real_Matrix := Dense (Sp (4));
    
 end Dense_AD.Integrator;
