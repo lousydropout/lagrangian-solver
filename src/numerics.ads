@@ -58,6 +58,8 @@ package Numerics is
    function "*" (A : in Real_Matrix;
 		 X : in Real_Vector) return Real_Vector
      with Pre => A'Length (2) = X'Length;
+   function Dot (X, Y : in Real_Vector) return Real
+     with Pre => X'Length = Y'Length;
    -------- Pos2D functions --------------------------------------
    function "+" (X : in Pos2D) return Pos2D is (X);
    function "-" (X : in Pos2D) return Pos2D;

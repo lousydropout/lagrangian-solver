@@ -11,7 +11,8 @@ procedure Pendulum is
    package Integrator is new AD_Package.Integrator (K);
    use AD_Package, Integrator;
    -----------------------------------------------
-   Control : Control_Type := (Dt => 0.5, Dtn => 1.0e3, Eps => 1.0e-6, Err => 1.0);
+   Control : Control_Type
+     := (Dt => 0.5, Dtn => 1.0e3, Eps => 1.0e-10, Err => 1.0);
    -----------------------------------------------
    function Lagrangian (X : in Vector) return AD_Type is
       θ : AD_Type := Var (X => X (1), I => 1);
@@ -24,56 +25,46 @@ procedure Pendulum is
    end Lagrangian;
    -----------------------------------------------
    -- Initial Conditions ----
-   Var : Variable :=  (X => (1.0e-10, 0.0),
-		       T => 0.0);
-   θ : Real renames Var.X (1);
-   ω : Real renames Var.X (2);
-   T : Real renames Var.T;
+   Var  : Variable :=  (X => (1.0e-10, 0.0),
+			T => 0.0);
+   State : Variable := Var;
+   θ     : Real renames State.X (1);
+   ω     : Real renames State.X (2);
    -------------------------------
 
-   Y : Real_Vector (1 .. 2 * N * K);
-   A    : array (1 .. 2 * N) of Real_Vector (1 .. K);
-   File : File_Type;
-   Dt   : constant Real := 0.05;
-   Time : Real := T;
-
+   Y		: Real_Vector (1 .. 2 * N * K);
+   A		: Array_Of_Vectors;
+   File, Phase  : File_Type;
+   Dt		: constant Real := 0.01;
+   
 begin
 
    Create (File, Name => "pendulum.csv");
    Put_Line (File, "time, x, u, y, v");
-      
-   while T < 1_000.0 loop
+   Create (Phase, Name => "phase.csv");
+   Put_Line (Phase, "time, q, q_dot, p, H");
+   
+   while Var.T < 10.0 loop
       Y := Update (Lagrangian'Access, Var, Control, Sparse);
-      Put ("Error = "); Put (Control.Err, Aft => 2);
-      Put ("  DT = "); Put (Control.Dt, Aft => 2);
-      Put ("  Dtn = "); Put (Control.Dtn, Aft => 2);
-      New_Line;
-      for J in 1 .. 2 * N loop
-	 for I in 1 .. K loop
-	    A (J) (I) := Y (2 * (I - 1) + J);
-	 end loop;
-      end loop;
       
-      for J in 1 .. 2 * N loop
-	 A (J) := CGL_Transform (A (J));
-      end loop;
-      
-      while Time <= T + Control.Dt loop
-   	 Time := Time + Dt;
-   	 θ := Interpolate (A => A (1), X => Time, L => T, R => T + Control.Dt);
-   	 ω := Interpolate (A => A (2), X => Time, L => T, R => T + Control.Dt);
-   	 Put (File, Time);          Put (File, ",  ");
+      A := Chebyshev_Transform (Y);
+      while State.T <= Var.T + Control.Dt loop
+   	 State.T := State.T + Dt;
+	 State.X := Interpolate (A, State.T, Var.T, Var.T + Control.Dt);
+	 -- Print data --------------------------------------------------
+	 Print_Lagrangian (Phase, State, Lagrangian'Access, 2, 3, 2);
+   	 Put (File, State.T);       Put (File, ",  ");
    	 Put (File,       Cos (θ)); Put (File, ",  ");
    	 Put (File, -ω  * Sin (θ)); Put (File, ",  ");
    	 Put (File, 1.0 - Sin (θ)); Put (File, ",  ");
    	 Put (File, -ω  * Cos (θ)); New_Line (File);
+	 ----------------------------------------------------------------
       end loop;
       
-      θ := Y (Y'Last - 1);
-      ω := Y (Y'Last);
-      T := T + Control.Dt;
+      Update (Var => Var, Y => Y, Dt => Control.Dt); -- Update variable Var
    end loop;
 
    Close (File);
+   Close (Phase);
    
 end Pendulum;

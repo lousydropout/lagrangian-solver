@@ -555,6 +555,17 @@ package body Numerics is
       return Y;
    end "*";
    
+   function Dot (X, Y : in Real_Vector) return Real is
+      R : Real := 0.0;
+   begin
+      for I in X'Range loop
+	 R := R + X (I) * Y (I + Y'First - X'First);
+      end loop;
+      return R;
+   end Dot;
+   
+   
+   
 begin
    Ada.Numerics.Float_Random.Reset (Gen);
 end Numerics;

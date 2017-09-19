@@ -1,5 +1,5 @@
-with Numerics, Numerics.Sparse_Matrices, Chebyshev;
-use  Numerics, Numerics.Sparse_Matrices, Chebyshev;
+with Numerics, Numerics.Sparse_Matrices, Chebyshev, Ada.Text_IO;
+use  Numerics, Numerics.Sparse_Matrices, Chebyshev, Ada.Text_IO;
 generic
    K    : in Nat;
 package Dense_AD.Integrator is
@@ -19,21 +19,63 @@ package Dense_AD.Integrator is
    end record;
    
    
+   type Array_Of_Vectors is array (1 .. N) of Real_Vector (1 .. K);
+   
+   function Chebyshev_Transform (Y : in Real_Vector) return Array_Of_Vectors
+     with Pre => Y'First = 1 and Y'Length = N * K;
+   
+   
+   function Interpolate (A : in Array_Of_Vectors;
+			 T : in Real;
+			 L : in Real;
+			 R : in Real) return Vector;
+   
+   procedure Update (Var : in out Variable;
+		     Y	 : in     Real_Vector;
+		     Dt	 : in     Real)
+     with Pre => Y'First = 1 and Y'Length = N * K;
    
    function Update (Lagrangian : not null access 
 		      function (X : Vector) return AD_Type;
 		    Var        : in     Variable;
 		    Control    : in out Control_Type;
-		    Choose     : in Dense_Or_Sparse) return Real_Vector;
+		    Density    : in Dense_Or_Sparse) return Real_Vector;
+      
+   procedure Print_Lagrangian (File	  : in     File_Type;
+			       Var	  : in     Variable;
+			       Lagrangian : not null access
+				 function (X : Vector) return AD_Type;
+			       Fore : in Field := 3;
+			       Aft  : in Field := 5;
+			       Exp  : in Field := 3);
+   
+   procedure Print_Lagrangian (Var	  : in     Variable;
+			       Lagrangian : not null access
+				 function (X : Vector) return AD_Type;
+			       Fore : in Field := 3;
+			       Aft  : in Field := 5;
+			       Exp  : in Field := 3);
+   
+   
    
 private
+
+   Collocation_Density : Dense_Or_Sparse := Sparse;
+   
+   function Split (Y : in Real_Vector) return Array_Of_Vectors
+     with Pre => Y'First = 1 and Y'Length = N * K;
    
    procedure Iterate (Lagrangian : not null access 
 			function (X : Vector) return AD_Type;
 		      Y          : in out Real_Vector;
 		      Var        : in     Variable;
-		      Control    : in out Control_Type;
-		      Choose     : in Dense_Or_Sparse);
+		      Control    : in out Control_Type);
+   
+   procedure Colloc (Lagrangian : not null access 
+			  function (X : Vector) return AD_Type;
+			Q          : in out Real_Vector;
+			Var        : in     Variable;
+			Control    : in out Control_Type);
    
    procedure Collocation (Lagrangian : not null access 
 			    function (X : Vector) return AD_Type;
@@ -62,23 +104,29 @@ private
 		    J       :    out Sparse_Matrix);
    
    
-   procedure Print_Lagrangian (X : in Vector;
-			       Lagrangian : not null access
-				 function (X : Vector)  return AD_Type);
-   
    procedure Setup;
-   
-   Top_Left     : constant Real_Matrix := ((1.0, 0.0), (0.0, 0.0));
-   Top_Right    : constant Real_Matrix := ((0.0, 1.0), (0.0, 0.0));
-   Bottom_Left  : constant Real_Matrix := ((0.0, 0.0), (1.0, 0.0));
-   Bottom_Right : constant Real_Matrix := ((0.0, 0.0), (0.0, 1.0));
    
    Grid   : constant Real_Vector := Chebyshev_Gauss_Lobatto (K, 0.0, 1.0);
    Der    : constant Real_Matrix := Derivative_Matrix (K, 0.0, 1.0);
    Half_N : constant Nat := N / 2;
    NK     : constant Nat := N * K;
+   
+   EyeN         : constant Sparse_Matrix := Eye (Half_N);
+   EyeK         : constant Sparse_Matrix := Eye (K);
+   Eye2N        : constant Sparse_Matrix := Eye (N);
+   D            : constant Sparse_Matrix := Sparse (Der);
+   
+   Top_Left : constant Sparse_Matrix
+     := Sparse (((1.0, 0.0), (0.0, 0.0))) and EyeN;
+   Top_Right : constant Sparse_Matrix
+     := Sparse (((0.0, 1.0), (0.0, 0.0))) and EyeN;
+   Bottom_Left : constant Sparse_Matrix
+     := Sparse (((0.0, 0.0), (1.0, 0.0))) and EyeN;
+   Bottom_Right : constant Sparse_Matrix
+     := Sparse (((0.0, 0.0), (0.0, 1.0))) and EyeN;
+   
+   Sp_A, Sp_B, Sp_C, Sp_D : Sparse_Matrix;
    Mat_A, Mat_B, Mat_C, Mat_D : Real_Matrix (1 .. NK, 1 .. NK)
      := (others => (others => 0.0));
-   Sp_A, Sp_B, Sp_C, Sp_D : Sparse_Matrix;
    
 end Dense_AD.Integrator;
