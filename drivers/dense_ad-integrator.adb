@@ -166,24 +166,18 @@ package body Dense_AD.Integrator is
       -- Interpolate to get initial guess for Y1
       A1 := Chebyshev_Transform (Y);
       for I in 1 .. K loop
-	 Time := Var.T + C2.Dt * Grid (I);
-	 Y1 ((I - 1) * N + 1 .. I * N)
-	   := Interpolate (A1, Time, Var.T, Var.T + C2.Dt);
+      	 Time := Var.T + C2.Dt * Grid (I);
+      	 Y1 ((I - 1) * N + 1 .. I * N)
+      	   := Interpolate (A1, Time, Var.T, Var.T + Control.Dt);
       end loop;
       -------------------------------------------------------
       -- Iterate from Y1 to Y2
-      for I in 1 .. K loop Y1 ((I - 1) * N + 1 .. I * N) := Var.X; end loop;
       Colloc (Lagrangian, Y1, Var, C2);
       Var2.X := Y1 (NK - N + 1 .. NK);
       Var2.T := Var.T + C2.Dt;
       -------------------------------------------------------
-      -- Interpolate to get intial guess for Y2
-      for I in 1 .. K loop 
-	 Time := Var2.T + C2.Dt * Grid (I);
-	 Y2 ((I - 1) * N + 1 .. I * N) := Interpolate (A1, Time, Var2.T, Tf);
-	 Y2 ((I - 1) * N + 1 .. I * N)
-	   := (1.0 - Grid (I)) * Var2.X + Grid (I) * Y2 ((I - 1) * N + 1 .. I * N);
-      end loop;
+      -- Set intial guess for Y2
+      for I in 1 .. K loop Y2 ((I - 1) * N + 1 .. I * N) := Var2.X; end loop;
       -------------------------------------------------------
       -- Update Y2
       Colloc (Lagrangian, Y2, Var2, C2);
