@@ -2,6 +2,21 @@ with Ada.Text_IO, Numerics.Dense_Matrices, Numerics.Sparse_Matrices.CSparse;
 use  Ada.Text_IO, Numerics.Dense_Matrices;
 package body Dense_AD.Integrator is
    
+   function New_Control_Type (Dt      : in Real	   := 1.0;
+			      Tol     : in Real	   := 1.0e-10;
+			      Started : in Boolean := False)
+			     return Control_Type is
+      Control : Control_Type;
+   begin
+      Control.Dto     := Dt;
+      Control.Dt      := Dt;
+      Control.Dtn     := Dt;
+      Control.Tol     := Tol;
+      Control.Started := Started;
+      return Control;
+   end New_Control_Type;
+
+   
    procedure Print_Lagrangian (Var	  : in     Variable;
 			       Lagrangian : not null access
 				 function (T : Real; X : Vector) return AD_Type;
@@ -28,23 +43,23 @@ package body Dense_AD.Integrator is
       use Real_IO;
       Old : constant Evaluation_Level := Level;
       L   : AD_Type;
-      P   : Real_Vector (Half_N + 1 .. N);
-      V   : Real_Vector renames Var.X (Half_N + 1 .. N);
+      P   : Real_Vector (N + 1 .. Num);
+      V   : Real_Vector renames Var.X (N + 1 .. Num);
       H   : Real;
    begin
       Level := Gradient;
       L := Lagrangian (Var.T, Var.X);
-      P := Grad (L) (Half_N + 1 .. N);
+      P := Grad (L) (N + 1 .. Num);
       H := Dot (V, P) - Val (L);
       
       -- Print time
       Put (File, Var.T, Fore, Aft, Exp); Put (File, ",  ");
       -- Print generalized positions and velocities
-      for I in 1 .. N loop
+      for I in 1 .. Num loop
 	 Put (File, Var.X (I), Fore, Aft, Exp); Put (File, ",  ");
       end loop;
       -- Print canonical momenta
-      for I in Half_N + 1 .. N loop
+      for I in N + 1 .. Num loop
 	 Put (File, P (I), Fore, Aft, Exp); Put (File, ",  ");
       end loop;
       -- Print Hamiltonian
@@ -60,7 +75,7 @@ package body Dense_AD.Integrator is
 			 R : in Real) return Vector is
       X : Vector;
    begin
-      for I in 1 .. N loop
+      for I in 1 .. Num loop
 	 X (I) := Interpolate (A (I), T, L, R);
       end loop;
       return X;
@@ -71,7 +86,7 @@ package body Dense_AD.Integrator is
 		     Y	 : in     Real_Vector;
 		     Dt	 : in     Real) is
    begin
-      Var.X := Y (Y'Last - N + 1 .. Y'Last);
+      Var.X := Y (Y'Last - Num + 1 .. Y'Last);
       Var.T := Var.T + Dt;
    end Update;
    
@@ -90,20 +105,20 @@ package body Dense_AD.Integrator is
       Control.Err := 1.0;
       Control.Dt  := Control.Dtn; 
       -- Set initial guess for Y -----------------------------------------
-      for I in 1 .. K loop Y ((I - 1) * N + 1 .. I * N) := Var.X; end loop;
+      for I in 1 .. K loop Y ((I - 1) * Num + 1 .. I * Num) := Var.X; end loop;
       ---------------------------------------------------------------------
-      while Control.Err > Control.Eps loop
+      while Control.Err > Control.Tol loop
 	 Iterate (Lagrangian, Y, Var, Control);
 	 Dt := 0.8 * Control.Dt
-	   * (Control.Eps / (Control.Err + 1.0e-40)) ** (1.0 / Real (K - 1));
-	 if Control.Err > Control.Eps then
+	   * (Control.Tol / (Control.Err + 1.0e-40)) ** (1.0 / Real (K - 1));
+	 if Control.Err > Control.Tol then
 	    -- Since the error is above the threshold, redo the calculation
 	    --   for a smaller Dt. But use above estimate of Y for initial
 	    --   guess.
 	    A := Chebyshev_Transform (Y);
 	    for I in 1 .. K loop
 	       Time := Var.T + Dt * Grid (I);
-	       Y ((I - 1) * N + 1 .. I * N)
+	       Y ((I - 1) * Num + 1 .. I * Num)
 		 := Interpolate (A, Time, Var.T, Var.T + Control.Dt);
 	    end loop;
 	    Control.Dt := Dt;
@@ -116,9 +131,9 @@ package body Dense_AD.Integrator is
    function Split (Y : in     Real_Vector) return Array_Of_Vectors is
       A : Array_Of_Vectors;
    begin
-      for J in 1 .. N loop
+      for J in 1 .. Num loop
       	 for I in 1 .. K loop
-      	    A (J) (I) := Y (N * (I - 1) + J);
+      	    A (J) (I) := Y (Num * (I - 1) + J);
 	 end loop;
       end loop;
       return A;
@@ -128,7 +143,7 @@ package body Dense_AD.Integrator is
    function Chebyshev_Transform (Y : in Real_Vector) return Array_Of_Vectors is
       A : Array_Of_Vectors := Split (Y);
    begin
-      for J in 1 .. N loop
+      for J in 1 .. Num loop
 	 A (J) := CGL_Transform (A (J));
       end loop;
       return A;
@@ -167,17 +182,17 @@ package body Dense_AD.Integrator is
       A1 := Chebyshev_Transform (Y);
       for I in 1 .. K loop
       	 Time := Var.T + C2.Dt * Grid (I);
-      	 Y1 ((I - 1) * N + 1 .. I * N)
+      	 Y1 ((I - 1) * Num + 1 .. I * Num)
       	   := Interpolate (A1, Time, Var.T, Var.T + Control.Dt);
       end loop;
       -------------------------------------------------------
       -- Iterate from Y1 to Y2
       Colloc (Lagrangian, Y1, Var, C2);
-      Var2.X := Y1 (NK - N + 1 .. NK);
+      Var2.X := Y1 (NK - Num + 1 .. NK);
       Var2.T := Var.T + C2.Dt;
       -------------------------------------------------------
       -- Set intial guess for Y2
-      for I in 1 .. K loop Y2 ((I - 1) * N + 1 .. I * N) := Var2.X; end loop;
+      for I in 1 .. K loop Y2 ((I - 1) * Num + 1 .. I * Num) := Var2.X; end loop;
       -------------------------------------------------------
       -- Update Y2
       Colloc (Lagrangian, Y2, Var2, C2);
@@ -189,19 +204,26 @@ package body Dense_AD.Integrator is
       for I in 1 .. K loop
 	 Time := Var.T + Control.Dt * Grid (I);
 	 if Time <= Var.T + C2.Dt then
-	    Y1 ((I - 1) * N + 1 .. I * N) 
+	    Y1 ((I - 1) * Num + 1 .. I * Num) 
 	      := Interpolate (A1, Time, Var.T, Var2.T);
 	 else
-	    Y1 ((I - 1) * N + 1 .. I * N)
+	    Y1 ((I - 1) * Num + 1 .. I * Num)
 	      := Interpolate (A2, Time, Var2.T, Tf);
 	 end if;
       end loop;
       -------------------------------------------------------
       -- Update Y
       Y := Y1;
-      Colloc (Lagrangian, Y1, Var, Control);
+      -- Colloc (Lagrangian, Y, Var, Control); -- could assume Y to be correct
+      A1 := Chebyshev_Transform (Y);
       -------------------------------------------------------
-      Control.Err := Norm (Y - Y1);
+      for I in 1 .. K loop
+	 Time := Var2.T + C2.Dt * Grid (I);
+	    Y1 ((I - 1) * Num + 1 .. I * Num)
+	      := Interpolate (A1, Time, Var.T, Var.T + Control.Dt);
+      end loop;
+      -------------------------------------------------------
+      Control.Err := Norm (Y1 - Y2);
    end Iterate;
    
    function Setup return Array_Of_Sparse_Matrix is
@@ -223,11 +245,11 @@ package body Dense_AD.Integrator is
 			 Var        : in     Variable;
 			 Control    : in out Control_Type) is
       --  use Ada.Text_IO, Real_IO;
-      Old : constant Evaluation_Level :=  Level;
+      Old : constant Evaluation_Level :=  Get_Evaluation_Level;
       
-      DQ  : Real_Vector (1 .. NK - N);
-      F   : Real_Vector (1 .. NK - N);
-      J   : Real_Matrix (1 .. NK - N, 1 .. NK - N);
+      DQ  : Real_Vector (1 .. NK - Num);
+      F   : Real_Vector (1 .. NK - Num);
+      J   : Real_Matrix (1 .. NK - Num, 1 .. NK - Num);
       Res : Real := 1.0;
       It  : Pos  := 0;
    begin
@@ -237,14 +259,14 @@ package body Dense_AD.Integrator is
 	 It := It + 1;
 	 FJ (Lagrangian, Var, Control, Q, F, J);
 	 DQ := Solve (J, F);
-	 Q (N + 1 .. N * K) := Q (N + 1 .. N * K) - DQ;
+	 Q (Num + 1 .. Num * K) := Q (Num + 1 .. Num * K) - DQ;
 	 Res := Norm (F);
 	 --  Put (Res); New_Line;
 	 if It > 10 then exit; end if;
       end loop;
       --  New_Line;
       ------------------------------------------------
-      Level := Old;
+      Set_Evaluation_Level (Value => Old);
    end Collocation;
 
    
@@ -264,12 +286,12 @@ package body Dense_AD.Integrator is
       B    : constant Real_Matrix := Mat_B - Control.Dt * Mat_D;
       Time : Real;
    begin
-      pragma Assert (Q'Length = N * K);
+      --  pragma Assert (Q'Length = Num * K);
       -------------------------------------
       for I in 1 .. K loop
 	 Time := Var.T + Control.Dt * Grid (I);
-	 Tmp := N * (I - 1);
-	 X := Q (Tmp + 1 .. Tmp + N);
+	 Tmp := Num * (I - 1);
+	 X := Q (Tmp + 1 .. Tmp + Num);
 	 L := Lagrangian (Time, X);
 	 Copy (From => Grad (L), To => U, Start => Tmp + 1);
 	 Copy (From => Hessian (L), 
@@ -278,8 +300,8 @@ package body Dense_AD.Integrator is
 	       Start_J => Tmp + 1);
       end loop;
       -------------------------------------
-      R := A * Q - B * U; F := Remove_1st_N (R, N);
-      S := A     - B * V; J := Remove_1st_N (S, N);
+      R := A * Q - B * U; F := Remove_1st_N (R, Num);
+      S := A     - B * V; J := Remove_1st_N (S, Num);
    end FJ;
    
    
@@ -289,7 +311,7 @@ package body Dense_AD.Integrator is
 			     Var        : in     Variable;
 			     Control    : in out Control_Type) is
       --  use Ada.Text_IO, Real_IO;
-      Old : constant Evaluation_Level :=  Level;
+      Old : constant Evaluation_Level :=  Get_Evaluation_Level;
       
       DQ  : Sparse_Vector;
       F   : Sparse_Vector;
@@ -303,14 +325,14 @@ package body Dense_AD.Integrator is
 	 It := It + 1;
    	 Sp_FJ (Lagrangian, Var, Control, Q, F, J);
    	 DQ := Numerics.Sparse_Matrices.CSparse.Solve (J, F);
-   	 Q (N + 1 .. N * K) := Q (N + 1 .. N * K) - To_Array (DQ);
+   	 Q (Num + 1 .. Num * K) := Q (Num + 1 .. Num * K) - To_Array (DQ);
    	 Res := Norm (F);
    	 --  Put (Res); New_Line;
 	 if It > 10 then exit; end if;
       end loop;
       --  New_Line;
       ------------------------------------------------
-      Level := Old;
+      Set_Evaluation_Level (Old);
 
    end Sp_Collocation;
 
@@ -323,7 +345,7 @@ package body Dense_AD.Integrator is
 		    F       :    out Sparse_Vector;
 		    J       :    out Sparse_Matrix) is
       L    : AD_Type;
-      X    : Real_Vector (1 .. N);
+      X    : Real_Vector (1 .. Num);
       Tmp  : Integer;
       U    : Sparse_Vector;
       V    : Sparse_Matrix;
@@ -331,23 +353,23 @@ package body Dense_AD.Integrator is
       B    : constant Sparse_Matrix := Sp (2) - Control.Dt * Sp (4);
       Time : Real;
    begin
-      pragma Assert (Q'Length = N * K);
+      --  pragma Assert (Q'Length = Num * K);
       -------------------------------------
-      X := Q (1 .. N);
+      X := Q (1 .. Num);
       L := Lagrangian (Var.T, X);
       U := Sparse (Grad (L));
       V := Sparse (Hessian (L));
       for I in 2 .. K loop
 	 Time := Var.T + Control.Dt * Grid (I);
-   	 Tmp := N * (I - 1);
-   	 X := Q (Tmp + 1 .. Tmp + N);
+   	 Tmp := Num * (I - 1);
+   	 X := Q (Tmp + 1 .. Tmp + Num);
    	 L := Lagrangian (Time, X);
    	 U := U or Sparse (Grad (L));
    	 V := V or Sparse (Hessian (L));
       end loop;
       -------------------------------------
-      F := A * Q - B * U; F := Remove_1st_N (F, N);
-      J := A     - B * V; J := Remove_1st_N (J, N);
+      F := A * Q - B * U; F := Remove_1st_N (F, Num);
+      J := A     - B * V; J := Remove_1st_N (J, Num);
    end Sp_FJ;
    
    

@@ -7,12 +7,11 @@ procedure Pendulum is
    N : constant Nat := 1;
    K : constant Nat := 16;
    -----------------------------------------------
-   package AD_Package is new Dense_AD (2 * N); 
+   package AD_Package is new Dense_AD (N); 
    package Integrator is new AD_Package.Integrator (K);
    use AD_Package, Integrator;
    -----------------------------------------------
-   Control : Control_Type
-     := (Dt => 0.5, Dtn => 1.0e3, Eps => 1.0e-10, Err => 1.0);
+   Control : Control_Type := New_Control_Type (Tol => 1.0e-10);
    -----------------------------------------------
    function Lagrangian (T : in Real;
 			X : in Vector) return AD_Type is

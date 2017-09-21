@@ -1,5 +1,15 @@
 package body Dense_AD is
    
+   procedure Set_Evaluation_Level (Value : in Evaluation_Level) is
+   begin
+      Level := Value;
+   end Set_Evaluation_Level;
+   
+   function Get_Evaluation_Level return Evaluation_Level is
+   begin
+      return Level;
+   end Get_Evaluation_Level;
+   
    function Var (X  : in Real;
 		 I  : in Nat;
 		 Dx : in Real := 1.0) return AD_Type is

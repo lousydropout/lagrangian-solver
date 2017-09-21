@@ -26,7 +26,7 @@ Project Main is
      for Default_Switches ("Ada")
        use ("-O1",                      -- optimize for testing (fast compiling)
 	    "-gnata",                   -- assertions
-	    "-fno-inline",              -- turn off inline for smaller executable
+	    --  "-fno-inline",              -- turn off inline for smaller executable
 	    "-gnatVa",                  -- turn on all validity checking options
 	    "-s",                       -- if switches change
 	    "-gnaty3aCefilkpntM100",    -- various style checks

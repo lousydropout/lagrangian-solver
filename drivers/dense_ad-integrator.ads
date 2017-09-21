@@ -12,17 +12,23 @@ package Dense_AD.Integrator is
    end record;
    
    type Control_Type is record
-      Dt  : Real := 1.0;
-      Dtn : Real := 1.0;
-      Eps : Real := 1.0e-10;
-      Err : Real := 1.0;
+      Dto     : Real := 1.0;
+      Dt      : Real := 1.0;
+      Dtn     : Real := 1.0;
+      Tol     : Real := 1.0e-10;
+      Err     : Real := 1.0;
+      Started : Boolean := False;
    end record;
    
+   type Array_Of_Vectors is array (1 .. Num) of Real_Vector (1 .. K);
    
-   type Array_Of_Vectors is array (1 .. N) of Real_Vector (1 .. K);
+   function New_Control_Type (Dt      : in Real	   := 1.0;
+			      Tol     : in Real	   := 1.0e-10;
+			      Started : in Boolean := False) return Control_Type;
+
    
    function Chebyshev_Transform (Y : in Real_Vector) return Array_Of_Vectors
-     with Pre => Y'First = 1 and Y'Length = N * K;
+     with Pre => Y'First = 1 and Y'Length = Num * K;
    
    
    function Interpolate (A : in Array_Of_Vectors;
@@ -33,7 +39,7 @@ package Dense_AD.Integrator is
    procedure Update (Var : in out Variable;
 		     Y	 : in     Real_Vector;
 		     Dt	 : in     Real)
-     with Pre => Y'First = 1 and Y'Length = N * K;
+     with Pre => Y'First = 1 and Y'Length = Num * K;
    
    function Update (Lagrangian : not null access 
 		      function (T : real; X : Vector) return AD_Type;
@@ -63,7 +69,7 @@ private
    Collocation_Density : Dense_Or_Sparse := Sparse;
    
    function Split (Y : in Real_Vector) return Array_Of_Vectors
-     with Pre => Y'First = 1 and Y'Length = N * K;
+     with Pre => Y'First = 1 and Y'Length = Num * K;
    
    procedure Iterate (Lagrangian : not null access 
 			function (T : real; X : Vector) return AD_Type;
@@ -109,12 +115,12 @@ private
    
    Grid   : constant Real_Vector := Chebyshev_Gauss_Lobatto (K, 0.0, 1.0);
    Der    : constant Real_Matrix := Derivative_Matrix (K, 0.0, 1.0);
-   Half_N : constant Nat := N / 2;
-   NK     : constant Nat := N * K;
+   --  Half_N : constant Nat := N / 2;
+   NK     : constant Nat := Num * K;
    
-   EyeN         : constant Sparse_Matrix := Eye (Half_N);
+   EyeN         : constant Sparse_Matrix := Eye (N);
    EyeK         : constant Sparse_Matrix := Eye (K);
-   Eye2N        : constant Sparse_Matrix := Eye (N);
+   Eye2N        : constant Sparse_Matrix := Eye (Num);
    D            : constant Sparse_Matrix := Sparse (Der);
    
    Top_Left : constant Sparse_Matrix
