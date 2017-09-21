@@ -1,6 +1,6 @@
 separate (Numerics.Sparse_Matrices)
 
-function Zero (N : in Nat) return Sparse_Matrix is
+function Zero (N : in Pos) return Sparse_Matrix is
    Result : Sparse_Matrix;
    use Ada.Containers;
 begin

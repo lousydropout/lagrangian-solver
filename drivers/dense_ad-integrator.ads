@@ -1,9 +1,12 @@
 with Numerics, Numerics.Sparse_Matrices, Chebyshev, Ada.Text_IO;
 use  Numerics, Numerics.Sparse_Matrices, Chebyshev, Ada.Text_IO;
 generic
-   K    : in Nat;
+   K : in Nat;
+   N_Constraints : in Pos := 0;
 package Dense_AD.Integrator is
    
+   N : constant Nat := (Num - N_Constraints) / 2;
+
    type Dense_Or_Sparse is (Dense, Sparse);
    
    type Variable is record
@@ -115,13 +118,15 @@ private
    
    Grid   : constant Real_Vector := Chebyshev_Gauss_Lobatto (K, 0.0, 1.0);
    Der    : constant Real_Matrix := Derivative_Matrix (K, 0.0, 1.0);
-   --  Half_N : constant Nat := N / 2;
    NK     : constant Nat := Num * K;
    
    EyeN         : constant Sparse_Matrix := Eye (N);
    EyeK         : constant Sparse_Matrix := Eye (K);
    Eye2N        : constant Sparse_Matrix := Eye (Num);
+   EyeNc        : constant Sparse_Matrix := Eye (N_Constraints);
    D            : constant Sparse_Matrix := Sparse (Der);
+   ZeroNc       : constant Sparse_Matrix := Zero (N_Constraints);
+   Zero2N       : constant Sparse_Matrix := Zero (2 * N);
    
    Top_Left : constant Sparse_Matrix
      := Sparse (((1.0, 0.0), (0.0, 0.0))) and EyeN;
@@ -138,4 +143,9 @@ private
    Mat_C : constant Real_Matrix := Dense (Sp (3));
    Mat_D : constant Real_Matrix := Dense (Sp (4));
    
+   TL : constant Sparse_Matrix := (Top_Left and EyeN) or ZeroNc;
+   TC : constant Sparse_Matrix := (Top_Right and EyeN) or ZeroNc;
+   ML : constant Sparse_Matrix := (Bottom_Left and EyeN) or ZeroNc;
+   MC : constant Sparse_Matrix := (Bottom_Right and EyeN) or ZeroNc;
+   BR : constant Sparse_Matrix := Zero2N or EyeNc;
 end Dense_AD.Integrator;

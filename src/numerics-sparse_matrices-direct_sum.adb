@@ -15,24 +15,24 @@ begin
    C.P.Reserve_Capacity (A.P.Length + B.P.Length - 1);
 
    -- left matrix
-   for J in 1 .. Nat (A.I.Length) loop
+   for J in 1 .. Pos (A.I.Length) loop
       C.X.Append (A.X (J));
    end loop;
-   for J in 1 .. Nat (A.I.Length) loop
+   for J in 1 .. Pos (A.I.Length) loop
       C.I.Append (A.I (J));
    end loop;
-   for J in 1 .. Nat (A.P.Length) loop
+   for J in 1 .. Pos (A.P.Length) loop
       C.P.Append (A.P (J));
    end loop;
    
    -- right matrix
-   for J in 1 .. Nat (B.I.Length) loop
+   for J in 1 .. Pos (B.I.Length) loop
       C.X.Append (B.X (J));
    end loop;
-   for J in 1 .. Nat (B.I.Length) loop
+   for J in 1 .. Pos (B.I.Length) loop
       C.I.Append (NRow + B.I (J));
    end loop;
-   for J in 2 .. Nat (B.P.Length) loop
+   for J in 2 .. Pos (B.P.Length) loop
       C.P.Append (NP + B.P (J) - 1);
    end loop;
    

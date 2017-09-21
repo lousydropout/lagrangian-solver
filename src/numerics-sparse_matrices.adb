@@ -114,8 +114,8 @@ package body Numerics.Sparse_Matrices is
    ------------------------------------------------------------------
    ------------------------------------------------------------------
    ------- Matrix Operations -----------------------------------
-   function Eye (N : in Nat) return Sparse_Matrix is separate;
-   function Zero (N : in Nat) return Sparse_Matrix is separate;
+   function Eye (N : in Pos) return Sparse_Matrix is separate;
+   function Zero (N : in Pos) return Sparse_Matrix is separate;
    function Omega (N : in Nat;
 		   M : in Pos := 0) return Sparse_Matrix is separate;
 

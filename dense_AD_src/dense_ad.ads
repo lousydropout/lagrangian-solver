@@ -1,10 +1,9 @@
 with Numerics, Numerics.Dense_Matrices;
 use  Numerics, Numerics.Dense_Matrices;
 generic
-   N : in Nat;
-   N_Constraints : in Pos := 0;
+   Num : in Nat;
 package Dense_AD is
-   Num   : constant Nat := 2 * N + N_Constraints;
+   
 
    type Evaluation_Level is (Value, Gradient, Hessian);
    

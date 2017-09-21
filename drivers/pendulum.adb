@@ -4,10 +4,11 @@ use  Numerics, Ada.Text_IO, Chebyshev;
 procedure Pendulum is
    use Int_IO, Real_IO, Real_Functions;
    -----------------------------------------------
-   N : constant Nat := 1;
-   K : constant Nat := 16;
+   N   : constant Nat := 1;
+   K   : constant Nat := 16;
+   Num : constant Nat := 2 * N;
    -----------------------------------------------
-   package AD_Package is new Dense_AD (N); 
+   package AD_Package is new Dense_AD (Num); 
    package Integrator is new AD_Package.Integrator (K);
    use AD_Package, Integrator;
    -----------------------------------------------
@@ -32,7 +33,7 @@ procedure Pendulum is
    ω     : Real renames State.X (2);
    -------------------------------
 
-   Y		: Real_Vector (1 .. 2 * N * K);
+   Y		: Real_Vector (1 .. Num * K);
    A		: Array_Of_Vectors;
    File, Phase  : File_Type;
    Dt		: constant Real := 0.01;
