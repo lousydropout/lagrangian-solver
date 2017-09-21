@@ -4,7 +4,7 @@ package body Dense_AD.Integrator is
    
    procedure Print_Lagrangian (Var	  : in     Variable;
 			       Lagrangian : not null access
-				 function (X : Vector) return AD_Type;
+				 function (T : Real; X : Vector) return AD_Type;
 			       Fore : in Field := 3;
 			       Aft  : in Field := 5;
 			       Exp  : in Field := 3) is
@@ -21,7 +21,7 @@ package body Dense_AD.Integrator is
    procedure Print_Lagrangian (File	  : in     Ada.Text_IO.File_Type;
 			       Var	  : in     Variable;
 			       Lagrangian : not null access
-				 function (X : Vector) return AD_Type;
+				 function (T : Real; X : Vector) return AD_Type;
 			       Fore : in Field := 3;
 			       Aft  : in Field := 5;
 			       Exp  : in Field := 3) is
@@ -33,7 +33,7 @@ package body Dense_AD.Integrator is
       H   : Real;
    begin
       Level := Gradient;
-      L := Lagrangian (Var.X);
+      L := Lagrangian (Var.T, Var.X);
       P := Grad (L) (Half_N + 1 .. N);
       H := Dot (V, P) - Val (L);
       
@@ -76,7 +76,7 @@ package body Dense_AD.Integrator is
    end Update;
    
    function Update (Lagrangian : not null access 
-		      function (X : Vector) return AD_Type;
+		      function (T : Real; X : Vector) return AD_Type;
 		    Var        : in     Variable;
 		    Control    : in out Control_Type;
 		    Density    : in     Dense_Or_Sparse) return Real_Vector is
@@ -135,7 +135,7 @@ package body Dense_AD.Integrator is
    end Chebyshev_Transform;
       
    procedure Colloc (Lagrangian : not null access 
-		       function (X : Vector) return AD_Type;
+		       function (T : Real; X : Vector) return AD_Type;
 		     Q          : in out Real_Vector;
 		     Var        : in     Variable;
 		     Control    : in out Control_Type) is
@@ -147,7 +147,7 @@ package body Dense_AD.Integrator is
    end Colloc;
    
    procedure Iterate (Lagrangian : not null access 
-			function (X : Vector) return AD_Type;
+			function (T : Real; X : Vector) return AD_Type;
 		      Y          : in out Real_Vector;
 		      Var        : in     Variable;
 		      Control    : in out Control_Type) is
@@ -218,7 +218,7 @@ package body Dense_AD.Integrator is
    
    
    procedure Collocation (Lagrangian : not null access 
-			   function (X : Vector) return AD_Type;
+			   function (T : Real; X : Vector) return AD_Type;
 			 Q          : in out Real_Vector;
 			 Var        : in     Variable;
 			 Control    : in out Control_Type) is
@@ -249,7 +249,7 @@ package body Dense_AD.Integrator is
 
    
    procedure FJ (Lagrangian : not null access 
-		    function (X : Vector) return AD_Type;
+		    function (T : Real; X : Vector) return AD_Type;
 		  Var     : in     Variable;
 		  Control : in     Control_Type;
 		  Q       : in     Real_Vector;
@@ -262,13 +262,15 @@ package body Dense_AD.Integrator is
       V, S : Real_Matrix (1 .. NK, 1 .. NK) := (others => (others => 0.0));
       A    : constant Real_Matrix := Mat_A - Control.Dt * Mat_C;
       B    : constant Real_Matrix := Mat_B - Control.Dt * Mat_D;
+      Time : Real;
    begin
       pragma Assert (Q'Length = N * K);
       -------------------------------------
       for I in 1 .. K loop
+	 Time := Var.T + Control.Dt * Grid (I);
 	 Tmp := N * (I - 1);
 	 X := Q (Tmp + 1 .. Tmp + N);
-	 L := Lagrangian (X);
+	 L := Lagrangian (Time, X);
 	 Copy (From => Grad (L), To => U, Start => Tmp + 1);
 	 Copy (From => Hessian (L), 
 	       To => V, 
@@ -282,7 +284,7 @@ package body Dense_AD.Integrator is
    
    
    procedure Sp_Collocation (Lagrangian : not null access 
-			       function (X : Vector) return AD_Type;
+			       function (T : Real; X : Vector) return AD_Type;
 			     Q          : in out Real_Vector;
 			     Var        : in     Variable;
 			     Control    : in out Control_Type) is
@@ -314,7 +316,7 @@ package body Dense_AD.Integrator is
 
    
    procedure Sp_FJ (Lagrangian : not null access 
-		      function (X : Vector) return AD_Type;
+		      function (T : Real; X : Vector) return AD_Type;
 		    Var     : in     Variable;
 		    Control : in     Control_Type;
 		    Q       : in     Real_Vector;
@@ -327,17 +329,19 @@ package body Dense_AD.Integrator is
       V    : Sparse_Matrix;
       A    : constant Sparse_Matrix := Sp (1) - Control.Dt * Sp (3);
       B    : constant Sparse_Matrix := Sp (2) - Control.Dt * Sp (4);
+      Time : Real;
    begin
       pragma Assert (Q'Length = N * K);
       -------------------------------------
       X := Q (1 .. N);
-      L := Lagrangian (X);
+      L := Lagrangian (Var.T, X);
       U := Sparse (Grad (L));
       V := Sparse (Hessian (L));
       for I in 2 .. K loop
+	 Time := Var.T + Control.Dt * Grid (I);
    	 Tmp := N * (I - 1);
    	 X := Q (Tmp + 1 .. Tmp + N);
-   	 L := Lagrangian (X);
+   	 L := Lagrangian (Time, X);
    	 U := U or Sparse (Grad (L));
    	 V := V or Sparse (Hessian (L));
       end loop;

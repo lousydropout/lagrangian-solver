@@ -14,7 +14,8 @@ procedure Pendulum is
    Control : Control_Type
      := (Dt => 0.5, Dtn => 1.0e3, Eps => 1.0e-10, Err => 1.0);
    -----------------------------------------------
-   function Lagrangian (X : in Vector) return AD_Type is
+   function Lagrangian (T : in Real;
+			X : in Vector) return AD_Type is
       θ : AD_Type := Var (X => X (1), I => 1);
       ω : AD_Type := Var (X => X (2), I => 2);
       M : Real    := 2.0;

@@ -36,7 +36,7 @@ package Dense_AD.Integrator is
      with Pre => Y'First = 1 and Y'Length = N * K;
    
    function Update (Lagrangian : not null access 
-		      function (X : Vector) return AD_Type;
+		      function (T : real; X : Vector) return AD_Type;
 		    Var        : in     Variable;
 		    Control    : in out Control_Type;
 		    Density    : in Dense_Or_Sparse) return Real_Vector;
@@ -44,14 +44,14 @@ package Dense_AD.Integrator is
    procedure Print_Lagrangian (File	  : in     File_Type;
 			       Var	  : in     Variable;
 			       Lagrangian : not null access
-				 function (X : Vector) return AD_Type;
+				 function (T : real; X : Vector) return AD_Type;
 			       Fore : in Field := 3;
 			       Aft  : in Field := 5;
 			       Exp  : in Field := 3);
    
    procedure Print_Lagrangian (Var	  : in     Variable;
 			       Lagrangian : not null access
-				 function (X : Vector) return AD_Type;
+				 function (T : real; X : Vector) return AD_Type;
 			       Fore : in Field := 3;
 			       Aft  : in Field := 5;
 			       Exp  : in Field := 3);
@@ -66,24 +66,24 @@ private
      with Pre => Y'First = 1 and Y'Length = N * K;
    
    procedure Iterate (Lagrangian : not null access 
-			function (X : Vector) return AD_Type;
+			function (T : real; X : Vector) return AD_Type;
 		      Y          : in out Real_Vector;
 		      Var        : in     Variable;
 		      Control    : in out Control_Type);
    
    procedure Colloc (Lagrangian : not null access 
-			  function (X : Vector) return AD_Type;
+			  function (T : real; X : Vector) return AD_Type;
 			Q          : in out Real_Vector;
 			Var        : in     Variable;
 			Control    : in out Control_Type);
    
    procedure Collocation (Lagrangian : not null access 
-			    function (X : Vector) return AD_Type;
+			    function (T : real; X : Vector) return AD_Type;
 			  Q          : in out Real_Vector;
 			  Var        : in     Variable;
 			  Control    : in out Control_Type);
    procedure FJ (Lagrangian : not null access 
-		    function (X : Vector) return AD_Type;
+		    function (T : real; X : Vector) return AD_Type;
 		  Var     : in     Variable;
 		  Control : in     Control_Type;
 		  Q       : in     Real_Vector;
@@ -91,12 +91,12 @@ private
 		  J       :    out Real_Matrix);
    
    procedure Sp_Collocation (Lagrangian : not null access 
-			       function (X : Vector) return AD_Type;
+			       function (T : real; X : Vector) return AD_Type;
 			     Q          : in out Real_Vector;
 			     Var        : in     Variable;
 			     Control    : in out Control_Type);
    procedure Sp_FJ (Lagrangian : not null access 
-		      function (X : Vector) return AD_Type;
+		      function (T : real; X : Vector) return AD_Type;
 		    Var     : in     Variable;
 		    Control : in     Control_Type;
 		    Q       : in     Real_Vector;
