@@ -5,7 +5,7 @@ procedure Pendulum is
    use Int_IO, Real_IO, Real_Functions;
    -----------------------------------------------
    N   : constant Nat := 1;
-   K   : constant Nat := 16;
+   K   : constant Nat := 7;
    Num : constant Nat := 2 * N;
    -----------------------------------------------
    package AD_Package is new Dense_AD (Num); 
@@ -16,8 +16,9 @@ procedure Pendulum is
    -----------------------------------------------
    function Lagrangian (T : in Real;
 			X : in Vector) return AD_Type is
-      θ : AD_Type := Var (X => X (1), I => 1);
-      ω : AD_Type := Var (X => X (2), I => 2);
+      Q : AD_Vector := Var (X);
+      θ : AD_Type renames Q (1);
+      ω : AD_Type renames Q (2);
       M : Real    := 2.0;
       L : Real    := 1.0;
       G : Real    := 10.0;
@@ -46,7 +47,7 @@ begin
    Put_Line (Phase, "time, q, q_dot, p, H");
    
    while Var.T < 10.0 loop
-      Y := Update (Lagrangian'Access, Var, Control, Sparse);
+      Y := Update (Lagrangian'Access, Var, Control, Dense);
       
       A := Chebyshev_Transform (Y);
       while State.T <= Var.T + Control.Dt loop

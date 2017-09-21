@@ -41,13 +41,13 @@ package body Dense_AD.Integrator is
 			       Aft  : in Field := 5;
 			       Exp  : in Field := 3) is
       use Real_IO;
-      Old : constant Evaluation_Level := Level;
+      Old : constant Evaluation_Level := Get_Evaluation_Level;
       L   : AD_Type;
       P   : Real_Vector (N + 1 .. Num);
       V   : Real_Vector renames Var.X (N + 1 .. Num);
       H   : Real;
    begin
-      Level := Gradient;
+      Set_Evaluation_Level (Gradient);
       L := Lagrangian (Var.T, Var.X);
       P := Grad (L) (N + 1 .. Num);
       H := Dot (V, P) - Val (L);
@@ -65,7 +65,7 @@ package body Dense_AD.Integrator is
       -- Print Hamiltonian
       Put (File, H, Fore => Fore, Exp => Exp); New_Line (File);
       
-      Level := Old;
+      Set_Evaluation_Level (Old);
    end Print_Lagrangian;
    
    
@@ -251,7 +251,7 @@ package body Dense_AD.Integrator is
       Res : Real := 1.0;
       It  : Pos  := 0;
    begin
-      Level := Hessian;
+      Set_Evaluation_Level (Hessian);
       ------------------------------------------------
       while Res > 1.0e-10 loop
 	 It := It + 1;
@@ -313,7 +313,7 @@ package body Dense_AD.Integrator is
       Res : Real := 1.0;
       It  : Pos  := 0;
    begin
-      Level := Hessian;
+      Set_Evaluation_Level (Hessian);
       ------------------------------------------------
       while Res > 1.0e-10 loop
 	 It := It + 1;
