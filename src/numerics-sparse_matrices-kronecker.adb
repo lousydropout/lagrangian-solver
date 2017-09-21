@@ -2,8 +2,8 @@ separate (Numerics.Sparse_Matrices)
 
 function Kronecker (A, B : in Sparse_Matrix) return Sparse_Matrix is
    Result : Sparse_Matrix;
-   N_Col : constant Nat := B.N_Col;
-   N_Row : constant Nat := B.N_Row;
+   N_Col : constant Pos := B.N_Col;
+   N_Row : constant Pos := B.N_Row;
    Bl    : Int_Array (1 .. N_Col);
    Al    : Integer;
    Tmp   : Nat := 1;

@@ -89,6 +89,7 @@ package Numerics.Sparse_Matrices is
      with Pre => Has_Same_Dimensions (Left, Right);
    function Mult (Left, Right : in Sparse_Matrix) return Sparse_Matrix
      with Pre => N_Col (Left) = N_Row (Right);
+   
    function Kronecker (A, B : in Sparse_Matrix) return Sparse_Matrix;
    function Direct_Sum (A, B : in Sparse_Matrix) return Sparse_Matrix;
    function Mult_M_SV (A : in Sparse_Matrix;

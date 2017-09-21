@@ -213,8 +213,7 @@ package body Dense_AD.Integrator is
       end loop;
       -------------------------------------------------------
       -- Update Y
-      Y := Y1;
-      -- Colloc (Lagrangian, Y, Var, Control); -- could assume Y to be correct
+      Y  := Y1;
       A1 := Chebyshev_Transform (Y);
       -------------------------------------------------------
       for I in 1 .. K loop
@@ -230,11 +229,11 @@ package body Dense_AD.Integrator is
       Sp  : Array_Of_Sparse_Matrix;
       Tmp : Sparse_Matrix;
    begin
-      Tmp := D and Eye2N; -- temporary, overwritten below
-      Sp (1) := Tmp * (EyeK and Top_Left);
-      Sp (2) := Tmp * (EyeK and Bottom_Right);
-      Sp (3) := EyeK and Top_Right;
-      Sp (4) := EyeK and Bottom_Left;
+      Tmp := D and (Eye2N or ZeroNc);
+      Sp (1) := Tmp * (EyeK and TL);
+      Sp (2) := Tmp * (EyeK and MC);
+      Sp (3) := EyeK and TC;
+      Sp (4) := EyeK and (ML + BR);
       return Sp;
    end Setup;
    
@@ -244,7 +243,6 @@ package body Dense_AD.Integrator is
 			 Q          : in out Real_Vector;
 			 Var        : in     Variable;
 			 Control    : in out Control_Type) is
-      --  use Ada.Text_IO, Real_IO;
       Old : constant Evaluation_Level :=  Get_Evaluation_Level;
       
       DQ  : Real_Vector (1 .. NK - Num);
@@ -261,10 +259,8 @@ package body Dense_AD.Integrator is
 	 DQ := Solve (J, F);
 	 Q (Num + 1 .. Num * K) := Q (Num + 1 .. Num * K) - DQ;
 	 Res := Norm (F);
-	 --  Put (Res); New_Line;
 	 if It > 10 then exit; end if;
       end loop;
-      --  New_Line;
       ------------------------------------------------
       Set_Evaluation_Level (Value => Old);
    end Collocation;
@@ -286,7 +282,6 @@ package body Dense_AD.Integrator is
       B    : constant Real_Matrix := Mat_B - Control.Dt * Mat_D;
       Time : Real;
    begin
-      --  pragma Assert (Q'Length = Num * K);
       -------------------------------------
       for I in 1 .. K loop
 	 Time := Var.T + Control.Dt * Grid (I);
@@ -310,7 +305,6 @@ package body Dense_AD.Integrator is
 			     Q          : in out Real_Vector;
 			     Var        : in     Variable;
 			     Control    : in out Control_Type) is
-      --  use Ada.Text_IO, Real_IO;
       Old : constant Evaluation_Level :=  Get_Evaluation_Level;
       
       DQ  : Sparse_Vector;
@@ -327,10 +321,8 @@ package body Dense_AD.Integrator is
    	 DQ := Numerics.Sparse_Matrices.CSparse.Solve (J, F);
    	 Q (Num + 1 .. Num * K) := Q (Num + 1 .. Num * K) - To_Array (DQ);
    	 Res := Norm (F);
-   	 --  Put (Res); New_Line;
 	 if It > 10 then exit; end if;
       end loop;
-      --  New_Line;
       ------------------------------------------------
       Set_Evaluation_Level (Old);
 
@@ -353,7 +345,6 @@ package body Dense_AD.Integrator is
       B    : constant Sparse_Matrix := Sp (2) - Control.Dt * Sp (4);
       Time : Real;
    begin
-      --  pragma Assert (Q'Length = Num * K);
       -------------------------------------
       X := Q (1 .. Num);
       L := Lagrangian (Var.T, X);

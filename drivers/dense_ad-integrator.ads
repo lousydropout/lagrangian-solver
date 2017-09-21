@@ -122,9 +122,10 @@ private
    
    EyeN         : constant Sparse_Matrix := Eye (N);
    EyeK         : constant Sparse_Matrix := Eye (K);
-   Eye2N        : constant Sparse_Matrix := Eye (Num);
+   Eye2N        : constant Sparse_Matrix := Eye (2 * N);
    EyeNc        : constant Sparse_Matrix := Eye (N_Constraints);
    D            : constant Sparse_Matrix := Sparse (Der);
+   ZeroN        : constant Sparse_Matrix := Zero (N);
    ZeroNc       : constant Sparse_Matrix := Zero (N_Constraints);
    Zero2N       : constant Sparse_Matrix := Zero (2 * N);
    
@@ -137,15 +138,16 @@ private
    Bottom_Right : constant Sparse_Matrix
      := Sparse (((0.0, 0.0), (0.0, 1.0))) and EyeN;
    
+   TL : constant Sparse_Matrix := (Top_Left     and EyeN) or ZeroNc;
+   TC : constant Sparse_Matrix := (Top_Right    and EyeN) or ZeroNc;
+   ML : constant Sparse_Matrix := (Bottom_Left  and EyeN) or ZeroNc;
+   MC : constant Sparse_Matrix := (Bottom_Right and EyeN) or ZeroNc;
+   BR : constant Sparse_Matrix := Zero2N or EyeNc;
+   
    Sp    : constant Array_Of_Sparse_Matrix := Setup;
    Mat_A : constant Real_Matrix := Dense (Sp (1));
    Mat_B : constant Real_Matrix := Dense (Sp (2));
    Mat_C : constant Real_Matrix := Dense (Sp (3));
    Mat_D : constant Real_Matrix := Dense (Sp (4));
-   
-   TL : constant Sparse_Matrix := (Top_Left and EyeN) or ZeroNc;
-   TC : constant Sparse_Matrix := (Top_Right and EyeN) or ZeroNc;
-   ML : constant Sparse_Matrix := (Bottom_Left and EyeN) or ZeroNc;
-   MC : constant Sparse_Matrix := (Bottom_Right and EyeN) or ZeroNc;
-   BR : constant Sparse_Matrix := Zero2N or EyeNc;
+
 end Dense_AD.Integrator;
