@@ -90,6 +90,17 @@ package body Dense_AD.Integrator is
       Var.T := Var.T + Dt;
    end Update;
    
+   
+   function Update (Lagrangian : not null access 
+		      function (T : real; X : Vector) return AD_Type;
+		    Var        : in     Variable;
+		    Control    : in out Control_Type) return Real_Vector is
+   begin
+      if Num * K < 5 then return Update (Lagrangian, Var, Control, Dense);
+      else return Update (Lagrangian, Var, Control, Sparse);
+      end if;
+      end Update;
+
    function Update (Lagrangian : not null access 
 		      function (T : Real; X : Vector) return AD_Type;
 		    Var        : in     Variable;
@@ -128,7 +139,7 @@ package body Dense_AD.Integrator is
       return Y;
    end Update;
    
-   function Split (Y : in     Real_Vector) return Array_Of_Vectors is
+   function Split (Y : in Real_Vector) return Array_Of_Vectors is
       A : Array_Of_Vectors;
    begin
       for J in 1 .. Num loop
@@ -214,7 +225,8 @@ package body Dense_AD.Integrator is
       -------------------------------------------------------
       -- Update Y
       Y  := Y1;
-      A1 := Chebyshev_Transform (Y);
+      Colloc (Lagrangian, Y1, Var, Control);
+      A1 := Chebyshev_Transform (Y1);
       -------------------------------------------------------
       for I in 1 .. K loop
 	 Time := Var2.T + C2.Dt * Grid (I);
@@ -226,10 +238,23 @@ package body Dense_AD.Integrator is
    end Iterate;
    
    function Setup return Array_Of_Sparse_Matrix is
+      Top_Left : constant Sparse_Matrix
+	:= Sparse (((1.0, 0.0), (0.0, 0.0))) and EyeN;
+      Top_Right : constant Sparse_Matrix
+	:= Sparse (((0.0, 1.0), (0.0, 0.0))) and EyeN;
+      Bottom_Left : constant Sparse_Matrix
+	:= Sparse (((0.0, 0.0), (1.0, 0.0))) and EyeN;
+      Bottom_Right : constant Sparse_Matrix
+	:= Sparse (((0.0, 0.0), (0.0, 1.0))) and EyeN;
+      
+      TL  : constant Sparse_Matrix := Top_Left     or ZeroNc;
+      TC  : constant Sparse_Matrix := Top_Right    or ZeroNc;
+      ML  : constant Sparse_Matrix := Bottom_Left  or ZeroNc;
+      MC  : constant Sparse_Matrix := Bottom_Right or ZeroNc;
+      BR  : constant Sparse_Matrix := Zero2N       or EyeNc;
+      Tmp : constant Sparse_Matrix := D and (Eye2N or ZeroNc);
       Sp  : Array_Of_Sparse_Matrix;
-      Tmp : Sparse_Matrix;
    begin
-      Tmp := D and (Eye2N or ZeroNc);
       Sp (1) := Tmp * (EyeK and TL);
       Sp (2) := Tmp * (EyeK and MC);
       Sp (3) := EyeK and TC;
@@ -365,8 +390,8 @@ package body Dense_AD.Integrator is
    
    
    
-   procedure Print_XYZ (File : in File_Type;
-			Var  : in Variable) is
+   procedure Print_XYZ (File : in out File_Type;
+			Var  : in     Variable) is
       use Real_Functions, Real_IO;
       X :  Real_Vector renames Var.X;
       X1, Y1, X2, Y2 : Real;
@@ -399,5 +424,17 @@ package body Dense_AD.Integrator is
       New_Line (File => File);
    end Print_XYZ;
 
+   procedure Print_XYZ (File : in out File_Type;
+			Var  : in     Variable;
+			Name : in     String;
+			Mode : in     Create_Or_Append := Append) is
+   begin
+      case Mode is
+	 when Create => Create (File, Name => Name);
+	 when Append => Open (File, Append_File, Name);
+      end case;
+      Print_XYZ (File, Var);
+      Close (File);
+   end Print_XYZ;
    
 end Dense_AD.Integrator;

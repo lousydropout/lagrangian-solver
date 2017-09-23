@@ -8,6 +8,7 @@ package Dense_AD.Integrator is
    N : constant Nat := (Num - N_Constraints) / 2;
 
    type Dense_Or_Sparse is (Dense, Sparse);
+   type Create_Or_Append is (Create, Append);
    
    type Variable is record
       X : Vector;
@@ -50,6 +51,11 @@ package Dense_AD.Integrator is
 		    Control    : in out Control_Type;
 		    Density    : in Dense_Or_Sparse) return Real_Vector;
       
+   function Update (Lagrangian : not null access 
+		      function (T : real; X : Vector) return AD_Type;
+		    Var        : in     Variable;
+		    Control    : in out Control_Type) return Real_Vector;
+      
    procedure Print_Lagrangian (File	  : in     File_Type;
 			       Var	  : in     Variable;
 			       Lagrangian : not null access
@@ -65,7 +71,13 @@ package Dense_AD.Integrator is
 			       Aft  : in Field := 5;
 			       Exp  : in Field := 3);
    
+   procedure Print_XYZ (File : in out File_Type;
+			Var  : in     Variable);
    
+   procedure Print_XYZ (File : in out File_Type;
+			Var  : in     Variable;
+			Name : in     String;
+			Mode : in     Create_Or_Append := Append);
    
 private
 
@@ -128,21 +140,6 @@ private
    ZeroN        : constant Sparse_Matrix := Zero (N);
    ZeroNc       : constant Sparse_Matrix := Zero (N_Constraints);
    Zero2N       : constant Sparse_Matrix := Zero (2 * N);
-   
-   Top_Left : constant Sparse_Matrix
-     := Sparse (((1.0, 0.0), (0.0, 0.0))) and EyeN;
-   Top_Right : constant Sparse_Matrix
-     := Sparse (((0.0, 1.0), (0.0, 0.0))) and EyeN;
-   Bottom_Left : constant Sparse_Matrix
-     := Sparse (((0.0, 0.0), (1.0, 0.0))) and EyeN;
-   Bottom_Right : constant Sparse_Matrix
-     := Sparse (((0.0, 0.0), (0.0, 1.0))) and EyeN;
-   
-   TL : constant Sparse_Matrix := (Top_Left     and EyeN) or ZeroNc;
-   TC : constant Sparse_Matrix := (Top_Right    and EyeN) or ZeroNc;
-   ML : constant Sparse_Matrix := (Bottom_Left  and EyeN) or ZeroNc;
-   MC : constant Sparse_Matrix := (Bottom_Right and EyeN) or ZeroNc;
-   BR : constant Sparse_Matrix := Zero2N or EyeNc;
    
    Sp    : constant Array_Of_Sparse_Matrix := Setup;
    Mat_A : constant Real_Matrix := Dense (Sp (1));
