@@ -43,23 +43,23 @@ package body Dense_AD.Integrator is
       use Real_IO;
       Old : constant Evaluation_Level := Get_Evaluation_Level;
       L   : AD_Type;
-      P   : Real_Vector (N + 1 .. Num);
-      V   : Real_Vector renames Var.X (N + 1 .. Num);
+      P   : Real_Vector (N + 1 .. 2 * N);
+      V   : Real_Vector renames Var.X (N + 1 .. 2 * N);
       H   : Real;
    begin
       Set_Evaluation_Level (Gradient);
       L := Lagrangian (Var.T, Var.X);
-      P := Grad (L) (N + 1 .. Num);
+      P := Grad (L) (N + 1 .. 2 * N);
       H := Dot (V, P) - Val (L);
       
       -- Print time
       Put (File, Var.T, Fore, Aft, Exp); Put (File, ",  ");
       -- Print generalized positions and velocities
-      for I in 1 .. Num loop
+      for I in 1 .. 2 * N loop
 	 Put (File, Var.X (I), Fore, Aft, Exp); Put (File, ",  ");
       end loop;
       -- Print canonical momenta
-      for I in N + 1 .. Num loop
+      for I in N + 1 .. 2 * N loop
 	 Put (File, P (I), Fore, Aft, Exp); Put (File, ",  ");
       end loop;
       -- Print Hamiltonian
@@ -99,7 +99,7 @@ package body Dense_AD.Integrator is
       if Num * K < 5 then return Update (Lagrangian, Var, Control, Dense);
       else return Update (Lagrangian, Var, Control, Sparse);
       end if;
-      end Update;
+   end Update;
 
    function Update (Lagrangian : not null access 
 		      function (T : Real; X : Vector) return AD_Type;
@@ -264,10 +264,11 @@ package body Dense_AD.Integrator is
    
    
    procedure Collocation (Lagrangian : not null access 
-			   function (T : Real; X : Vector) return AD_Type;
-			 Q          : in out Real_Vector;
-			 Var        : in     Variable;
-			 Control    : in out Control_Type) is
+			    function (T : Real; X : Vector) return AD_Type;
+			  Q          : in out Real_Vector;
+			  Var        : in     Variable;
+			  Control    : in out Control_Type) is
+      --  use Ada.Text_IO;
       Old : constant Evaluation_Level :=  Get_Evaluation_Level;
       
       DQ  : Real_Vector (1 .. NK - Num);
@@ -278,14 +279,16 @@ package body Dense_AD.Integrator is
    begin
       Set_Evaluation_Level (Hessian);
       ------------------------------------------------
+      --  Put_Line ("HI from Collocation");
       while Res > 1.0e-10 loop
 	 It := It + 1;
 	 FJ (Lagrangian, Var, Control, Q, F, J);
 	 DQ := Solve (J, F);
-	 Q (Num + 1 .. Num * K) := Q (Num + 1 .. Num * K) - DQ;
+	 Q (Num + 1 .. NK) := Q (Num + 1 .. NK) - DQ;
 	 Res := Norm (F);
 	 if It > 10 then exit; end if;
       end loop;
+      --  Put_Line ("BYE from Collocation");
       ------------------------------------------------
       Set_Evaluation_Level (Value => Old);
    end Collocation;
@@ -297,7 +300,7 @@ package body Dense_AD.Integrator is
 		  Control : in     Control_Type;
 		  Q       : in     Real_Vector;
 		  F       :    out Real_Vector;
-		  J       :    out Real_Matrix) is
+		 J       :    out Real_Matrix) is
       L    : AD_Type;
       X    : Vector;
       Tmp  : Integer;
@@ -320,8 +323,10 @@ package body Dense_AD.Integrator is
 	       Start_J => Tmp + 1);
       end loop;
       -------------------------------------
-      R := A * Q - B * U; F := Remove_1st_N (R, Num);
-      S := A     - B * V; J := Remove_1st_N (S, Num);
+      R := A * Q - B * U; 
+      F := Remove_1st_N (R, Num);
+      S := A     - B * V; 
+      J := Remove_1st_N (S, Num);
    end FJ;
    
    
@@ -436,5 +441,78 @@ package body Dense_AD.Integrator is
       Print_XYZ (File, Var);
       Close (File);
    end Print_XYZ;
+   
+   
+   procedure Print_CSV (File : in out File_Type;
+			Var  : in     Variable;
+			Name : in     String;
+			Lagrangian : not null access 
+			  function (T : real; X : Vector) return AD_Type;
+			Mode : in     Create_Or_Append := Append) is
+      use Real_IO, Real_Functions;
+      Old : constant Evaluation_Level := Get_Evaluation_Level;
+      L   : AD_Type;
+      P   : Real_Vector (N + 1 .. 2 * N);
+      V   : Real_Vector renames Var.X (N + 1 .. 2 * N);
+      H   : Real;
+      X1, Y1, X2, Y2 : Real;
+   begin
+      case Mode is
+	 when Create => 
+	    Create (File, Name => Name);
+	    Put_Line (File,
+		      "time, t, s, t_dot, s_dot, p_t, p_s, x1, y1, x2, y2, E");
+	 when Append => Open (File, Append_File, Name);
+      end case;
+
+      Set_Evaluation_Level (Gradient);
+      L := Lagrangian (Var.T, Var.X);
+      P := Grad (L) (N + 1 .. 2 * N);
+      H := Dot (V, P) - Val (L);
+      X1 := -Sin (Var.X (1));
+      Y1 :=  Cos (Var.X (1));
+      X2 := X1 - Sin (2.0 * Var.X (1) + Var.X (2));
+      Y2 := Y1 + Cos (2.0 * Var.X (1) + Var.X (2));
+
+      -- Print time
+      Put (File, Var.T); Put (File, ",  ");
+      -- Print generalized positions and velocities
+      for I in 1 .. 2 * N loop
+	 Put (File, Var.X (I)); Put (File, ",  ");
+      end loop;
+      -- Print canonical momenta
+      for I in N + 1 .. 2 * N loop
+	 Put (File, P (I)); Put (File, ",  ");
+      end loop;
+      -- Print particle's x & y positions
+      Put (File, X1); Put (File, ",  ");
+      Put (File, Y1); Put (File, ",  ");
+      Put (File, X2); Put (File, ",  ");
+      Put (File, Y2); Put (File, ",  ");
+      -- Print Hamiltonian
+      Put (File, H); New_Line (File);
+      
+      Set_Evaluation_Level (Old);
+      Close (File);
+   end Print_CSV;
+
+   function Hamiltonian (T : in Real; 
+			 X : in Vector;
+			 Lagrangian : not null access 
+			   function (T : real; X : Vector) return AD_Type)
+			return Real is
+      P   : Real_Vector (N + 1 .. 2 * N);
+      V   : Real_Vector renames X (N + 1 .. 2 * N);
+      H   : Real;
+      L   : AD_Type;
+      Old : Evaluation_Level := Get_Evaluation_Level;
+   begin
+      Set_Evaluation_Level (Gradient);
+      L := Lagrangian (T, X);
+      P := Grad (L) (N + 1 .. 2 * N);
+      H := Dot (V, P) - Val (L);
+      Set_Evaluation_Level (Old);
+      return H;
+   end Hamiltonian;
    
 end Dense_AD.Integrator;

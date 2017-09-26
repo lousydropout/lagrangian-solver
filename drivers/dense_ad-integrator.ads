@@ -11,8 +11,8 @@ package Dense_AD.Integrator is
    type Create_Or_Append is (Create, Append);
    
    type Variable is record
-      X : Vector;
-      T : Real;
+      T : Real   := 0.0;
+      X : Vector := (others => 0.0);
    end record;
    
    type Control_Type is record
@@ -78,6 +78,19 @@ package Dense_AD.Integrator is
 			Var  : in     Variable;
 			Name : in     String;
 			Mode : in     Create_Or_Append := Append);
+   
+   procedure Print_CSV (File : in out File_Type;
+			Var  : in     Variable;
+			Name : in     String;
+			Lagrangian : not null access 
+			  function (T : real; X : Vector) return AD_Type;
+			Mode : in     Create_Or_Append := Append);
+   
+   function Hamiltonian (T : in Real; 
+			 X : in Vector;
+			 Lagrangian : not null access 
+			   function (T : real; X : Vector) return AD_Type)
+			return Real;
    
 private
 

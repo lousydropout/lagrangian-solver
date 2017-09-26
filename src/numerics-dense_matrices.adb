@@ -127,10 +127,10 @@ package body Numerics.Dense_Matrices is
       end loop;
       
       for J in 1 .. N loop
-         Max := A (J + A'First (1) - 1, J + A'First (2) - 1);
+         Max := abs (A (J + A'First (1) - 1, J + A'First (2) - 1));
          Row := J;
          for I in J + 1 .. N loop
-            if A (I + A'First (1) - 1, J + A'First (2) - 1) > Max then
+            if abs (A (I + A'First (1) - 1, J + A'First (2) - 1)) > Max then
                Max := A (I + A'First (1) - 1, J + A'First (2) - 1);
                Row := I;
             end if;

@@ -10,6 +10,7 @@ Project Main is
 		--  "dynamics",
 		--  "ad_test",
 		"pendulum",
+		"pendulum_dae",
 		"steel_balls",
 		"lu_test");
 		--  "sparse_test",

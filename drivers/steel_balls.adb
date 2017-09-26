@@ -6,7 +6,7 @@ procedure Steel_Balls is
    -----------------------------------------------
    N   : constant Nat  := 2;
    K   : constant Nat  := 7;
-   α   : constant Real := 100.0;
+   α   : Real;
    -----------------------------------------------
    package AD_Package is new Dense_AD (2 * N); 
    package Integrator is new AD_Package.Integrator (K);
@@ -33,8 +33,14 @@ procedure Steel_Balls is
       Ct    : constant AD_Type := Cos (T);
       C2tps : constant AD_Type := Cos (2.0 * T +       S);
       Ctp2s : constant AD_Type := Cos (T       + 2.0 * S);
+      TpS   : constant Real := Val (T) + Val (S);
    begin
-      Tmp  := 0.5 / Tmp;
+      if TpS > 0.99 * π then
+	 Tmp := 0.5 / (Tmp + 1.0e-10);
+      elsif TpS < -0.99 * π then
+	 Tmp := 0.5 / (Tmp - 1.0e-10);
+      end if;
+      --  Tmp  := (0.5 * Sign (Tmp)) / (abs (Tmp) + 1.0e-10);
       PE_G := Ct + C2tps;
       PE_M := Cos (2.0 * T) - 3.0 * Ct ** 2
 	   +  Cos (2.0 * S) - 3.0 * Cs ** 2
@@ -45,16 +51,14 @@ procedure Steel_Balls is
    -------------------------------
    function Lagrangian (T : in Real;
 			X : in Vector) return AD_Type is
-      Q     : AD_Vector := Var  (X);
+      Q : AD_Vector := Var  (X);
    begin
-      --  pragma Assert (abs (X (1) + X (2)) < π, "singularity error: t + s = pi");
       return  KE (Q) - PE (Q);
    end Lagrangian;
    -----------------------------------------------
+      
    -- Initial Conditions ----
-   Var : Variable :=  (X  => (0.0, 1.5, 10.0, 1000.0),
-		       T  => 0.0);
-   State : Variable := Var;
+   Var, State : Variable;
    X : Vector renames Var.X;
    T : Real renames Var.T;
    -------------------------------
@@ -62,15 +66,48 @@ procedure Steel_Balls is
    Y    : Real_Vector (1 .. 2 * N * K);
    A    : Array_Of_Vectors;
    File : File_Type;
-   Dt   : constant Real := 1.0e-4;
+   Fcsv : File_Type;
+   Dt   : Real;
    Name : String := "out.xyz";
+   Cname : String := "out.csv";
+   T_Final  : Real := 10.0;
+   Line : String (1 .. 50);
+   Last : Natural;
    
 begin
-
-   Print_XYZ (File, Var, Name, Create);
    
-   while T < 1.0e-2 loop
-      Y := Update (Lagrangian'Access, Var, Control);
+   -- Read initial conditions
+   Get_Line (Line, Last); -- Not used
+   Get_Line (Line, Last); -- T_init
+   T     := Real'Value (Line (1 .. Last));
+   Get_Line (Line, Last); -- t
+   X (1) := Real'Value (Line (1 .. Last));
+   Get_Line (Line, Last); -- s
+   X (2) := Real'Value (Line (1 .. Last));
+   Get_Line (Line, Last); -- t_dot
+   X (3) := Real'Value (Line (1 .. Last));
+   Get_Line (Line, Last); -- s_dot
+   X (4) := Real'Value (Line (1 .. Last));
+   Get_Line (Line, Last); -- Not used
+   Get_Line (Line, Last); -- T_final
+   T_Final := Real'Value (Line (1 .. Last));
+   Get_Line (Line, Last); -- Not used
+   Get_Line (Line, Last); -- dt
+   Dt := Real'Value (Line (1 .. Last));
+   Get_Line (Line, Last); -- Not used
+   Get_Line (Line, Last); -- alpha
+   α  := Real'Value (Line (1 .. Last));
+   State   := Var;
+   ------------------------------------------------------------
+   Put ("Total energy of the system = "); 
+   Put (Hamiltonian (T, X, Lagrangian'Access));
+   New_Line;
+   ------------------------------------------------------------
+   Print_XYZ (File, Var, Name, Create);
+   Print_CSV (Fcsv, Var, CName, Lagrangian'Access, Create);
+   
+   while T < T_Final loop
+      Y := Update (Lagrangian'Access, Var, Control, Sparse);
       Put (Var.T); New_Line;
       
       A := Chebyshev_Transform (Y);
@@ -78,8 +115,8 @@ begin
       	 State.T := State.T + Dt;
 	 State.X := Interpolate (A, State.T, Var.T, Var.T + Control.Dt);
 	 Print_XYZ (File, Var, Name);
+	 Print_CSV (Fcsv, Var, CName, Lagrangian'Access);
       end loop;
-      
       
       Update (Var => Var, Y => Y, Dt => Control.Dt); -- Update variable Var
    end loop;

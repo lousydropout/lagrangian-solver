@@ -55,7 +55,9 @@ package Dense_AD is
    function "/" (X : in Real; Y : in AD_Type) return AD_Type is (X * (Y ** (-1)));
    function "/" (X : in AD_Type; Y : in Real) return AD_Type is ((1.0 / Y) * X)
      with Pre => Y /= 0.0;
-		 
+   
+   function Sign (X : in AD_Type) return Real;
+   
    ------------- procedures ----------------------
    procedure Print (X : in AD_Type);
    

@@ -296,7 +296,14 @@ package body Dense_AD is
    begin
       return (Val => X.Val - Y, Grad => X.Grad, Hessian => X.Hessian);
    end "-";
-
+   
+   function Sign (X : in AD_Type) return Real is
+   begin
+      if X.Val >= 0.0 then return 1.0;
+      else return -1.0;
+      end if;
+   end Sign;
+   
    procedure print (X : in AD_Type) is
    begin
       null;

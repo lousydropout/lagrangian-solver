@@ -27,9 +27,8 @@ procedure Pendulum is
    end Lagrangian;
    -----------------------------------------------
    -- Initial Conditions ----
-   Var  : Variable :=  (X => (1.0e-10, 0.0),
-			T => 0.0);
-   State : Variable := Var;
+   Var   : Variable;
+   State : Variable;
    θ     : Real renames State.X (1);
    ω     : Real renames State.X (2);
    -------------------------------
@@ -37,30 +36,48 @@ procedure Pendulum is
    Y		: Real_Vector (1 .. Num * K);
    A		: Array_Of_Vectors;
    File, Phase  : File_Type;
+   Input        : File_Type;
    Dt		: constant Real := 0.01;
    
+   T_Final  : Real := 10.0;
+   Line : String (1 .. 50);
+   Last : Natural;
 begin
-
+   -- Read initial conditions
+   Get_Line (Line, Last); -- Not used
+   Get_Line (Line, Last); -- T0
+   Var.T     := Real'Value (Line (1 .. Last));
+   Get_Line (Line, Last); -- theta_0
+   Var.X (1) := Real'Value (Line (1 .. Last));
+   Get_Line (Line, Last); -- omega_0
+   Var.X (2) := Real'Value (Line (1 .. Last));
+   Get_Line (Line, Last); -- Not used
+   Get_Line (Line, Last); -- T_final
+   T_Final   := Real'Value (Line (1 .. Last));
+   ------------------------------------------------------------
+   
+   
    Create (File, Name => "pendulum.csv");
    Put_Line (File, "time, x, u, y, v");
    Create (Phase, Name => "phase.csv");
    Put_Line (Phase, "time, q, q_dot, p, H");
    
-   while Var.T < 10.0 loop
-      Y := Update (Lagrangian'Access, Var, Control, Dense);
+   State := Var;
+   while Var.T < T_Final loop
+      Y := Update (Lagrangian'Access, Var, Control, Sparse);
       
       A := Chebyshev_Transform (Y);
       while State.T <= Var.T + Control.Dt loop
    	 State.T := State.T + Dt;
-	 State.X := Interpolate (A, State.T, Var.T, Var.T + Control.Dt);
-	 -- Print data --------------------------------------------------
-	 Print_Lagrangian (Phase, State, Lagrangian'Access, 2, 3, 2);
+   	 State.X := Interpolate (A, State.T, Var.T, Var.T + Control.Dt);
+   	 -- Print data --------------------------------------------------
+   	 Print_Lagrangian (Phase, State, Lagrangian'Access, 2, 3, 2);
    	 Put (File, State.T);       Put (File, ",  ");
    	 Put (File,       Cos (θ)); Put (File, ",  ");
    	 Put (File, -ω  * Sin (θ)); Put (File, ",  ");
    	 Put (File, 1.0 - Sin (θ)); Put (File, ",  ");
    	 Put (File, -ω  * Cos (θ)); New_Line (File);
-	 ----------------------------------------------------------------
+   	 ----------------------------------------------------------------
       end loop;
       
       Update (Var => Var, Y => Y, Dt => Control.Dt); -- Update variable Var
