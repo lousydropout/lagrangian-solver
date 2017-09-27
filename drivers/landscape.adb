@@ -36,23 +36,45 @@ procedure Landscape is
    begin
       Y (1) := 0.5 * (X (1) - X (2));
       Y (2) := 0.5 * (X (1) + X (2));
-      return Y;
+      return (2.0 * Π / 3.0) * Y;
    end Coordinate_Transform;
    
    X, Y : Real_Vector (1 .. 2);
+   N : constant Nat := 100;
+   Dx : constant Real := 2.0 / Real (N - 1);
 begin
-   null;
    
-   X := (1.0, 0.0); Y := Coordinate_Transform (X);
-   Put ("(1, 0) ----> (");
-   Put (Y (1), Aft => 2, Fore => 1, Exp => 0); Put (", ");
-   Put (Y (2), Aft => 2, Fore => 1, Exp => 0); Put_Line (")");
-   X := (0.0, 1.0); Y := Coordinate_Transform (X);
-   Put ("(0, 1) ----> (");
-   Put (Y (1), Aft => 2, Fore => 1, Exp => 0); Put (", ");
-   Put (Y (2), Aft => 2, Fore => 1, Exp => 0); Put_Line (")");
-   X := (1.0, 1.0); Y := Coordinate_Transform (X);
-   Put ("(1, 1) ----> (");
-   Put (Y (1), Aft => 2, Fore => 1, Exp => 0); Put (", ");
-   Put (Y (2), Aft => 2, Fore => 1, Exp => 0); Put_Line (")");
+   Put_Line ("x, y, PE");
+   
+   for I in 0 .. N - 1 loop
+      X (1) := -1.0 + Real (I) * Dx;
+      for J in 0 .. N - 1 loop
+   	 X (2) := -1.0 + Real (J) * Dx;
+	 Y := Coordinate_Transform (X);
+	 Put (Y (1)); Put (", ");
+	 Put (Y (2)); Put (", ");
+	 Put (PE (Y)); New_Line;
+      end loop;
+   end loop;
+   
+   --  X := (1.0, 0.0); Y := Coordinate_Transform (X);
+   --  Put ("(1, 0) ----> (");
+   --  Put (Y (1), Aft => 2, Fore => 1, Exp => 0); Put (", ");
+   --  Put (Y (2), Aft => 2, Fore => 1, Exp => 0); Put_Line (")");
+   --  X := (0.0, 1.0); Y := Coordinate_Transform (X);
+   --  Put ("(0, 1) ----> (");
+   --  Put (Y (1), Aft => 2, Fore => 1, Exp => 0); Put (", ");
+   --  Put (Y (2), Aft => 2, Fore => 1, Exp => 0); Put_Line (")");
+   --  X := (1.0, 1.0); Y := Coordinate_Transform (X);
+   --  Put ("(1, 1) ----> (");
+   --  Put (Y (1), Aft => 2, Fore => 1, Exp => 0); Put (", ");
+   --  Put (Y (2), Aft => 2, Fore => 1, Exp => 0); Put_Line (")");
+   --  X := (-1.0, -1.0); Y := Coordinate_Transform (X);
+   --  Put ("(-1, -1) ----> (");
+   --  Put (Y (1), Aft => 2, Fore => 1, Exp => 0); Put (", ");
+   --  Put (Y (2), Aft => 2, Fore => 1, Exp => 0); Put_Line (")");
+   --  X := (0.0, 0.0); Y := Coordinate_Transform (X);
+   --  Put ("(0, 0) ----> (");
+   --  Put (Y (1), Aft => 2, Fore => 1, Exp => 0); Put (", ");
+   --  Put (Y (2), Aft => 2, Fore => 1, Exp => 0); Put_Line (")");
 end Landscape;
