@@ -9,6 +9,7 @@ Project Main is
 		--  "forward_ad-jacobian",
 		--  "dynamics",
 		--  "ad_test",
+		"landscape",
 		"pendulum",
 		"pendulum_dae",
 		"steel_balls",

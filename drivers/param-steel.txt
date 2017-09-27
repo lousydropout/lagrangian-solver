@@ -1,0 +1,7 @@
+initial conditions (T, X):
+0.0
+0.0
+1.0
+10.0
+T_final:
+10.0
