@@ -115,7 +115,37 @@ package body Dense_AD is
 		      + Z * X.Hessian);
       end case;
    end "/";
-
+   
+   function "**" (X : in AD_Type; K : in Real) return AD_Type is
+      use Real_Functions;
+      Y : Real;
+      Z : Real;
+      H : Matrix;
+   begin
+      if K < 0.0 then pragma Assert (X.Val /= 0.0);
+      elsif K = 0.0 then return (1.0, G0, H0);
+      elsif K = 1.0 then return X;
+      end if;
+      
+      case Level is
+	 when Value =>
+	    return (Val  => X.Val ** K,
+		    Grad => G0,
+		    Hessian => H0);
+	 when Gradient =>
+	    return (Val => X.Val ** K,
+		    Grad => K * X.Val ** (K - 1.0) * X.Grad,
+		    Hessian => H0);
+	 when Hessian =>
+		  Y := K * X.Val ** (K - 1.0);
+		  Z := (K * (K - 1.0)) * X.Val ** (K - 2.0);
+		  H := Y * X.Hessian + Z * Outer (X.Grad, X.Grad);
+		  return (Val  => X.Val ** K,
+			  Grad => Y * X.Grad,
+			  Hessian => H);
+      end case;
+   end "**";
+   
    function "**" (X : in AD_Type; K : in Integer) return AD_Type is
       Y : Real;
       Z : Real;
@@ -148,7 +178,19 @@ package body Dense_AD is
       end case;
    end "**";
 
-
+   function Sinh (X : in AD_Type) return AD_Type is
+   begin
+      return 0.5 * (Exp (-X) - Exp (X));
+   end Sinh;
+   function Cosh (X : in AD_Type) return AD_Type is
+   begin
+      return 0.5 * (Exp (-X) + Exp (X));
+   end Cosh;
+   function Tanh (X : in AD_Type) return AD_Type is
+   begin
+      return Sinh (X) / Cosh (X);
+   end Tanh;
+   
    function Sin (X : in AD_Type) return AD_Type is
       use Real_Functions;
       S : constant Real := Sin (X.Val);
@@ -216,7 +258,6 @@ package body Dense_AD is
 		    Hessian => (1.0 + Y) * X.Hessian + ((2.0 * T) * Z) * X.Grad);
       end case;
    end Tan;
-	      
       
    function Exp (X : in AD_Type) return AD_Type is
       use Real_Functions;

@@ -1,12 +1,12 @@
-initial conditions (T, X):
+s:
 0.0
+ω_s:
 0.0
-0.0
-10.0
-5.0
-T_final:
+total energy:
+3.0
+alpha:
 10.0
 dt:
 1.0e-2
-alpha:
-100.0
+T_final:
+10.0

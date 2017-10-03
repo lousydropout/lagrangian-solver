@@ -5,9 +5,10 @@ procedure Steel_Balls is
    use Int_IO, Real_IO, Real_Functions;
    -----------------------------------------------
    N   : constant Nat  := 2;
-   K   : constant Nat  := 7;
+   K   : constant Nat  := 4;
    α   : Real;
    -----------------------------------------------
+   package E_Solver   is new Dense_AD (1); 
    package AD_Package is new Dense_AD (2 * N); 
    package Integrator is new AD_Package.Integrator (K);
    use AD_Package, Integrator;
@@ -35,12 +36,7 @@ procedure Steel_Balls is
       Ctp2s : constant AD_Type := Cos (T       + 2.0 * S);
       TpS   : constant Real := Val (T) + Val (S);
    begin
-      if TpS > 0.99 * π then
-	 Tmp := 0.5 / (Tmp + 1.0e-10);
-      elsif TpS < -0.99 * π then
-	 Tmp := 0.5 / (Tmp - 1.0e-10);
-      end if;
-      --  Tmp  := (0.5 * Sign (Tmp)) / (abs (Tmp) + 1.0e-10);
+      Tmp  := 0.5 / Tmp;
       PE_G := Ct + C2tps;
       PE_M := Cos (2.0 * T) - 3.0 * Ct ** 2
 	   +  Cos (2.0 * S) - 3.0 * Cs ** 2
@@ -51,12 +47,43 @@ procedure Steel_Balls is
    -------------------------------
    function Lagrangian (T : in Real;
 			X : in Vector) return AD_Type is
-      Q : AD_Vector := Var  (X);
+      Q : AD_Vector := Var (X);
    begin
       return  KE (Q) - PE (Q);
    end Lagrangian;
    -----------------------------------------------
-      
+   function Hamiltonian (T : in Real;
+			 X : in Vector) return AD_Type is
+      Q : AD_Vector := Var (X);
+   begin
+      return  KE (Q) + PE (Q);
+   end Hamiltonian;
+   -----------------------------------------------
+   function Get_IC (X : in Vector;
+		    E : in Real) return Vector is
+      use Real_IO;
+      Y : Vector := X;
+      G : Vector;
+      H : AD_Type;
+      F, Dw : Real := 1.0;
+      W : Real renames Y (3); -- Y(3) is ω_t
+   begin
+      -- use Newton's method to solve for E - H = 0
+      W := 1.0;
+      while abs (F) > 1.0e-10 loop
+	 H  := Hamiltonian (0.0, Y);
+	 F := E - Val (H);
+	 G  := Grad (H);
+	 Dw := (E - Val (H)) / G (3); -- G(3) is \partial H / \partial ω_t
+	 W  := W + Dw;
+      end loop;
+      H := Hamiltonian (0.0, Y);
+      F := E - Val (H);
+      return Y;
+   end Get_IC;
+   
+   
+   
    -- Initial Conditions ----
    Var, State : Variable;
    X : Vector renames Var.X;
@@ -70,38 +97,47 @@ procedure Steel_Balls is
    Dt   : Real;
    Name : String := "out.xyz";
    Cname : String := "out.csv";
-   T_Final  : Real := 10.0;
+   Total_Energy, T_Final  : Real;
    Line : String (1 .. 50);
    Last : Natural;
    
 begin
    
+   ------------------------------------------------------------
    -- Read initial conditions
+   T     := 0.0;
+   X (1) := 0.0;
+   
    Get_Line (Line, Last); -- Not used
-   Get_Line (Line, Last); -- T_init
-   T     := Real'Value (Line (1 .. Last));
-   Get_Line (Line, Last); -- t
-   X (1) := Real'Value (Line (1 .. Last));
    Get_Line (Line, Last); -- s
    X (2) := Real'Value (Line (1 .. Last));
-   Get_Line (Line, Last); -- t_dot
-   X (3) := Real'Value (Line (1 .. Last));
-   Get_Line (Line, Last); -- s_dot
+   
+   Get_Line (Line, Last); -- Not used
+   Get_Line (Line, Last); -- ω_s
    X (4) := Real'Value (Line (1 .. Last));
+   
    Get_Line (Line, Last); -- Not used
-   Get_Line (Line, Last); -- T_final
-   T_Final := Real'Value (Line (1 .. Last));
-   Get_Line (Line, Last); -- Not used
-   Get_Line (Line, Last); -- dt
-   Dt := Real'Value (Line (1 .. Last));
+   Get_Line (Line, Last); -- total energy
+   Total_Energy := Real'Value (Line (1 .. Last));
+   
    Get_Line (Line, Last); -- Not used
    Get_Line (Line, Last); -- alpha
    α  := Real'Value (Line (1 .. Last));
+   
+   Get_Line (Line, Last); -- Not used
+   Get_Line (Line, Last); -- dt
+   Dt := Real'Value (Line (1 .. Last));
+   
+   Get_Line (Line, Last); -- Not used
+   Get_Line (Line, Last); -- T_final
+   T_Final := Real'Value (Line (1 .. Last));
+   ------------------------------------------------------------
+   X := Get_IC (X, Total_Energy);
+   Total_Energy := Val (Hamiltonian (0.0, X));
+   Put ("Total Energy = "); Put (Total_Energy); New_Line;
+   ------------------------------------------------------------
    State   := Var;
    ------------------------------------------------------------
-   Put ("Total energy of the system = "); 
-   Put (Hamiltonian (T, X, Lagrangian'Access));
-   New_Line;
    ------------------------------------------------------------
    Print_XYZ (File, Var, Name, Create);
    Print_CSV (Fcsv, Var, CName, Lagrangian'Access, Create);

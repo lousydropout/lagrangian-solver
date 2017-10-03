@@ -11,7 +11,8 @@ Project Main is
 		--  "ad_test",
 		"landscape",
 		"pendulum",
-		"pendulum_dae",
+		--  "pendulum_dae",
+		"henon_heiles",
 		"steel_balls",
 		"lu_test");
 		--  "sparse_test",

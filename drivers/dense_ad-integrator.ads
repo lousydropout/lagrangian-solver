@@ -92,12 +92,13 @@ package Dense_AD.Integrator is
 			   function (T : real; X : Vector) return AD_Type)
 			return Real;
    
+   function Split (Y : in Real_Vector) return Array_Of_Vectors
+     with Pre => Y'First = 1 and Y'Length = Num * K;
+   Grid   : constant Real_Vector := Chebyshev_Gauss_Lobatto (K, 0.0, 1.0);
+   
 private
 
    Collocation_Density : Dense_Or_Sparse := Sparse;
-   
-   function Split (Y : in Real_Vector) return Array_Of_Vectors
-     with Pre => Y'First = 1 and Y'Length = Num * K;
    
    procedure Iterate (Lagrangian : not null access 
 			function (T : real; X : Vector) return AD_Type;
@@ -141,7 +142,6 @@ private
    
    function Setup return Array_Of_Sparse_Matrix;
    
-   Grid   : constant Real_Vector := Chebyshev_Gauss_Lobatto (K, 0.0, 1.0);
    Der    : constant Real_Matrix := Derivative_Matrix (K, 0.0, 1.0);
    NK     : constant Nat := Num * K;
    

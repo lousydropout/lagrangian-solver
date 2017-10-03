@@ -33,12 +33,10 @@ package Dense_AD is
    function "*" (X, Y : in AD_Type) return AD_Type;
    function "/" (X, Y : in AD_Type) return AD_Type;
    function "**" (X : in AD_Type; K : in Integer) return AD_Type;
-   
-   function Sin (X : in AD_Type) return AD_Type;
-   function Cos (X : in AD_Type) return AD_Type;
-   function Tan (X : in AD_Type) return AD_Type;
-   function Exp (X : in AD_Type) return AD_Type;
-   function Log (X : in AD_Type) return AD_Type; 
+   function "**" (X : in AD_Type; K : in Real) return AD_Type;
+   function Sqrt (X : in AD_Type) return AD_Type is (X ** 0.5);
+   function Square (X : in AD_Type) return AD_Type is (X ** 2);
+   function Cube (X : in AD_Type) return AD_Type is (X ** 3);
    
    function "+" (X : in AD_Type) return AD_Type is (X) with Inline => True;
    function "-" (X : in AD_Type) return AD_Type;
@@ -55,6 +53,22 @@ package Dense_AD is
    function "/" (X : in Real; Y : in AD_Type) return AD_Type is (X * (Y ** (-1)));
    function "/" (X : in AD_Type; Y : in Real) return AD_Type is ((1.0 / Y) * X)
      with Pre => Y /= 0.0;
+    
+   function Sin (X : in AD_Type) return AD_Type;
+   function Cos (X : in AD_Type) return AD_Type;
+   function Tan (X : in AD_Type) return AD_Type;
+   function Sec (X : in AD_Type) return AD_Type is (1.0 / Sin (X));
+   function Csc (X : in AD_Type) return AD_Type is (1.0 / Cos (X));
+   function Cot (X : in AD_Type) return AD_Type is (1.0 / Tan (X));
+   
+   function Exp  (X : in AD_Type) return AD_Type;
+   function Log  (X : in AD_Type) return AD_Type; 
+   function Sinh (X : in AD_Type) return AD_Type;
+   function Cosh (X : in AD_Type) return AD_Type;
+   function Tanh (X : in AD_Type) return AD_Type;
+   function Sech (X : in AD_Type) return AD_Type is (1.0 / Sinh (X));
+   function Csch (X : in AD_Type) return AD_Type is (1.0 / Cosh (X));
+   function Coth (X : in AD_Type) return AD_Type is (1.0 / Tanh (X));
    
    function Sign (X : in AD_Type) return Real;
    
