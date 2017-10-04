@@ -4,7 +4,7 @@ use  Numerics, Ada.Text_IO, Chebyshev;
 procedure Henon_Heiles is
    use Int_IO, Real_IO, Real_Functions;
    N : constant Nat  := 2;
-   K : constant Nat  := 5;
+   K : constant Nat  := 13;
    package AD_Package is new Dense_AD (2 * N); 
    package Integrator is new AD_Package.Integrator (K);
    use AD_Package, Integrator;
@@ -64,39 +64,57 @@ procedure Henon_Heiles is
    -------------------------------
    
    Y    : Real_Vector (1 .. 2 * N * K);
-   A    : Array_Of_Vectors;
-   Dt   : constant Real := 1.0e-3;
-   Cname : String := "out.csv";
+   A, Q : Array_Of_Vectors;
    Fcsv : File_Type;
-   H0 : constant Real := 1.0 / 12.0;
+   H0 : constant Real := 1.0 / 8.0;
    T_Final : constant Real := 1_000.0;
-   Old : Real;
+   Lower, Upper : Real;
    AD : AD_Type;
+
 begin
    X     := Get_IC (X, H0);
    AD    := Hamiltonian (0.0, X);
    State := Var;
    
    Put (Val (AD)); New_Line;
-   Create (Fcsv, Name => Cname);
+   Create (Fcsv, Name => "out.csv");
    Put_Line (Fcsv, "t, q1, q2, q_dot1, q_dot2, p1, p2, E");
    Print_Lagrangian (Fcsv, Var, Lagrangian'Access);
-
-   Old := 0.0;
+   
+   Put (Var.T); New_Line;
    while T < T_Final loop
-      Put (Var.T); New_Line;
       Y := Update (Lagrangian'Access, Var, Control, Sparse);
-      ----------------------------------------------------------------------  
       A := Chebyshev_Transform (Y);
-      while State.T <= T + Control.Dt loop
-      	 State.T := State.T + Dt;
-      	 State.X := Interpolate (A, State.T, Var.T, Var.T + Control.Dt);
-      	 if Old * State.X (1) < 0.0 and State.X (3) > 0.0 then
-      	    Print_Lagrangian (Fcsv, State, Lagrangian'Access);
+      ----------------------------------------------------------------------  
+      Q := Split (Y);
+      for I in 2 .. K loop
+	 Lower := Var.T + Control.Dt * Grid (I - 1);
+	 Upper := Var.T + Control.Dt * Grid (I);
+	 -----------------------------------------------------
+      	 if Q (1) (I - 1) * Q (1) (I) < 0.0 then -- If there's a zero, bisect
+	    Guess.T := 0.5 * (Lower + Upper);
+	    Guess.X := Interpolate (A, Guess.T, Var.T, Var.T + Control.Dt);
+	    while abs (Guess.X (1)) > 1.0e-10 loop
+	       if Q (1) (I) > 0.0 then
+      		  if Guess.X (1) >= 0.0 then Upper := Guess.T;
+      		  else Lower := Guess.T;
+      		  end if;
+	       else
+      		  if Guess.X (1) >= 0.0 then Lower := Guess.T;
+      		  else Upper := Guess.T;
+      		  end if;
+	       end if;
+	       Guess.T := 0.5 * (Lower + Upper);
+	       Guess.X := Interpolate (A, Guess.T, Var.T, Var.T + Control.Dt);
+	    end loop;
+	    if Guess.X (3) > 0.0 then
+	       Print_Lagrangian (Fcsv, Guess, Lagrangian'Access);
+	    end if;
       	 end if;
-	 Old := State.X (1);
+	 -----------------------------------------------------
       end loop;
       ----------------------------------------------------------------------  
+      Put (Var.T); New_Line;
       Update (Var => Var, Y => Y, Dt => Control.Dt); -- Update variable Var
    end loop;
    Close (Fcsv);
