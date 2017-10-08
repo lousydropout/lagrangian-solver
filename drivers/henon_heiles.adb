@@ -88,12 +88,12 @@ begin
       ----------------------------------------------------------------------  
       Q := Split (Y);
       for I in 2 .. K loop
-	 Lower := Var.T + Control.Dt * Grid (I - 1);
-	 Upper := Var.T + Control.Dt * Grid (I);
-	 -----------------------------------------------------
       	 if Q (1) (I - 1) * Q (1) (I) < 0.0 then -- If there's a zero, bisect
+	    Lower   := Var.T + Control.Dt * Grid (I - 1);
+	    Upper   := Var.T + Control.Dt * Grid (I);
 	    Guess.T := 0.5 * (Lower + Upper);
 	    Guess.X := Interpolate (A, Guess.T, Var.T, Var.T + Control.Dt);
+	    -------------------------------------------------------------
 	    while abs (Guess.X (1)) > 1.0e-10 loop
 	       if Q (1) (I) > 0.0 then
       		  if Guess.X (1) >= 0.0 then Upper := Guess.T;
@@ -107,11 +107,11 @@ begin
 	       Guess.T := 0.5 * (Lower + Upper);
 	       Guess.X := Interpolate (A, Guess.T, Var.T, Var.T + Control.Dt);
 	    end loop;
+	    ----------------------------------------------------------------
 	    if Guess.X (3) > 0.0 then
 	       Print_Lagrangian (Fcsv, Guess, Lagrangian'Access);
 	    end if;
       	 end if;
-	 -----------------------------------------------------
       end loop;
       ----------------------------------------------------------------------  
       Put (Var.T); New_Line;
