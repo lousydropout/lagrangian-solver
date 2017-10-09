@@ -75,7 +75,17 @@ package body Numerics is
       end loop;
       return Sqrt (Y);
    end Norm;
-
+   
+   function Max_Norm (X : in Real_Vector) return Real is
+      Y : Real := 0.0;
+      use Real_Functions;
+   begin
+      for Item of X loop
+	 Y := Real'Max (Y, Item);
+      end loop;
+      return Y;
+   end Max_Norm;
+      
    
    function To_Array (Item : in RVector) return Real_Vector is
       Result : Real_Vector (1 .. Pos (Item.Length));

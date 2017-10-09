@@ -121,6 +121,7 @@ package Numerics is
    function Norm (X : in Sparse_Vector) return Real;
    function Length (X : in Sparse_Vector) return Pos;
    function Norm (X : in Real_Vector) return Real;
+   function Max_Norm (X : in Real_Vector) return Real;
    
    -------- Max and Abs_Max functions ------------------
    function Max_Int_Array (Item : in Int_Array) return Integer;

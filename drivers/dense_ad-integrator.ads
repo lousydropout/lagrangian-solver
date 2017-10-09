@@ -22,6 +22,7 @@ package Dense_AD.Integrator is
       Tol     : Real := 1.0e-10;
       Err     : Real := 1.0;
       Started : Boolean := False;
+      Max_Dt  : Real := 1.0;
    end record;
    
    type Array_Of_Vectors is array (1 .. Num) of Real_Vector (1 .. K);

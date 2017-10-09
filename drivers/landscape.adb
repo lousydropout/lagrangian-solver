@@ -3,11 +3,11 @@ use  Numerics, Ada.Text_IO;
 
 procedure Landscape is
    use Real_IO, Int_IO, Real_Functions;
-   α : Real := 1.0e2;
+   α : Real := 1.0e-2;
    
    function Phi (R : in Real) return Real is
    begin
-      return 0.5 * (1.0 + Tanh (7.0 * (R - 0.8)));
+      return 0.5 * (1.0 + Tanh (30.0 * (R - 0.9)));
    end Phi;
    
    function PE (Q : in Real_Vector) return Real is
@@ -21,18 +21,19 @@ procedure Landscape is
       Ctp2s : constant Real := Cos (T       + 2.0 * S);
       Vo, Vi, Tmp, Ro : Real;
    begin
-      Ro := 0.7;
+      Ro := 0.8;
+      if R < Ro then return 1.0e2; end if;
       Tmp := 1.0 / R;
       PE_G := Ct + 2.0 * C2tps;
-      --  Vi := 1.0 / (R - Ro) ** 2;
-      Vi := 0.7 * Exp (-0.5 * (R - Ro)) / (R - Ro);
+      Vi := 0.1 * Exp (-10.0 * (R - Ro)) / (R - Ro) ** 2;
       Vo := (Tmp ** 3) * Cos (2.0 * (T + S))
 	- 3.0 * (Tmp ** 5) * ((Ct + C2tps) * (Cs + Ctp2s));
       PE_M := Cos (2.0 * T) - 3.0 * Ct ** 2
-	+  Cos (2.0 * S) - 3.0 * Cs ** 2 + Vo * Phi (R) + Vi * (1.0 - Phi (R));
+	+  Cos (2.0 * S) - 3.0 * Cs ** 2 
+	+ Vo * Phi (R) + Vi * (1.0 - Phi (R));
       return ((α / 6.0) * PE_M + PE_G);
    end PE;
-   R : constant Real := π * 0.73; -- * 2.0 / 3.0;
+   R : constant Real := π * 0.75;
    
    function PE2 (Q : in Real_Vector) return Real is
       PE_G, PE_M : Real;
@@ -43,15 +44,70 @@ procedure Landscape is
       Ct    : constant Real := Cos (T);
       C2tps : constant Real := Cos (2.0 * T +       S);
       Ctp2s : constant Real := Cos (T       + 2.0 * S);
-      Vo, Tmp : Real;
+      Vo : Real;
    begin
-      Tmp := 1.0 / R;
       PE_G := Ct + 2.0 * C2tps;
-      Vo := (Tmp ** 3) * Cos (2.0 * (T + S))
-	- 3.0 * (Tmp ** 5) * ((Ct + C2tps) * (Cs + Ctp2s));
+      Vo := (Cos (2.0 * (T + S)) * R ** 2 - 3.0 * ((Ct + C2tps) * (Cs + Ctp2s)))
+	/ R ** 5;
       PE_M := Cos (2.0 * T) - 3.0 * Ct ** 2 + Cos (2.0 * S) - 3.0 * Cs ** 2 + Vo;
       return ((α / 6.0) * PE_M + PE_G);
    end PE2;
+   
+   function PE3 (Q : in Real_Vector) return Real is
+      PE_G, PE_M : Real := 0.0;
+      T     : Real renames Q (1);
+      S     : Real renames Q (2);
+      Cs    : constant Real := Cos (S);
+      Ct    : constant Real := Cos (T);
+      C2tps : constant Real := Cos (2.0 * T +       S);
+      Ctp2s : constant Real := Cos (T       + 2.0 * S);
+      X, N : array (1 .. 3) of Real_Vector (1 .. 2);
+      DX : Real_Vector (1 .. 2);
+      Vo, R, Tmp : Real;
+   begin
+      N (1) := (0.0, 1.0);
+      N (2) := (-Sin (2.0 * T), Cos (2.0 * T));
+      N (3) := (-Sin (2.0 * (T + S)), Cos (2.0 * (T + S)));
+
+      X (1) := (0.0, 0.0);
+      X (2) := (-Sin (T), Cos (T));
+      X (3) := (-Sin (T) - Sin (2.0 * T + S), 
+		 Cos (T) + Cos (2.0 * T + S));
+      
+      R := 2.0 * abs (Cos (0.5 * (T + S)));
+      Vo := Cos (2.0 * (T + S)) / R ** 3 
+	- 3.0 * ((Ct + C2tps) * (Cs + Ctp2s)) / R ** 5;
+      
+      pragma Assert (abs (Norm (X (1) - X (2)) - 1.0) < 1.0e-15);
+      pragma Assert (abs (Norm (X (3) - X (2)) - 1.0) < 1.0e-15);
+      pragma Assert (abs (Norm (X (3) - X (1)) - R) < 1.0e-15);
+      
+      
+      for I in 1 .. 3 loop
+	 for J in I + 1 .. 3 loop
+	    DX  := X (I) - X (J);
+	    R   := Sqrt (Dot (DX, DX));
+	    
+	    Tmp := Dot (N (I), N (J)) * R ** 2 
+	      - 3.0 * Dot (N (I), DX) * Dot (N (J), DX);
+	    if I = 1 and J = 2 then
+	       pragma Assert (abs (Tmp - (Cos (2.0 * T) - 3.0 * Ct ** 2))
+				< 1.0e-15);
+	    end if;
+	    if I = 2 and J = 3 then
+	       pragma Assert (abs (Tmp - (Cos (2.0 * S) - 3.0 * Cs ** 2)) 
+				< 1.0e-15);
+	    end if;
+	    if I = 1 and J = 3 then
+	       pragma Assert (abs (Tmp / R ** 5 - Vo) < 1.0e-15);
+	    end if;
+	    PE_M := PE_M + Tmp / R ** 5;
+	 end loop;
+      end loop;
+      PE_G := Ct + 2.0 * C2tps;
+      
+      return ((α / 6.0) * PE_M + PE_G);
+   end PE3;
    
    
    function Coordinate_Transform (X : in Real_Vector) return Real_Vector is
@@ -63,7 +119,7 @@ procedure Landscape is
    end Coordinate_Transform;
    
    
-   N : constant Nat := 200;
+   N  : constant Nat := 200;
    Dx : constant Real := 2.0 / Real (N);
    X, Y : Real_Vector (1 .. 2);
    Num : Pos;
@@ -131,12 +187,13 @@ begin
       for J in 1 .. N loop
    	 X (2) := -1.0 + (Real (J) - 0.5) * Dx;
    	 Y := R * Coordinate_Transform (X);
-   	 Tmp := abs (PE (Y) - PE2 (Y));
+   	 Tmp := abs ((PE (Y) - PE2 (Y)) / PE2 (Y));
    	 if 2.0 * abs (Cos (0.5 * (Y (1) + Y (2)))) < 1.0 then
    	    Put (File, 0.0); New_Line (File);
    	 else
    	    Put (File, Tmp); New_Line (File);
    	 end if;
+	 --  Put (File, PE2 (Y) - PE3 (Y)); New_Line (File);
       end loop;
    end loop;
    New_Line (File);
@@ -156,15 +213,5 @@ begin
    --  end loop;
    
    Close (File);
-   
-   
-   --  Put_Line ("r, min_pe, max_pe");
-   --  for I in 0 .. N - 1 loop
-   --     R := Real (I) / Real (N - 1) * 0.999 * π;
-   --     Max_Min (R, N, Max, Min);
-   --     Put (R); Put (", ");
-   --     Put (Min); Put (", ");
-   --     Put (Max); New_Line;
-   --  end loop;
    
 end Landscape;
