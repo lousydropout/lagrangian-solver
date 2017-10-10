@@ -55,7 +55,43 @@ procedure Henon_Heiles is
       return Y;
    end Get_IC;
    
+   function Func (X : in Vector) return Real is
+   begin
+      return X (1);
+   end Func;
    
+   function Sgn (X : in Real) return Real is
+   begin
+      if X >= 0.0 then return 1.0;
+      else return -1.0;
+      end if;
+   end Sgn;
+   
+   function Find_State_At_Level (Level : in Real;
+				 A : in Array_Of_Vectors;
+				 T  : in Real;
+				 Dt : in Real;
+				 Lower : in out Real;
+				 Upper : in out Real;
+				 Func : not null access function (X : Vector)
+				   return Real) return Variable is
+      Guess : Variable;
+      Est   : Real;
+      Sign  : constant Real := Sgn (Func (Interpolate (A, Upper, T, T + Dt)) -
+				      Func (Interpolate (A, Lower, T, T + Dt)));
+   begin
+      Guess.T := 0.5 * (Lower + Upper);
+      Guess.X := Interpolate (A, Guess.T, T, T + Dt);
+      Est     := Func (Guess.X);
+      while abs (Est - Level) > 1.0e-10 loop
+	 if Est * sign > 0.0 then Upper := Guess.T;
+	 else Lower := Guess.T; end if;
+	 Guess.T := 0.5 * (Lower + Upper);
+	 Guess.X := Interpolate (A, Guess.T, T, T + Dt);
+	 Est     := Func (Guess.X);
+      end loop;
+      return Guess;
+   end Find_State_At_Level;
    
    -- Initial Conditions ----
    Var, State, Guess : Variable := (0.0, (0.0, -0.1, 1.0, 0.0));
@@ -66,12 +102,13 @@ procedure Henon_Heiles is
    Y    : Real_Vector (1 .. 2 * N * K);
    A, Q : Array_Of_Vectors;
    Fcsv : File_Type;
-   H0 : constant Real := 1.0 / 8.0;
+   H0 : constant Real := 1.0 / 12.0;
    T_Final : constant Real := 1_000.0;
    Lower, Upper : Real;
    AD : AD_Type;
 
 begin
+   Control.Max_Dt := 100.0;
    X     := Get_IC (X, H0);
    AD    := Hamiltonian (0.0, X);
    State := Var;
@@ -91,22 +128,8 @@ begin
       	 if Q (1) (I - 1) * Q (1) (I) < 0.0 then -- If there's a zero, bisect
 	    Lower   := Var.T + Control.Dt * Grid (I - 1);
 	    Upper   := Var.T + Control.Dt * Grid (I);
-	    Guess.T := 0.5 * (Lower + Upper);
-	    Guess.X := Interpolate (A, Guess.T, Var.T, Var.T + Control.Dt);
-	    -------------------------------------------------------------
-	    while abs (Guess.X (1)) > 1.0e-10 loop
-	       if Q (1) (I) > 0.0 then
-      		  if Guess.X (1) >= 0.0 then Upper := Guess.T;
-      		  else Lower := Guess.T;
-      		  end if;
-	       else
-      		  if Guess.X (1) >= 0.0 then Lower := Guess.T;
-      		  else Upper := Guess.T;
-      		  end if;
-	       end if;
-	       Guess.T := 0.5 * (Lower + Upper);
-	       Guess.X := Interpolate (A, Guess.T, Var.T, Var.T + Control.Dt);
-	    end loop;
+	    Guess   := Find_State_At_Level
+	      (0.0, A, Var.T, Control.Dt, Lower, Upper, Func'Access);
 	    ----------------------------------------------------------------
 	    if Guess.X (3) > 0.0 then
 	       Print_Lagrangian (Fcsv, Guess, Lagrangian'Access);
