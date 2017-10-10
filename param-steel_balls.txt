@@ -5,8 +5,8 @@ s:
 total energy:
 3.0
 alpha:
-10.0
+100.0
 dt:
-5.0e-3
+1.0e-2
 T_final:
-30.0
+31.0

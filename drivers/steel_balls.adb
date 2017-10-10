@@ -5,7 +5,7 @@ procedure Steel_Balls is
    use Int_IO, Real_IO, Real_Functions;
    -----------------------------------------------
    N   : constant Nat  := 2;
-   K   : constant Nat  := 8;
+   K   : constant Nat  := 11;
    α   : Real;
    -----------------------------------------------
    package E_Solver   is new Dense_AD (1); 
@@ -93,7 +93,63 @@ procedure Steel_Balls is
       return Y;
    end Get_IC;
    
+   function R13 (X : in Vector) return Real_Vector is
+      use Real_Functions;
+      T   : Real renames X (1);
+      S   : Real renames X (2);
+      R13 : Real_Vector (1 .. 2);
+   begin
+      R13 (1) := -Sin (T) - Sin (2.0 * T + S);
+      R13 (2) :=  Cos (T) + Cos (2.0 * T + S);
+      return R13;
+   end R13;
    
+   function R13 (X : in Vector) return Real is
+      V : Real_Vector := R13 (X);
+   begin
+      return Norm (R13 (X));
+   end R13;
+   
+   function V13 (X : in Vector) return Real_Vector is
+      use Real_Functions;
+      T   : Real renames X (1);
+      S   : Real renames X (2);
+      Ω_t : Real renames X (3);
+      Ω_s : Real renames X (4);
+      Ct  : constant Real := Cos (T);
+      St  : constant Real := Sin (T);
+      C2tps : constant Real := Cos (2.0 * T + S);
+      S2tps : constant Real := Sin (2.0 * T + S);
+      V13 : Real_Vector (1 .. 2);
+   begin
+      V13 (1) := -(Ct + 2.0 * C2tps) * Ω_T - C2tps * Ω_S;
+      V13 (2) := -(St + 2.0 * S2tps) * Ω_T - S2tps * Ω_S;
+      return V13;
+   end V13;
+   
+   function V13_New (X : in Vector) return Real_Vector is
+      N : Real_Vector := R13 (X);
+      V : Real_Vector := V13 (X);
+   begin
+      N := (1.0 / Norm (N)) * N;
+      return V - (2.0 * Dot (V, N)) * N;
+   end V13_New;
+   
+   function New_Vel (X : in Vector) return Real_Vector is
+      T     : Real renames X (1);
+      S     : Real renames X (2);
+      Ct    : constant Real := Cos (T);
+      St    : constant Real := Sin (T);
+      Stps  : constant Real := Sin (T + S);
+      C2tps : constant Real := Cos (2.0 * T + S);
+      S2tps : constant Real := Sin (2.0 * T + S);
+      Vel   : Real_Vector := V13_New (X);
+      Nvel  : Real_Vector (1 .. 2);
+   begin
+      Nvel (1) := S2tps * Vel (1) - C2tps * Vel (2);
+      Nvel (2) := -(St + S2tps) * Vel (1) + (Ct + C2tps) * Vel (2);
+      return (1.0 / Stps) * Nvel;
+   end New_Vel;
    
    -- Initial Conditions ----
    Var, State : Variable;
@@ -159,7 +215,7 @@ begin
       Put (Var.T); New_Line;
       
       A := Chebyshev_Transform (Y);
-      while State.T <= T + Control.Dt loop
+      while State.T + Dt <= T + Control.Dt loop
       	 State.T := State.T + Dt;
 	 State.X := Interpolate (A, State.T, Var.T, Var.T + Control.Dt);
 	 Print_XYZ (File, State, Name);
