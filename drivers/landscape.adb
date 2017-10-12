@@ -7,7 +7,7 @@ procedure Landscape is
    
    function Phi (R : in Real) return Real is
    begin
-      return 0.5 * (1.0 + Tanh (30.0 * (R - 0.9)));
+      return 0.5 * (1.0 + Tanh (50.0 * (R - 0.5)));
    end Phi;
    
    function PE (Q : in Real_Vector) return Real is
@@ -21,11 +21,11 @@ procedure Landscape is
       Ctp2s : constant Real := Cos (T       + 2.0 * S);
       Vo, Vi, Tmp, Ro : Real;
    begin
-      Ro := 0.8;
-      if R < Ro then return 1.0e2; end if;
+      Ro := 0.9;
+      --  if R < Ro then return 1.0e2; end if;
       Tmp := 1.0 / R;
       PE_G := Ct + 2.0 * C2tps;
-      Vi := 0.1 * Exp (-10.0 * (R - Ro)) / (R - Ro) ** 2;
+      Vi := 0.01 * Exp (-12.0 * (R - Ro)) / (R - Ro) ** 2;
       Vo := (Tmp ** 3) * Cos (2.0 * (T + S))
 	- 3.0 * (Tmp ** 5) * ((Ct + C2tps) * (Cs + Ctp2s));
       PE_M := Cos (2.0 * T) - 3.0 * Ct ** 2
@@ -33,7 +33,7 @@ procedure Landscape is
 	+ Vo * Phi (R) + Vi * (1.0 - Phi (R));
       return ((α / 6.0) * PE_M + PE_G);
    end PE;
-   R : constant Real := π * 0.75;
+   R : constant Real := π * 0.7;
    
    function PE2 (Q : in Real_Vector) return Real is
       PE_G, PE_M : Real;
@@ -187,9 +187,9 @@ begin
       for J in 1 .. N loop
    	 X (2) := -1.0 + (Real (J) - 0.5) * Dx;
    	 Y := R * Coordinate_Transform (X);
-   	 Tmp := abs ((PE (Y) - PE2 (Y)) / PE2 (Y));
+   	 Tmp := abs ((PE (Y) - PE2 (Y))); -- / PE2 (Y));
    	 if 2.0 * abs (Cos (0.5 * (Y (1) + Y (2)))) < 1.0 then
-   	    Put (File, 0.0); New_Line (File);
+   	    Put (File, -1.0e-6); New_Line (File);
    	 else
    	    Put (File, Tmp); New_Line (File);
    	 end if;

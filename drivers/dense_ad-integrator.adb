@@ -116,10 +116,7 @@ package body Dense_AD.Integrator is
       Control.Err := 1.0;
       Control.Dt  := Control.Dtn; 
       -- Set initial guess for Y -----------------------------------------
-      Y (1 .. Num) := Var.X;
-      for I in 2 .. K loop 
-	 Y ((I - 1) * Num + 1 .. I * Num) := Var.X * Rand;
-      end loop;
+      for I in 1 .. K loop Y ((I - 1) * Num + 1 .. I * Num) := Var.X; end loop;
       ---------------------------------------------------------------------
       while Control.Err > Control.Tol loop
 	 Iterate (Lagrangian, Y, Var, Control);
@@ -213,10 +210,7 @@ package body Dense_AD.Integrator is
       Var2.T := Var.T + C2.Dt;
       -------------------------------------------------------
       -- Set intial guess for Y2
-      Y2 (1 .. Num) := Var2.X;
-      for I in 2 .. K loop 
-	 Y2 ((I - 1) * Num + 1 .. I * Num) := Var2.X * Rand;
-      end loop;
+      for I in 1 .. K loop Y2 ((I - 1) * Num + 1 .. I * Num) := Var2.X; end loop;
       -------------------------------------------------------
       -- Update Y2
       Colloc (Lagrangian, Y2, Var2, C2);

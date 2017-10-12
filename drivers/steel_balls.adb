@@ -17,7 +17,7 @@ procedure Steel_Balls is
    -----------------------------------------------
    function Phi (R : in AD_Type) return AD_Type is
    begin
-      return 0.5 * (1.0 + Tanh (30.0 * (R - 0.9)));
+      return 0.5 * (1.0 + Tanh (50.0 * (R - 0.5)));
    end Phi;
    -----------------------------------------------
    function KE (Q : in AD_Vector) return AD_Type is
@@ -43,11 +43,11 @@ procedure Steel_Balls is
       TpS   : constant Real := Val (T) + Val (S);
       Vo, Vi, Ro, Tmp : AD_Type;
    begin
-      Ro := Const (0.8);
+      Ro := Const (0.9);
       if Val (R) < Val (Ro) then return Const (1.0e2); end if;
       Tmp  := 1.0 / R;
       PE_G := Ct + 2.0 * C2tps;
-      Vi := 0.2 * Exp (-10.0 * (R - Ro)) / (R - Ro) ** 2;
+      Vi := 0.01 * Exp (-12.0 * (R - Ro)) / (R - Ro) ** 2;
       Vo := (Tmp ** 3) * Cos (2.0 * (T + S))
 	- 3.0 * (Tmp ** 5) * ((Ct + C2tps) * (Cs + Ctp2s));
       PE_M := Cos (2.0 * T) - 3.0 * Ct ** 2
@@ -135,7 +135,7 @@ procedure Steel_Balls is
       return V - (2.0 * Dot (V, N)) * N;
    end V13_New;
    
-   function New_Vel (X : in Vector) return Real_Vector is
+   function New_Vel (X : in Vector) return Vector is
       T     : Real renames X (1);
       S     : Real renames X (2);
       Ct    : constant Real := Cos (T);
@@ -148,11 +148,55 @@ procedure Steel_Balls is
    begin
       Nvel (1) := S2tps * Vel (1) - C2tps * Vel (2);
       Nvel (2) := -(St + S2tps) * Vel (1) + (Ct + C2tps) * Vel (2);
-      return (1.0 / Stps) * Nvel;
+      Nvel     := (-1.0 / Stps) * Nvel;
+      return (X (1), X (2), Nvel (1), Nvel (2));
    end New_Vel;
    
+   function Func (X : in Vector) return Real is
+   begin
+      return X (1);
+   end Func;
+   
+   function Sgn (X : in Real) return Real is
+   begin
+      if X >= 0.0 then return 1.0;
+      else return -1.0;
+      end if;
+   end Sgn;
+      
+   function Find_State_At_Level (Level : in Real;
+				 A : in Array_Of_Vectors;
+				 T  : in Real;
+				 Dt : in Real;
+				 Lower : in out Real;
+				 Upper : in out Real;
+				 Func : not null access function (X : Vector)
+				   return Real) return Variable is
+      Guess : Variable;
+      Est   : Real;
+      Rh    : constant Real := Func (Interpolate (A, Upper, T, T + Dt));
+      Rl    : constant Real := Func (Interpolate (A, Lower, T, T + Dt));
+      Sign  : constant Real := Sgn (Rh - Rl);
+      Iter : Nat := 1;
+   begin
+      pragma Assert ((Rh - 1.0) * (Rl - 1.0) < 0.0);
+      Guess.T := 0.5 * (Lower + Upper);
+      Guess.X := Interpolate (A, Guess.T, T, T + Dt);
+      Est     := Func (Guess.X);
+      while abs (Est - Level - 1.1e-10) > 1.0e-10 loop
+	 if (Est - Level - 1.1e-10) * sign > 0.0 then Upper := Guess.T;
+	 else Lower := Guess.T; end if;
+	 Guess.T := 0.5 * (Lower + Upper);
+	 Guess.X := Interpolate (A, Guess.T, T, T + Dt);
+	 Est     := Func (Guess.X);
+	 Put (Iter); New_Line;
+	 Iter := Iter + 1;
+      end loop;
+      return Guess;
+   end Find_State_At_Level;
+
    -- Initial Conditions ----
-   Var, State : Variable;
+   Guess, Var, State : Variable;
    X : Vector renames Var.X;
    T : Real renames Var.T;
    -------------------------------
@@ -167,6 +211,8 @@ procedure Steel_Balls is
    Total_Energy, T_Final  : Real;
    Line : String (1 .. 50);
    Last : Natural;
+   Okay : Boolean;
+   --  Upper, Lower : Real;
    
 begin
    Control.Max_Dt := 1.0e2;
@@ -214,15 +260,38 @@ begin
       Y := Update (Lagrangian'Access, Var, Control, Sparse);
       Put (Var.T); New_Line;
       
+      Okay := True;
       A := Chebyshev_Transform (Y);
-      while State.T + Dt <= T + Control.Dt loop
+      while State.T + Dt <= T + Control.Dt and Okay loop
       	 State.T := State.T + Dt;
 	 State.X := Interpolate (A, State.T, Var.T, Var.T + Control.Dt);
+	 ---------------------------------------------------------
+	 if R13 (State.X) < 1.0 then
+	    Put ("*****   ");
+	    Put (State.T);
+	    Put_Line ("*****   collision");
+	 --     Lower   := Real'Max (Var.T, State.T - Dt);
+	 --     Upper   := State.T;
+	 --     Guess   := Find_State_At_Level (1.0, A, Var.T, Control.Dt, 
+	 --  				    Lower, Upper, R13'Access);
+	 --     Print_CSV (Fcsv, Guess, CName, Lagrangian'Access);
+	 --     Var.X   := New_Vel (Guess.X);
+	 --     Var.T   := Guess.T;
+	 --     Print_CSV (Fcsv, Var, CName, Lagrangian'Access);
+	 --     State.T := Var.T; -- State.T - Dt;
+	 --     State.X := Var.X;
+	 --     if R13 (State.X) < 1.0 then Put_Line ("less than 1");
+	 --     else Put_Line ("Okay");
+	 --     end if;
+	 --     Okay    := False;
+	 end if;
+	 ---------------------------------------------------------
 	 Print_XYZ (File, State, Name);
 	 Print_CSV (Fcsv, State, CName, Lagrangian'Access);
+	 
       end loop;
-      
-      Update (Var => Var, Y => Y, Dt => Control.Dt); -- Update variable Var
+      -- Update variable Var
+      if Okay then Update (Var => Var, Y => Y, Dt => Control.Dt); end if;
    end loop;
 
 end Steel_Balls;
