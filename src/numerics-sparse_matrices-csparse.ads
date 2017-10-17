@@ -19,8 +19,8 @@ package Numerics.Sparse_Matrices.CSparse is
    
    function Solve (A   : in Sparse_Matrix;
 		   B   : in Sparse_Vector;
-		   Tol : in Real	  := 1.0e-20) return Sparse_Vector is
-      (Solve (LU => LU_Decomposition (A, Tol), B => B, Tol => Tol));
+		   Tol : in Real	  := 1.0e-20) return Sparse_Vector;
+
    procedure Free (LU : in out LU_Type);
    
 private

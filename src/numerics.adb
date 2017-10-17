@@ -1,5 +1,21 @@
 package body Numerics is
    
+   function modulus (X, Y : in Real) return Real is
+      Result : Real := X;
+   begin
+      if Result >= 0.0 then
+	 while Result - Y >= 0.0 loop
+	    Result := Result - Y;
+	 end loop;
+      else
+	 while Result < 0.0 loop
+	    Result := Result + Y;
+	 end loop;
+      end if;
+      return Result;
+   end modulus;
+
+   
    function Rand return Real is 
       use Ada.Numerics.Float_Random;
    begin

@@ -18,6 +18,8 @@ package Numerics is
    
    type Pos2D_Vector is array (Nat range <>) of Pos2D;
    
+   function modulus (X, Y : in Real) return Real with Pre => Y > 0.0;
+   
    -------- Define array types -----------------------------------
    type Real_Vector is array (Nat range <>) of Real;
    type Real_Matrix is array (Nat range <>, Nat range <>) of Real;
