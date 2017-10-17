@@ -30,15 +30,6 @@ package body Numerics is
    end Rand;
    
    
-   --  function Solve (A : in Real_Matrix;
-   --  		   B : in Real_Vector) return Real_Vector is
-   --     C : RA.Real_Vector := RA.Real_Vector (B);
-   --  begin
-   --     C := RA.Solve (A, C);
-   --     return Real_Vector (C);
-   --  end Solve;
-   
-   
    -- Vectorize & To_Array are needed in Triplet_To_Matrix
    procedure Set (X  : in out RVector;
 		  To : in     Real_Vector) is
@@ -313,7 +304,7 @@ package body Numerics is
    function Length (X : in Sparse_Vector) return Pos is (X.NMax);
 
    
-   function To_Array (X	  : in Sparse_Vector) return Real_Vector is
+   function To_Array (X : in Sparse_Vector) return Real_Vector is
       Y : Real_Vector (1 .. X.NMax);
    begin
       if Pos (X.X.Length) = X.NMax then

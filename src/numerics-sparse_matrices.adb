@@ -201,6 +201,11 @@ package body Numerics.Sparse_Matrices is
       X_Vec.Reserve_Capacity (N_Lines);
       
       Triplet_To_Matrix (Result, I_Vec, J_Vec, X_Vec);
+      
+      IV_Package.Clear (I_Vec); IV_Package.Reserve_Capacity (I_Vec, 0);
+      IV_Package.Clear (J_Vec); IV_Package.Reserve_Capacity (J_Vec, 0);
+      RV_Package.Clear (X_Vec); RV_Package.Reserve_Capacity (X_Vec, 0);
+      
       return Result;
    end Read_Sparse_Triplet;
    

@@ -58,5 +58,6 @@ double *solve_cs(long n, cs_dls *S, cs_dln *N, double *b, int err)
     {
       printf ("\n\nError in Solve_CS\n\n");
     }
+  cs_free (y); // free workspace
   return x;
 }
