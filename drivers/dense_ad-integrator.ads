@@ -96,6 +96,7 @@ package Dense_AD.Integrator is
    function Split (Y : in Real_Vector) return Array_Of_Vectors
      with Pre => Y'First = 1 and Y'Length = Num * K;
    Grid   : constant Real_Vector := Chebyshev_Gauss_Lobatto (K, 0.0, 1.0);
+   NK     : constant Nat := Num * K;
    
 private
 
@@ -144,7 +145,6 @@ private
    function Setup return Array_Of_Sparse_Matrix;
    
    Der    : constant Real_Matrix := Derivative_Matrix (K, 0.0, 1.0);
-   NK     : constant Nat := Num * K;
    
    EyeN         : constant Sparse_Matrix := Eye (N);
    EyeK         : constant Sparse_Matrix := Eye (K);

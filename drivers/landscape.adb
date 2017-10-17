@@ -119,7 +119,8 @@ procedure Landscape is
    end Coordinate_Transform;
    
    
-   N  : constant Nat := 200;
+   
+   N  : constant Nat := 20;
    Dx : constant Real := 2.0 / Real (N);
    X, Y : Real_Vector (1 .. 2);
    Num : Pos;
@@ -198,6 +199,12 @@ begin
    end loop;
    New_Line (File);
    
+   Tmp := -14.3;
+   Put (Tmp, Fore => 0, Exp => 0); New_Line;
+   Tmp := Modulus (Tmp, 2.0 * π);
+   --  Tmp := Tmp mod (2.0 * π);
+   Put (Tmp, Fore => 0, Exp => 0); New_Line;
+
    --  Num := N * N;
    --  Put (File, "CELL_DATA "); Put (File, Num, Width => 0); New_Line (File);
    --  Put_Line (File, "SCALARS distance float 1");

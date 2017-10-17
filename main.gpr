@@ -4,22 +4,22 @@ Project Main is
   for Main use (--  "forward_ad-test",
 		--  "forward_ad-bubble",
 		--  "auto_differentiation-dynamics",
-		"auto_differentiation-pendulum",
+		--  "auto_differentiation-pendulum",
 		--  "auto_differentiation-lagrangian",
 		--  "forward_ad-jacobian",
 		--  "dynamics",
 		--  "ad_test",
 		"landscape",
-		"pendulum",
+		--  "pendulum",
 		--  "pendulum_dae",
 		"henon_heiles",
-		"steel_balls",
-		"lu_test");
+		"steel_balls");
+		--  "linear_solver_test",
+		--  "lu_test"
 		--  "sparse_test",
 		--  "chebyshev_test",
 		--  "forward_ad-dynamics"
 		--  "bubble");
-		--  "linear_solver_test",
 		--  "vector_test");
   for Source_Dirs use ("src", "AD_src", "dense_AD_src", "drivers");
   for Object_Dir use "obj";

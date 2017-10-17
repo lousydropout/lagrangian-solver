@@ -76,19 +76,16 @@ procedure Henon_Heiles is
 				 Func : not null access function (X : Vector)
 				   return Real) return Variable is
       Guess : Variable;
-      Est   : Real;
+      Est   : Real := 1.0e10;
       Sign  : constant Real := Sgn (Func (Interpolate (A, Upper, T, T + Dt)) -
 				      Func (Interpolate (A, Lower, T, T + Dt)));
    begin
-      Guess.T := 0.5 * (Lower + Upper);
-      Guess.X := Interpolate (A, Guess.T, T, T + Dt);
-      Est     := Func (Guess.X);
       while abs (Est - Level) > 1.0e-10 loop
+	 Guess.T  := 0.5 * (Lower + Upper);
+	 Guess.X := Interpolate (A, Guess.T, T, T + Dt);
+	 Est      := Func (Guess.X);
 	 if Est * sign > 0.0 then Upper := Guess.T;
 	 else Lower := Guess.T; end if;
-	 Guess.T := 0.5 * (Lower + Upper);
-	 Guess.X := Interpolate (A, Guess.T, T, T + Dt);
-	 Est     := Func (Guess.X);
       end loop;
       return Guess;
    end Find_State_At_Level;

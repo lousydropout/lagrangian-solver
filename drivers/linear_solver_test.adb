@@ -25,10 +25,10 @@ begin
    --  Mat := Read_Sparse_Triplet (Dir & "a5by5_st.txt");     -- 611
    --  Mat := Read_Sparse_Triplet (Dir & "bcsstk01_st.txt");  -- 4.9K
    Mat := Read_Sparse_Triplet (Dir & "bcsstk16_st.txt");  -- 3.7M
-   --  Mat := Read_Sparse_Triplet (Dir & "fs_183_1_st.txt");  -- 24K
-   --  Mat := Read_Sparse_Triplet (Dir & "kershaw_st.txt");   -- 564
-   --  Mat := Read_Sparse_Triplet (Dir & "t1_st.txt");        -- 80
-   --  Mat := Read_Sparse_Triplet (Dir & "west0067_st.txt");  -- 3.9K
+							  --  Mat := Read_Sparse_Triplet (Dir & "fs_183_1_st.txt");  -- 24K
+							  --  Mat := Read_Sparse_Triplet (Dir & "kershaw_st.txt");   -- 564
+							  --  Mat := Read_Sparse_Triplet (Dir & "t1_st.txt");        -- 80
+							  --  Mat := Read_Sparse_Triplet (Dir & "west0067_st.txt");  -- 3.9K
    
    Put_Line ("finished");
 
@@ -48,27 +48,27 @@ begin
    LU  := LU_Decomposition (Mat);
    Put_Line ("finished");
    
-   
-   ------ Begin tests ------------------------
-   Put_Line ("Begin testing . . .");
-   for K in 1 .. Integer (10) loop
-      Put ("Trial "); Put (K, Width => 2); Put (": "); 
-      
-      for I in 1 .. N_Col (Mat) loop
-	 Set (SB, I, (10.0 * Rand) ** 10 * Sin (10.0 * Rand));
+      ------ Begin tests ------------------------
+      Put_Line ("Begin testing . . .");
+      for K in 1 .. 10 loop
+	 Put ("Trial "); Put (K, Width => 2); Put (": "); 
+	 
+	 for I in 1 .. N_Col (Mat) loop
+	    Set (SB, I, (10.0 * Rand) ** 10 * Sin (10.0 * Rand));
+	 end loop;
+	 
+	 
+	 SX  := Solve (LU, SB);
+	 SY  := SB - Mat * SX;
+	 Y   := SB - Mat * Solve (Mat, SB);
+	 --  Res := Norm (SY - Y);
+	 --  Res := Norm (Y) / Real'Max (1.0, Norm (SB));
+	 --  Put ("    Norm (Res)  =  "); Put (Res, Fore => 1, Aft => 1, Exp => 3);
+	 
+	 --  Put_Line (if Res > 1.0e-10 then "  ***" else "");
       end loop;
-      
-      --  SX  := Solve (LU, SB);
-      --  SY  := SB - Mat * SX;
-      Y   := SB - Mat * Solve (Mat, SB);
-      --  Res := Norm (SY - Y);
-      Res := Norm (Y) / Real'Max (1.0, Norm (SB));
-      Put ("    Norm (Res)  =  "); Put (Res, Fore => 1, Aft => 1, Exp => 3);
-      
-      Put_Line (if Res > 1.0e-10 then "  ***" else "");
+      Put_Line ("tests completed");
    end loop;
-   Put_Line ("tests completed");
-   
    ---- Free memory allocated by LU : LU_Type -------
    Free (LU);
    
