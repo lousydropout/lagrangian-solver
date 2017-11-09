@@ -31,7 +31,7 @@ package Auto_Differentiation.Integrator is
 			 Control    : in out Control_Type) return Real_Vector
    with Pre => Is_Setup = True;
    
-   function Bogack_Shampine (Hamiltonian : not null access 
+   function Bogacki_Shampine (Hamiltonian : not null access 
 			       function (X : Real_Vector; N : Nat) return AD_Type;
 			     Var	 : in     Variable;
 			     Control     : in out Control_Type)

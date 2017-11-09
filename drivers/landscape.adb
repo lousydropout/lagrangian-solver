@@ -3,7 +3,7 @@ use  Numerics, Ada.Text_IO;
 
 procedure Landscape is
    use Real_IO, Int_IO, Real_Functions;
-   α : Real := 1.0e-2;
+   α : Real := 1.0e3;
    
    function Phi (R : in Real) return Real is
    begin
@@ -22,7 +22,7 @@ procedure Landscape is
       Vo, Vi, Tmp, Ro : Real;
    begin
       Ro := 0.9;
-      --  if R < Ro then return 1.0e2; end if;
+      if R < Ro then return -250.0; end if;
       Tmp := 1.0 / R;
       PE_G := Ct + 2.0 * C2tps;
       Vi := 0.01 * Exp (-12.0 * (R - Ro)) / (R - Ro) ** 2;
@@ -33,7 +33,7 @@ procedure Landscape is
 	+ Vo * Phi (R) + Vi * (1.0 - Phi (R));
       return ((α / 6.0) * PE_M + PE_G);
    end PE;
-   R : constant Real := π * 0.7;
+   R : constant Real := π * 0.7028;
    
    function PE2 (Q : in Real_Vector) return Real is
       PE_G, PE_M : Real;
@@ -120,7 +120,7 @@ procedure Landscape is
    
    
    
-   N  : constant Nat := 20;
+   N  : constant Nat := 500;
    Dx : constant Real := 2.0 / Real (N);
    X, Y : Real_Vector (1 .. 2);
    Num : Pos;
@@ -181,30 +181,24 @@ begin
    
    Num := N * N;
    Put (File, "CELL_DATA "); Put (File, Num, Width => 0); New_Line (File);
-   Put_Line (File, "SCALARS PE_difference float 1");
+   Put_Line (File, "SCALARS PE float 1");
    Put_Line (File, "LOOKUP_TABLE default");
    for I in 1 .. N loop
       X (1) := -1.0 + (Real (I) - 0.5) * Dx;
       for J in 1 .. N loop
    	 X (2) := -1.0 + (Real (J) - 0.5) * Dx;
    	 Y := R * Coordinate_Transform (X);
-   	 Tmp := abs ((PE (Y) - PE2 (Y))); -- / PE2 (Y));
-   	 if 2.0 * abs (Cos (0.5 * (Y (1) + Y (2)))) < 1.0 then
-   	    Put (File, -1.0e-6); New_Line (File);
-   	 else
-   	    Put (File, Tmp); New_Line (File);
-   	 end if;
-	 --  Put (File, PE2 (Y) - PE3 (Y)); New_Line (File);
+   	 --  Tmp := abs ((PE (Y) - PE2 (Y))); -- / PE2 (Y));
+   	 --  if 2.0 * abs (Cos (0.5 * (Y (1) + Y (2)))) < 1.0 then
+   	 --     Put (File, -1.0e-6); New_Line (File);
+   	 --  else
+   	 --     Put (File, Tmp); New_Line (File);
+   	 --  end if;
+	 Put (File, PE (Y)); New_Line (File);
       end loop;
    end loop;
    New_Line (File);
    
-   Tmp := -14.3;
-   Put (Tmp, Fore => 0, Exp => 0); New_Line;
-   Tmp := Modulus (Tmp, 2.0 * π);
-   --  Tmp := Tmp mod (2.0 * π);
-   Put (Tmp, Fore => 0, Exp => 0); New_Line;
-
    --  Num := N * N;
    --  Put (File, "CELL_DATA "); Put (File, Num, Width => 0); New_Line (File);
    --  Put_Line (File, "SCALARS distance float 1");

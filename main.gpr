@@ -10,9 +10,11 @@ Project Main is
 		--  "dynamics",
 		--  "ad_test",
 		"landscape",
+		"test",
 		--  "pendulum",
 		--  "pendulum_dae",
 		"henon_heiles",
+		"henon_heiles_simple",
 		"steel_balls");
 		--  "linear_solver_test",
 		--  "lu_test"
@@ -28,9 +30,9 @@ Project Main is
   
   package Compiler is
      for Default_Switches ("Ada")
-       use ("-O1",                      -- optimize for testing (fast compiling)
+       use ("-O2",                      -- optimization flag
 	    "-gnata",                   -- assertions
-	    --  "-fno-inline",              -- turn off inline for smaller executable
+	    "-I-",                      -- don't look for source in current folder
 	    "-gnatVa",                  -- turn on all validity checking options
 	    "-s",                       -- if switches change
 	    "-gnaty3aCefilkpntM100",    -- various style checks
@@ -38,9 +40,11 @@ Project Main is
 	    "-gnatW8",                  -- allow wide characters (e.g. π)
 	    "-gnateF",                  -- check overflow on predefined float types
 	    "-gnateV",                  -- validity checks on subprogram parameters
-	    --  "-gnatm5",                  -- don't list > 5 errors/warnings
 	    "-gnato3");                 -- Overflow (mode : Eliminated)
-     for Default_Switches ("C") use ("-Wall");
+     for Default_Switches ("C") 
+       use ("-Wall",
+	    "-ftree-vectorize",
+	    "-fopt-info-vec=1");
   end Compiler;
   
   

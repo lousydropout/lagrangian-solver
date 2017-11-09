@@ -1,10 +1,10 @@
-with Numerics, Ada.Text_IO, Chebyshev, Dense_AD, Dense_AD.Integrator;
-use  Numerics, Ada.Text_IO, Chebyshev;
+with Numerics, Chebyshev, Dense_AD, Dense_AD.Integrator;
+use  Numerics, Chebyshev;
 package Sb_Package is
-   use Int_IO, Real_IO, Real_Functions;
+   Convergence_Exception : exception;
    -----------------------------------------------
    N   : constant Nat  := 2;
-   K   : constant Nat  := 8;
+   K   : constant Nat  := 12;
    α   : Real;
    -----------------------------------------------
    package E_Solver   is new Dense_AD (1); 

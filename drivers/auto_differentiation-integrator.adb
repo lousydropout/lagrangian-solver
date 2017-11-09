@@ -114,7 +114,7 @@ package body Auto_Differentiation.Integrator is
    
    
    
-   function Bogack_Shampine (Hamiltonian : not null access 
+   function Bogacki_Shampine (Hamiltonian : not null access 
 			       function (X : Real_Vector; N : Nat) return AD_Type;
 			     Var	 : in     Variable;
 			     Control     : in out Control_Type)
@@ -142,7 +142,7 @@ package body Auto_Differentiation.Integrator is
 
       Level := Old; -- return to previous evaluation level
       return (Z);
-   end Bogack_Shampine;
+   end Bogacki_Shampine;
    
    
    procedure Update (Hamiltonian : not null access 
@@ -162,7 +162,7 @@ package body Auto_Differentiation.Integrator is
       
       Err := 1.0;
       while Err > Eps loop
-	 Y := Bogack_Shampine (Hamiltonian, Var, Control);
+	 Y := Bogacki_Shampine (Hamiltonian, Var, Control);
 	 if (Err <= Eps) then
 	    X  := Y;
 	    T  := T + Dt;

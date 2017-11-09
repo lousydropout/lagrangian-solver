@@ -34,28 +34,37 @@ begin
    Get_Line (Line, Last); -- Not used
    Get_Line (Line, Last); -- s
    X (2) := Real'Value (Line (1 .. Last));
+   Put (X (2)); New_Line;
    
    Get_Line (Line, Last); -- Not used
    Get_Line (Line, Last); -- ω_s
    X (4) := Real'Value (Line (1 .. Last));
+   Put (X (4)); New_Line;
    
    Get_Line (Line, Last); -- Not used
    Get_Line (Line, Last); -- total energy
    Total_Energy := Real'Value (Line (1 .. Last));
+   Put ("Total_Energy = "); Put (Total_Energy); New_Line;
    
    Get_Line (Line, Last); -- Not used
    Get_Line (Line, Last); -- alpha
    α  := Real'Value (Line (1 .. Last));
+   Put ("alpha = "); Put (α); New_Line;
    
    Get_Line (Line, Last); -- Not used
    Get_Line (Line, Last); -- dt
    Dt := Real'Value (Line (1 .. Last));
+   Put (Dt); New_Line;
    
    Get_Line (Line, Last); -- Not used
    Get_Line (Line, Last); -- T_final
    T_Final := Real'Value (Line (1 .. Last));
+   Put ("T_Final = "); Put (T_Final); New_Line;
+   
    ------------------------------------------------------------
    X := Get_IC (X, Total_Energy);
+   --  X (3) := -X (3);
+   for Item of X loop Put (Item); New_Line; end loop;
    Total_Energy := Val (Hamiltonian (0.0, X));
    Put ("Total Energy = "); Put (Total_Energy); New_Line;
    ------------------------------------------------------------
@@ -77,17 +86,13 @@ begin
       for I in 2 .. K loop
    	 if X1 (Q (1) (I - 1)) * X1 (Q (1) (I)) < 0.0 and then 
    	   Y1 (Q (1) (I)) > 0.0 then
-   	 -- If there's a zero, bisect
-   	    Put ("****************************    ");
+	    -- If there's a zero, bisect
    	    Lower   := Var.T + Control.Dt * Grid (I - 1);
    	    Upper   := Var.T + Control.Dt * Grid (I);
    	    Guess   := Find_State_At_Level
    	      (0.0, A, Var.T, Control.Dt, Lower, Upper, X1'Access);
    	    ----------------------------------------------------------------
-   	    Put (Guess.X (3)); New_Line;
-   	    if Guess.X (3) > 0.0 then
-   	       Print_Lagrangian (Fp, Guess, Lagrangian'Access);
-   	    end if;
+	    Print_Lagrangian (Fp, Guess, Lagrangian'Access);
       	 end if;
       end loop;
       ---------------------------------------------------------

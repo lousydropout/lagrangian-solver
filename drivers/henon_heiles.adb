@@ -9,7 +9,7 @@ procedure Henon_Heiles is
    package Integrator is new AD_Package.Integrator (K);
    use AD_Package, Integrator;
    -----------------------------------------------
-   Control : Control_Type := New_Control_Type;
+   Control : Control_Type := New_Control_Type (Tol => 1.0e-7);
    function KE (Q : in AD_Vector) return AD_Type is
    begin
       return 0.5 * (Q (3) ** 2 + Q (4) ** 2);
@@ -43,7 +43,7 @@ procedure Henon_Heiles is
    begin
       -- use Newton's method to solve for E - H = 0
       W := 1.0;
-      while abs (F) > 1.0e-10 loop
+      while abs (F) > 1.0e-14 loop
 	 H  := Hamiltonian (0.0, Y);
 	 F := E - Val (H);
 	 G  := Grad (H);
@@ -115,26 +115,27 @@ begin
    Put_Line (Fcsv, "t, q1, q2, q_dot1, q_dot2, p1, p2, E");
    Print_Lagrangian (Fcsv, Var, Lagrangian'Access);
    
-   Put (Var.T); New_Line;
    while T < T_Final loop
+      Put (Var.T); New_Line;
       Y := Update (Lagrangian'Access, Var, Control, Sparse);
       A := Chebyshev_Transform (Y);
-      ----------------------------------------------------------------------  
+      
       Q := Split (Y);
       for I in 2 .. K loop
       	 if Q (1) (I - 1) * Q (1) (I) < 0.0 then -- If there's a zero, bisect
-	    Lower   := Var.T + Control.Dt * Grid (I - 1);
-	    Upper   := Var.T + Control.Dt * Grid (I);
-	    Guess   := Find_State_At_Level
-	      (0.0, A, Var.T, Control.Dt, Lower, Upper, Func'Access);
-	    ----------------------------------------------------------------
-	    if Guess.X (3) > 0.0 then
-	       Print_Lagrangian (Fcsv, Guess, Lagrangian'Access);
-	    end if;
+      	    Lower   := Var.T + Control.Dt * Grid (I - 1);
+      	    Upper   := Var.T + Control.Dt * Grid (I);
+      	    Guess   := Find_State_At_Level
+      	      (0.0, A, Var.T, Control.Dt, Lower, Upper, Func'Access);
+      	    ----------------------------------------------------------------
+      	    if Guess.X (3) > 0.0 then
+      	       Print_Lagrangian (Fcsv, Guess, Lagrangian'Access);
+      	    end if;
       	 end if;
       end loop;
-      ----------------------------------------------------------------------  
-      Put (Var.T); New_Line;
+      
+      --  Put (Var.T); New_Line;
+      --  Print_Lagrangian (Fcsv, Var, Lagrangian'Access);
       Update (Var => Var, Y => Y, Dt => Control.Dt); -- Update variable Var
    end loop;
    Close (Fcsv);

@@ -233,20 +233,7 @@ package body Dense_AD.Integrator is
       -- Update Y
       Y  := Y1;
       Colloc (Lagrangian, Y, Var, Control);
-      A  := Chebyshev_Transform (Y); 
-
-      Err := 0.0;
-      for I in 1 .. 20 loop
-	 Time := Var.T + Real (I - 1) * Control.Dt / 19.0;
-	 if Time <= Var.T + C2.Dt then
-	    Tmp := Interpolate (A1, Time, Var.T, Var2.T);
-	 else
-	    Tmp := Interpolate (A2, Time, Var2.T, Tf);
-	 end if;
-	 Tmp := Tmp - Interpolate (A, Time, Var.T, Tf);
-	 Err := Real'Max (Err, Max_Norm (Tmp));
-      end loop;
-      Control.Err := Err;
+      Control.Err := Norm (Y - Y1);
    end Iterate;
    
    function Setup return Array_Of_Sparse_Matrix is

@@ -434,83 +434,83 @@ package body Numerics is
       return Z;
    end "or";
    
-   function "+" (X, Y : in Pos2D) return Pos2D is
-   begin
-      return (X.X + Y.X, X.Y + Y.Y);
-   end "+";
+   --  function "+" (X, Y : in Pos2D) return Pos2D is
+   --  begin
+   --     return (X.X + Y.X, X.Y + Y.Y);
+   --  end "+";
    
-   function "-" (X : in Pos2D) return Pos2D is
-   begin
-      return (-X.X, -X.Y);
-   end "-";
+   --  function "-" (X : in Pos2D) return Pos2D is
+   --  begin
+   --     return (-X.X, -X.Y);
+   --  end "-";
    
-   function "-" (X, Y : in Pos2D) return Pos2D is
-   begin
-      return (X.X - Y.X, X.Y - Y.Y);
-   end "-";
+   --  function "-" (X, Y : in Pos2D) return Pos2D is
+   --  begin
+   --     return (X.X - Y.X, X.Y - Y.Y);
+   --  end "-";
 
-   function Dot (X, Y : in Pos2D) return Real is
-   begin
-      return X.X * Y.X + X.Y * Y.Y;
-   end Dot;
+   --  function Dot (X, Y : in Pos2D) return Real is
+   --  begin
+   --     return X.X * Y.X + X.Y * Y.Y;
+   --  end Dot;
    
-   function Norm (X : in Pos2D) return Real is
-      use Real_Functions;
-   begin
-      return Sqrt (X.X**2 + X.Y**2);
-   end Norm;
+   --  function Norm (X : in Pos2D) return Real is
+   --     use Real_Functions;
+   --  begin
+   --     return Sqrt (X.X**2 + X.Y**2);
+   --  end Norm;
    
-   function To_Array (Xvec : in Pos2D_Vector) return Real_Vector is
-      Result : Real_Vector (1 .. 2 * Xvec'Length);
-      K      : Nat := 1;
-   begin
-      for X of Xvec loop
-	 Result (K) := X.X; K := K + 1;
-	 Result (K) := X.Y; K := K + 1;
-      end loop;
-      return Result;
-   end To_Array;
-   
-   
-   function "+" (X, Y : in Pos2D_Vector) return Pos2D_Vector is
-      Z : Pos2D_Vector := X;
-   begin
-      for I in Z'Range loop
-	 Z (I) := Z (I) + Y (I);
-      end loop;
-      return Z;
-   end "+";
-   
-   function "-" (X, Y : in Pos2D_Vector) return Pos2D_Vector is
-      Z : Pos2D_Vector := X;
-   begin
-      for I in Z'Range loop
-	 Z (I) := Z (I) - Y (I);
-      end loop;
-      return Z;
-   end "-";
-   
-   function "-" (X : in Pos2D_Vector) return Pos2D_Vector is
-      Z : Pos2D_Vector (X'Range);
-   begin
-      for I in Z'Range loop
-	 Z (I) := -X (I);
-      end loop;
-      return Z;
-   end "-";
+   --  function To_Array (Xvec : in Pos2D_Vector) return Real_Vector is
+   --     Result : Real_Vector (1 .. 2 * Xvec'Length);
+   --     K      : Nat := 1;
+   --  begin
+   --     for X of Xvec loop
+   --  	 Result (K) := X.X; K := K + 1;
+   --  	 Result (K) := X.Y; K := K + 1;
+   --     end loop;
+   --     return Result;
+   --  end To_Array;
    
    
+   --  function "+" (X, Y : in Pos2D_Vector) return Pos2D_Vector is
+   --     Z : Pos2D_Vector := X;
+   --  begin
+   --     for I in Z'Range loop
+   --  	 Z (I) := Z (I) + Y (I);
+   --     end loop;
+   --     return Z;
+   --  end "+";
+   
+   --  function "-" (X, Y : in Pos2D_Vector) return Pos2D_Vector is
+   --     Z : Pos2D_Vector := X;
+   --  begin
+   --     for I in Z'Range loop
+   --  	 Z (I) := Z (I) - Y (I);
+   --     end loop;
+   --     return Z;
+   --  end "-";
+   
+   --  function "-" (X : in Pos2D_Vector) return Pos2D_Vector is
+   --     Z : Pos2D_Vector (X'Range);
+   --  begin
+   --     for I in Z'Range loop
+   --  	 Z (I) := -X (I);
+   --     end loop;
+   --     return Z;
+   --  end "-";
    
    
-   function "*" (X : in Real;
-		 Y : in Pos2D_Vector) return Pos2D_Vector is
-      Z : Pos2D_Vector := Y;
-   begin
-      for K of Z loop
-	 K := X * K;
-      end loop;
-      return Z;
-   end "*";
+   
+   
+   --  function "*" (X : in Real;
+   --  		 Y : in Pos2D_Vector) return Pos2D_Vector is
+   --     Z : Pos2D_Vector := Y;
+   --  begin
+   --     for K of Z loop
+   --  	 K := X * K;
+   --     end loop;
+   --     return Z;
+   --  end "*";
    
    
    -------- Real array functions ----------------
@@ -556,6 +556,17 @@ package body Numerics is
       end loop;
       return Result;
    end "*";
+   
+   function "/" (Left  : in Real_Vector;
+		 Right : in Real) return Real_Vector is
+      Result : Real_Vector (Left'Range);
+   begin
+      for I in Result'Range loop
+	 Result (I) := Left (I) / Right;
+      end loop;
+      return Result;
+   end "/";
+      
 
    -----------   Real_Vector functions ---------------------------
    function "*" (A : in Real_Matrix;

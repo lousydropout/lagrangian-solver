@@ -1,6 +1,6 @@
 package body Sb_Package is
-   
-      -----------------------------------------------
+   use Real_Functions;
+   -----------------------------------------------
    function Phi (R : in AD_Type) return AD_Type is
    begin
       return 0.5 * (1.0 + Tanh (50.0 * (R - 0.5)));
@@ -64,6 +64,7 @@ package body Sb_Package is
       H : AD_Type;
       F, Dw : Real := 1.0;
       W : Real renames Y (3); -- Y(3) is ω_t
+      Iter : Nat := 1;
    begin
       -- use Newton's method to solve for E - H = 0
       W := 1.0;
@@ -73,6 +74,8 @@ package body Sb_Package is
 	 G  := Grad (H);
 	 Dw := (E - Val (H)) / G (3); -- G(3) is \partial H / \partial ω_t
 	 W  := W + Dw;
+	 Iter := Iter + 1;
+	 if Iter > 100 then raise Convergence_Exception; end if;	 
       end loop;
       H := Hamiltonian (0.0, Y);
       F := E - Val (H);
@@ -188,8 +191,8 @@ package body Sb_Package is
 	 Est     := Func (Guess.X);
 	 if (Est - Level) * Sign > 0.0 then Upper := Guess.T;
 	 else Lower := Guess.T; end if;
-	 Put (Iter); Put (Est - Level); New_Line;
 	 Iter := Iter + 1;
+	 if Iter > 100 then raise Convergence_Exception; end if;
       end loop;
       return Guess;
    end Find_State_At_Level;
