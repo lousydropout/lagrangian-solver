@@ -18,15 +18,15 @@ package body Dense_AD.Integrator is
 
    
    procedure Print_Lagrangian (Var	  : in     Variable;
-			       Lagrangian : not null access
-				 function (T : Real; X : Vector) return AD_Type;
+			       Energy : not null access
+				 function (T : Real; X : Vector) return Real;
 			       Fore : in Field := 3;
 			       Aft  : in Field := 5;
 			       Exp  : in Field := 3) is
    begin
       Print_Lagrangian (File => Standard_Output, 
 			Var => Var, 
-			Lagrangian => Lagrangian,
+			Energy => Energy,
 			Fore => Fore,
 			Aft => Aft,
 			Exp => Exp);
@@ -35,22 +35,20 @@ package body Dense_AD.Integrator is
    
    procedure Print_Lagrangian (File	  : in     Ada.Text_IO.File_Type;
 			       Var	  : in     Variable;
-			       Lagrangian : not null access
-				 function (T : Real; X : Vector) return AD_Type;
+			       Energy : not null access
+				 function (T : Real; X : Vector) return Real;
 			       Fore : in Field := 3;
 			       Aft  : in Field := 5;
 			       Exp  : in Field := 3) is
       use Real_IO;
-      Old : constant Evaluation_Level := Get_Evaluation_Level;
-      L   : AD_Type;
       P   : Real_Vector (N + 1 .. 2 * N);
+      R   : Real_Vector (1 .. Num);
       V   : Real_Vector renames Var.X (N + 1 .. 2 * N);
       H   : Real;
    begin
-      Set_Evaluation_Level (Gradient);
-      L := Lagrangian (Var.T, Var.X);
-      P := Grad (L) (N + 1 .. 2 * N);
-      H := Dot (V, P) - Val (L);
+      Gradient (Var.T, Var.X, R);
+      P := R (N + 1 .. 2 * N);
+      H := Energy (Var.T, Var.X);
       
       -- Print time
       Put (File, Var.T, Fore, Aft, Exp); Put (File, ",  ");
@@ -64,8 +62,6 @@ package body Dense_AD.Integrator is
       end loop;
       -- Print Hamiltonian
       Put (File, H, Fore => Fore, Exp => Exp); New_Line (File);
-      
-      Set_Evaluation_Level (Old);
    end Print_Lagrangian;
    
    
@@ -91,19 +87,15 @@ package body Dense_AD.Integrator is
    end Update;
    
    
-   function Update (Lagrangian : not null access 
-		      function (T : real; X : Vector) return AD_Type;
-		    Var        : in     Variable;
+   function Update (Var        : in     Variable;
 		    Control    : in out Control_Type) return Real_Vector is
    begin
-      if Num * K < 5 then return Update (Lagrangian, Var, Control, Dense);
-      else return Update (Lagrangian, Var, Control, Sparse);
+      if Num * K < 5 then return Update (Var, Control, Dense);
+      else return Update (Var, Control, Sparse);
       end if;
    end Update;
 
-   function Update (Lagrangian : not null access 
-		      function (T : Real; X : Vector) return AD_Type;
-		    Var        : in     Variable;
+   function Update (Var        : in     Variable;
 		    Control    : in out Control_Type;
 		    Density    : in     Dense_Or_Sparse) return Real_Vector is
       use Real_Functions;
@@ -119,7 +111,7 @@ package body Dense_AD.Integrator is
       for I in 1 .. K loop Y ((I - 1) * Num + 1 .. I * Num) := Var.X; end loop;
       ---------------------------------------------------------------------
       while Control.Err > Control.Tol loop
-	 Iterate (Lagrangian, Y, Var, Control);
+	 Iterate (Y, Var, Control);
 	 Dt := 0.8 * Control.Dt
 	   * (Control.Tol / (Control.Err + 1.0e-40)) ** (1.0 / Real (K - 1));
 	 if Control.Err > Control.Tol then
@@ -165,21 +157,18 @@ package body Dense_AD.Integrator is
       return A;
    end Chebyshev_Transform;
       
-   procedure Colloc (Lagrangian : not null access 
-		       function (T : Real; X : Vector) return AD_Type;
-		     Q          : in out Real_Vector;
-		     Var        : in     Variable;
-		     Control    : in out Control_Type) is
-   begin
-      case Collocation_Density is
-	 when Sparse => Sp_Collocation (Lagrangian, Q, Var, Control);
-	 when Dense =>     Collocation (Lagrangian, Q, Var, Control);
-      end case;
-   end Colloc;
+   --  procedure Colloc (Q          : in out Real_Vector;
+   --  		     Var        : in     Variable;
+   --  		     Control    : in out Control_Type) is
+   --  begin
+   --     Sp_Collocation (Q, Var, Control);
+   --     --  case Collocation_Density is
+   --     --  	 when Sparse => Sp_Collocation (Q, Var, Control);
+   --     --  	 when Dense =>     Collocation (Lagrangian, Q, Var, Control);
+   --     --  end case;
+   --  end Colloc;
    
-   procedure Iterate (Lagrangian : not null access 
-			function (T : Real; X : Vector) return AD_Type;
-		      Y          : in out Real_Vector;
+   procedure Iterate (Y          : in out Real_Vector;
 		      Var        : in     Variable;
 		      Control    : in out Control_Type) is
       Y1, Y2 : Real_Vector (1 .. NK);
@@ -205,7 +194,7 @@ package body Dense_AD.Integrator is
       end loop;
       -------------------------------------------------------
       -- Iterate from Y1 to Y2
-      Colloc (Lagrangian, Y1, Var, C2);
+      Colloc (Y1, Var, C2);
       Var2.X := Y1 (NK - Num + 1 .. NK);
       Var2.T := Var.T + C2.Dt;
       -------------------------------------------------------
@@ -213,7 +202,7 @@ package body Dense_AD.Integrator is
       for I in 1 .. K loop Y2 ((I - 1) * Num + 1 .. I * Num) := Var2.X; end loop;
       -------------------------------------------------------
       -- Update Y2
-      Colloc (Lagrangian, Y2, Var2, C2);
+      Colloc (Y2, Var2, C2);
       -------------------------------------------------------
       -- Interpolate to get initial guess for Y
       A1 := Chebyshev_Transform (Y1);
@@ -232,7 +221,7 @@ package body Dense_AD.Integrator is
       -------------------------------------------------------
       -- Update Y
       Y  := Y1;
-      Colloc (Lagrangian, Y, Var, Control);
+      Colloc (Y, Var, Control);
       Control.Err := Norm (Y - Y1);
    end Iterate;
    
@@ -262,135 +251,127 @@ package body Dense_AD.Integrator is
    end Setup;
    
    
-   procedure Collocation (Lagrangian : not null access 
-			    function (T : Real; X : Vector) return AD_Type;
-			  Q          : in out Real_Vector;
-			  Var        : in     Variable;
-			  Control    : in out Control_Type) is
-      --  use Ada.Text_IO;
-      Old : constant Evaluation_Level :=  Get_Evaluation_Level;
+   --  procedure Collocation (Lagrangian : not null access 
+   --  			    function (T : Real; X : Vector) return AD_Type;
+   --  			  Q          : in out Real_Vector;
+   --  			  Var        : in     Variable;
+   --  			  Control    : in out Control_Type) is
+   --     --  use Ada.Text_IO;
+   --     Old : constant Evaluation_Level :=  Get_Evaluation_Level;
       
-      DQ  : Real_Vector (1 .. NK - Num);
-      F   : Real_Vector (1 .. NK - Num);
-      J   : Real_Matrix (1 .. NK - Num, 1 .. NK - Num);
-      Res : Real := 1.0;
-      It  : Pos  := 0;
-   begin
-      Set_Evaluation_Level (Hessian);
-      ------------------------------------------------
-      --  Put_Line ("HI from Collocation");
-      while Res > Control.Tol loop
-	 It := It + 1;
-	 FJ (Lagrangian, Var, Control, Q, F, J);
-	 DQ := Solve (J, F);
-	 Q (Num + 1 .. NK) := Q (Num + 1 .. NK) - DQ;
-	 Res := Norm (F);
-	 if It > 10 then exit; end if;
-      end loop;
-      --  Put_Line ("BYE from Collocation");
-      ------------------------------------------------
-      Set_Evaluation_Level (Value => Old);
-   end Collocation;
+   --     DQ  : Real_Vector (1 .. NK - Num);
+   --     F   : Real_Vector (1 .. NK - Num);
+   --     J   : Real_Matrix (1 .. NK - Num, 1 .. NK - Num);
+   --     Res : Real := 1.0;
+   --     It  : Pos  := 0;
+   --  begin
+   --     Set_Evaluation_Level (Hessian);
+   --     ------------------------------------------------
+   --     --  Put_Line ("HI from Collocation");
+   --     while Res > Control.Tol loop
+   --  	 It := It + 1;
+   --  	 FJ (Lagrangian, Var, Control, Q, F, J);
+   --  	 DQ := Solve (J, F);
+   --  	 Q (Num + 1 .. NK) := Q (Num + 1 .. NK) - DQ;
+   --  	 Res := Norm (F);
+   --  	 if It > 10 then exit; end if;
+   --     end loop;
+   --     --  Put_Line ("BYE from Collocation");
+   --     ------------------------------------------------
+   --     Set_Evaluation_Level (Value => Old);
+   --  end Collocation;
 
    
-   procedure FJ (Lagrangian : not null access 
-		    function (T : Real; X : Vector) return AD_Type;
-		  Var     : in     Variable;
-		  Control : in     Control_Type;
-		  Q       : in     Real_Vector;
-		  F       :    out Real_Vector;
-		 J       :    out Real_Matrix) is
-      L    : AD_Type;
-      X    : Vector;
-      Tmp  : Integer;
-      U, R : Real_Vector (1 .. NK) := (others => 0.0);
-      V, S : Real_Matrix (1 .. NK, 1 .. NK) := (others => (others => 0.0));
-      A    : constant Real_Matrix := Mat_A - Control.Dt * Mat_C;
-      B    : constant Real_Matrix := Mat_B - Control.Dt * Mat_D;
-      Time : Real;
-   begin
-      -------------------------------------
-      for I in 1 .. K loop
-	 Time := Var.T + Control.Dt * Grid (I);
-	 Tmp := Num * (I - 1);
-	 X := Q (Tmp + 1 .. Tmp + Num);
-	 L := Lagrangian (Time, X);
-	 Copy (From => Grad (L), To => U, Start => Tmp + 1);
-	 Copy (From => Hessian (L), 
-	       To => V, 
-	       Start_I => Tmp + 1, 
-	       Start_J => Tmp + 1);
-      end loop;
-      -------------------------------------
-      R := A * Q - B * U; 
-      F := Remove_1st_N (R, Num);
-      S := A     - B * V; 
-      J := Remove_1st_N (S, Num);
-   end FJ;
+   --  procedure FJ (Lagrangian : not null access 
+   --  		    function (T : Real; X : Vector) return AD_Type;
+   --  		  Var     : in     Variable;
+   --  		  Control : in     Control_Type;
+   --  		  Q       : in     Real_Vector;
+   --  		  F       :    out Real_Vector;
+   --  		 J       :    out Real_Matrix) is
+   --     L    : AD_Type;
+   --     X    : Vector;
+   --     Tmp  : Integer;
+   --     U, R : Real_Vector (1 .. NK) := (others => 0.0);
+   --     V, S : Real_Matrix (1 .. NK, 1 .. NK) := (others => (others => 0.0));
+   --     A    : constant Real_Matrix := Mat_A - Control.Dt * Mat_C;
+   --     B    : constant Real_Matrix := Mat_B - Control.Dt * Mat_D;
+   --     Time : Real;
+   --  begin
+   --     -------------------------------------
+   --     for I in 1 .. K loop
+   --  	 Time := Var.T + Control.Dt * Grid (I);
+   --  	 Tmp := Num * (I - 1);
+   --  	 X := Q (Tmp + 1 .. Tmp + Num);
+   --  	 L := Lagrangian (Time, X);
+   --  	 Copy (From => Grad (L), To => U, Start => Tmp + 1);
+   --  	 Copy (From => Hessian (L), 
+   --  	       To => V, 
+   --  	       Start_I => Tmp + 1, 
+   --  	       Start_J => Tmp + 1);
+   --     end loop;
+   --     -------------------------------------
+   --     R := A * Q - B * U; 
+   --     F := Remove_1st_N (R, Num);
+   --     S := A     - B * V; 
+   --     J := Remove_1st_N (S, Num);
+   --  end FJ;
    
    
-   procedure Sp_Collocation (Lagrangian : not null access 
-			       function (T : Real; X : Vector) return AD_Type;
-			     Q          : in out Real_Vector;
-			     Var        : in     Variable;
-			     Control    : in out Control_Type) is
-      Old : constant Evaluation_Level :=  Get_Evaluation_Level;
-      
+   procedure Colloc (Q	     : in out Real_Vector;
+		     Var     : in     Variable;
+		     Control : in out Control_Type) is
       DQ  : Sparse_Vector;
       F   : Sparse_Vector;
       J   : Sparse_Matrix;
       Res : Real := 1.0;
       It  : Pos  := 0;
    begin
-      Set_Evaluation_Level (Hessian);
       ------------------------------------------------
       while Res > Control.Tol loop
 	 It := It + 1;
-   	 Sp_FJ (Lagrangian, Var, Control, Q, F, J);
+	 FH (Var, Control, Q, F, J);
    	 DQ := Numerics.Sparse_Matrices.CSparse.Solve (J, F);
    	 Q (Num + 1 .. Num * K) := Q (Num + 1 .. Num * K) - To_Array (DQ);
    	 Res := Norm (F);
-	 if It > 10 then exit; end if;
+	 if It > 100 then exit; end if;
       end loop;
       ------------------------------------------------
-      Set_Evaluation_Level (Old);
 
-   end Sp_Collocation;
+   end Colloc;
 
-   
-   procedure Sp_FJ (Lagrangian : not null access 
-		      function (T : Real; X : Vector) return AD_Type;
-		    Var     : in     Variable;
-		    Control : in     Control_Type;
-		    Q       : in     Real_Vector;
-		    F       :    out Sparse_Vector;
-		    J       :    out Sparse_Matrix) is
-      L    : AD_Type;
+   procedure FH (Var	 : in     Variable;
+		 Control : in     Control_Type;
+		 Q	 : in     Real_Vector;
+		 F	 :    out Sparse_Vector;
+		 J	 :    out Sparse_Matrix) is
       X    : Real_Vector (1 .. Num);
       Tmp  : Integer;
       U    : Sparse_Vector;
       V    : Sparse_Matrix;
       A    : constant Sparse_Matrix := Sp (1) - Control.Dt * Sp (3);
       B    : constant Sparse_Matrix := Sp (2) - Control.Dt * Sp (4);
+      R    : Real_Vector (1 .. Num);
+      S    : Real_Matrix (1 .. Num, 1 .. Num);
       Time : Real;
    begin
       -------------------------------------
       X := Q (1 .. Num);
-      L := Lagrangian (Var.T, X);
-      U := Sparse (Grad (L));
-      V := Sparse (Hessian (L));
+      Deriv (Var.T, X, R, S);
+      U := Sparse (R);
+      V := Sparse (S);
       for I in 2 .. K loop
 	 Time := Var.T + Control.Dt * Grid (I);
    	 Tmp := Num * (I - 1);
    	 X := Q (Tmp + 1 .. Tmp + Num);
-   	 L := Lagrangian (Time, X);
-   	 U := U or Sparse (Grad (L));
-   	 V := V or Sparse (Hessian (L));
+	 Deriv (Var.T, X, R, S);
+   	 U := U or Sparse (R);
+   	 V := V or Sparse (S);
       end loop;
       -------------------------------------
       F := A * Q - B * U; F := Remove_1st_N (F, Num);
       J := A     - B * V; J := Remove_1st_N (J, Num);
-   end Sp_FJ;
+   end FH;
    
    
    
@@ -445,14 +426,14 @@ package body Dense_AD.Integrator is
    procedure Print_CSV (File : in out File_Type;
 			Var  : in     Variable;
 			Name : in     String;
-			Lagrangian : not null access 
-			  function (T : real; X : Vector) return AD_Type;
+			Energy : not null access 
+			  function (T : real; X : Vector) return Real;
 			Mode : in     Create_Or_Append := Append) is
       use Real_IO, Real_Functions;
-      Old : constant Evaluation_Level := Get_Evaluation_Level;
-      L   : AD_Type;
+      --  L   : AD_Type;
       P   : Real_Vector (N + 1 .. 2 * N);
       V   : Real_Vector renames Var.X (N + 1 .. 2 * N);
+      R   : Real_Vector (1 .. Num);
       H   : Real;
       X1, Y1, X2, Y2 : Real;
    begin
@@ -464,10 +445,10 @@ package body Dense_AD.Integrator is
 	 when Append => Open (File, Append_File, Name);
       end case;
 
-      Set_Evaluation_Level (Gradient);
-      L := Lagrangian (Var.T, Var.X);
-      P := Grad (L) (N + 1 .. 2 * N);
-      H := Dot (V, P) - Val (L);
+      Gradient (Var.T, Var.X, R);
+      P := R (N + 1 .. 2 * N);
+      --  H := Dot (V, P) - Val (L);
+      H := Energy (Var.T, Var.X);
       X1 := -Sin (Var.X (1));
       Y1 :=  Cos (Var.X (1));
       X2 := X1 - Sin (2.0 * Var.X (1) + Var.X (2));
@@ -491,27 +472,7 @@ package body Dense_AD.Integrator is
       -- Print Hamiltonian
       Put (File, H); New_Line (File);
       
-      Set_Evaluation_Level (Old);
       Close (File);
    end Print_CSV;
 
-   function Hamiltonian (T : in Real; 
-			 X : in Vector;
-			 Lagrangian : not null access 
-			   function (T : real; X : Vector) return AD_Type)
-			return Real is
-      P   : Real_Vector (N + 1 .. 2 * N);
-      V   : Real_Vector renames X (N + 1 .. 2 * N);
-      H   : Real;
-      L   : AD_Type;
-      Old : Evaluation_Level := Get_Evaluation_Level;
-   begin
-      Set_Evaluation_Level (Gradient);
-      L := Lagrangian (T, X);
-      P := Grad (L) (N + 1 .. 2 * N);
-      H := Dot (V, P) - Val (L);
-      Set_Evaluation_Level (Old);
-      return H;
-   end Hamiltonian;
-   
 end Dense_AD.Integrator;

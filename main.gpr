@@ -9,13 +9,13 @@ Project Main is
 		--  "forward_ad-jacobian",
 		--  "dynamics",
 		--  "ad_test",
-		"landscape",
-		"test",
+		--  "landscape",
+		--  "test",
 		--  "pendulum",
-		--  "pendulum_dae",
-		"henon_heiles",
-		"henon_heiles_simple",
-		"steel_balls");
+		"pendulum_dae",
+		--  "henon_heiles_simple",
+		"henon_heiles");
+		--  "steel_balls");
 		--  "linear_solver_test",
 		--  "lu_test"
 		--  "sparse_test",

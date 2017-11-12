@@ -3,6 +3,13 @@ use  Numerics, Numerics.Sparse_Matrices, Chebyshev, Ada.Text_IO;
 generic
    K : in Nat;
    N_Constraints : in Pos := 0;
+   with procedure Gradient (T : in Real; 
+			    Z : in Vector; 
+			    G : out Real_Vector);
+   with procedure Deriv (T : in Real; 
+			 Z : in Vector; 
+			 G : out Real_Vector; 
+			 H : out Real_Matrix);
 package Dense_AD.Integrator is
    
    N : constant Nat := (Num - N_Constraints) / 2;
@@ -46,28 +53,24 @@ package Dense_AD.Integrator is
 		     Dt	 : in     Real)
      with Pre => Y'First = 1 and Y'Length = Num * K;
    
-   function Update (Lagrangian : not null access 
-		      function (T : real; X : Vector) return AD_Type;
-		    Var        : in     Variable;
+   function Update (Var        : in     Variable;
 		    Control    : in out Control_Type;
 		    Density    : in Dense_Or_Sparse) return Real_Vector;
       
-   function Update (Lagrangian : not null access 
-		      function (T : real; X : Vector) return AD_Type;
-		    Var        : in     Variable;
+   function Update (Var        : in     Variable;
 		    Control    : in out Control_Type) return Real_Vector;
       
    procedure Print_Lagrangian (File	  : in     File_Type;
 			       Var	  : in     Variable;
-			       Lagrangian : not null access
-				 function (T : real; X : Vector) return AD_Type;
+			       Energy : not null access
+				 function (T : real; X : Vector) return Real;
 			       Fore : in Field := 3;
 			       Aft  : in Field := 5;
 			       Exp  : in Field := 3);
    
    procedure Print_Lagrangian (Var	  : in     Variable;
-			       Lagrangian : not null access
-				 function (T : real; X : Vector) return AD_Type;
+			       Energy : not null access
+				 function (T : real; X : Vector) return Real;
 			       Fore : in Field := 3;
 			       Aft  : in Field := 5;
 			       Exp  : in Field := 3);
@@ -83,15 +86,15 @@ package Dense_AD.Integrator is
    procedure Print_CSV (File : in out File_Type;
 			Var  : in     Variable;
 			Name : in     String;
-			Lagrangian : not null access 
-			  function (T : real; X : Vector) return AD_Type;
+			Energy : not null access 
+			  function (T : real; X : Vector) return Real;
 			Mode : in     Create_Or_Append := Append);
    
-   function Hamiltonian (T : in Real; 
-			 X : in Vector;
-			 Lagrangian : not null access 
-			   function (T : real; X : Vector) return AD_Type)
-			return Real;
+   --  function Hamiltonian (T : in Real; 
+   --  			 X : in Vector;
+   --  			 Lagrangian : not null access 
+   --  			   function (T : real; X : Vector) return AD_Type)
+   --  			return Real;
    
    function Split (Y : in Real_Vector) return Array_Of_Vectors
      with Pre => Y'First = 1 and Y'Length = Num * K;
@@ -102,44 +105,20 @@ private
 
    Collocation_Density : Dense_Or_Sparse := Sparse;
    
-   procedure Iterate (Lagrangian : not null access 
-			function (T : real; X : Vector) return AD_Type;
-		      Y          : in out Real_Vector;
+   procedure Iterate (Y          : in out Real_Vector;
 		      Var        : in     Variable;
 		      Control    : in out Control_Type);
    
-   procedure Colloc (Lagrangian : not null access 
-			  function (T : real; X : Vector) return AD_Type;
-			Q          : in out Real_Vector;
-			Var        : in     Variable;
-			Control    : in out Control_Type);
+   procedure Colloc (Q	     : in out Real_Vector;
+		     Var     : in     Variable;
+		     Control : in out Control_Type);
    
-   procedure Collocation (Lagrangian : not null access 
-			    function (T : real; X : Vector) return AD_Type;
-			  Q          : in out Real_Vector;
-			  Var        : in     Variable;
-			  Control    : in out Control_Type);
-   procedure FJ (Lagrangian : not null access 
-		    function (T : real; X : Vector) return AD_Type;
-		  Var     : in     Variable;
-		  Control : in     Control_Type;
-		  Q       : in     Real_Vector;
-		  F       :    out Real_Vector;
-		  J       :    out Real_Matrix);
-   
-   procedure Sp_Collocation (Lagrangian : not null access 
-			       function (T : real; X : Vector) return AD_Type;
-			     Q          : in out Real_Vector;
-			     Var        : in     Variable;
-			     Control    : in out Control_Type);
-   procedure Sp_FJ (Lagrangian : not null access 
-		      function (T : real; X : Vector) return AD_Type;
-		    Var     : in     Variable;
-		    Control : in     Control_Type;
-		    Q       : in     Real_Vector;
-		    F       :    out Sparse_Vector;
-		    J       :    out Sparse_Matrix);
-   
+   procedure FH (Var	 : in     Variable;
+		 Control : in     Control_Type;
+		 Q	 : in     Real_Vector;
+		 F	 :    out Sparse_Vector;
+		 J	 :    out Sparse_Matrix);
+		  
    type Array_Of_Sparse_Matrix is array (1 .. 4) of Sparse_Matrix;
    
    function Setup return Array_Of_Sparse_Matrix;
@@ -156,9 +135,9 @@ private
    Zero2N       : constant Sparse_Matrix := Zero (2 * N);
    
    Sp    : constant Array_Of_Sparse_Matrix := Setup;
-   Mat_A : constant Real_Matrix := Dense (Sp (1));
-   Mat_B : constant Real_Matrix := Dense (Sp (2));
-   Mat_C : constant Real_Matrix := Dense (Sp (3));
-   Mat_D : constant Real_Matrix := Dense (Sp (4));
+   --  Mat_A : constant Real_Matrix := Dense (Sp (1));
+   --  Mat_B : constant Real_Matrix := Dense (Sp (2));
+   --  Mat_C : constant Real_Matrix := Dense (Sp (3));
+   --  Mat_D : constant Real_Matrix := Dense (Sp (4));
 
 end Dense_AD.Integrator;
