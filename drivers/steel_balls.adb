@@ -11,21 +11,17 @@ procedure Steel_Balls is
    T : Real   renames Var.T;
    -------------------------------
    Y    : Real_Vector (1 .. NK);
-   A, Q : Array_Of_Vectors;
-   File : File_Type;
+   A    : Array_Of_Vectors;
    Fcsv : File_Type;
-   Fp   : File_Type;
    Dt   : Real;
-   Name : String := "out.xyz";
    Cname : String := "out.csv";
    Total_Energy, T_Final  : Real;
    Line : String (1 .. 50);
    Last : Natural;
-   Upper, Lower : Real;
    
 begin
    Control.Max_Dt := 1.0e2;
-   Control.Tol    := 1.0e-12;
+   Control.Tol    := 1.0e-10;
    ------------------------------------------------------------
    -- Read initial conditions
    T     := 0.0;
@@ -70,45 +66,24 @@ begin
    ------------------------------------------------------------
    State   := Var;
    ------------------------------------------------------------
-   ------------------------------------------------------------
-   Create (Fp, Name => "poincare.csv");
-   Put_Line (Fp, "time, t, s, t_dot, s_dot, pt, ps, E");
-   Print_Lagrangian (Fp, Var, Lagrangian'Access);
-   Print_XYZ (File, State, Name, Create);
    Print_CSV (Fcsv, State, CName, Lagrangian'Access, Create);
    
    while T < T_Final loop
       Y := Update (Lagrangian'Access, Var, Control, Sparse);
       A := Chebyshev_Transform (Y);
-      Put (Var.T); New_Line;
-      ---------------------------------------------------------
-      Q := Split (Y);
-      for I in 2 .. K loop
-   	 if X1 (Q (1) (I - 1)) * X1 (Q (1) (I)) < 0.0 and then 
-   	   Y1 (Q (1) (I)) > 0.0 then
-	    -- If there's a zero, bisect
-   	    Lower   := Var.T + Control.Dt * Grid (I - 1);
-   	    Upper   := Var.T + Control.Dt * Grid (I);
-   	    Guess   := Find_State_At_Level
-   	      (0.0, A, Var.T, Control.Dt, Lower, Upper, X1'Access);
-   	    ----------------------------------------------------------------
-	    Print_Lagrangian (Fp, Guess, Lagrangian'Access);
-      	 end if;
-      end loop;
-      ---------------------------------------------------------
-      
-      
+      Put (Var.T); Put ("             ");
+      Put (Val (Hamiltonian (0.0, Var.X)));
+      New_Line;
       ---------------------------------------------------------
       while State.T + Dt <= T + Control.Dt loop
       	 State.T := State.T + Dt;
    	 State.X := Interpolate (A, State.T, Var.T, Var.T + Control.Dt);
-   	 Print_XYZ (File, State, Name);
    	 Print_CSV (Fcsv, State, CName, Lagrangian'Access);
       end loop;
       ---------------------------------------------------------
       
       Update (Var => Var, Y => Y, Dt => Control.Dt); -- Update variable Var
    end loop;
-    
-   Close (Fp);
+   
+   Close (Fcsv);
 end Steel_Balls;

@@ -1,5 +1,6 @@
 with Ada.Numerics.Generic_Elementary_Functions, Ada.Numerics.Float_Random;
 with Ada.Numerics, Ada.Containers.Vectors, Ada.Text_IO;
+
 package Numerics is
    π : constant := Ada.Numerics.π;
    
@@ -10,12 +11,6 @@ package Numerics is
    subtype Nat is Integer range 1 .. Integer'Last;
    
    type Sparse_Vector is private;
-   
-   --  type Pos2D is record
-   --     X, Y : Real;
-   --  end record;
-   
-   --  type Pos2D_Vector is array (Nat range <>) of Pos2D;
    
    function modulus (X, Y : in Real) return Real with Pre => Y > 0.0;
    
@@ -63,29 +58,6 @@ package Numerics is
      with Pre => A'Length (2) = X'Length;
    function Dot (X, Y : in Real_Vector) return Real
      with Pre => X'Length = Y'Length;
-   -------- Pos2D functions --------------------------------------
-   --  function "+" (X : in Pos2D) return Pos2D is (X);
-   --  function "-" (X : in Pos2D) return Pos2D;
-   --  function "+" (X, Y : in Pos2D) return Pos2D;
-   --  function "-" (X, Y : in Pos2D) return Pos2D;
-   --  function Dot (X, Y : in Pos2D) return Real;
-   --  function "*" (X, Y : in Pos2D) return Real renames Dot;
-
-   --  function "*" (X : in Real;
-   --  		 Y : in Pos2D) return Pos2D is (X * Y.X, X * Y.Y);
-   --  function "*" (X : in Pos2D;
-   --  		 Y : in Real) return Pos2D is (Y * X);
-   
-   --  function "+" (X, Y : in Pos2D_Vector) return Pos2D_Vector;
-   --  function "-" (X, Y : in Pos2D_Vector) return Pos2D_Vector;
-   --  function "-" (X : in Pos2D_Vector) return Pos2D_Vector;
-   --  function "*" (X : in Real;
-   --  		 Y : in Pos2D_Vector) return Pos2D_Vector;
-   --  function "*" (X : in Pos2D_Vector;
-   --  		 Y : in Real) return Pos2D_Vector is (Y * X);
-   
-   --  function Norm (X : in Pos2D) return Real;
-   --  function To_Array (Xvec : in Pos2D_Vector) return Real_Vector;
    
    ------- Sparse_Vector Functions ----------------------------------------
    procedure Print (X : in Sparse_Vector); 
@@ -145,8 +117,6 @@ package Numerics is
      and Right_J'Length = Right_Y'Length;
    
    
-
-   --  function "**" (Left : in Real; Right : in Int) return Real;
    function "or" (X, Y : in Sparse_Vector) return Sparse_Vector;
    
 private
@@ -157,7 +127,7 @@ private
    package IV_Package is new Ada.Containers.Vectors (Nat, Integer,  "=");
    package RV_Package is new Ada.Containers.Vectors (Nat, Real, "=");
    
-   subtype IVector  is IV_Package.Vector;
+   subtype IVector is IV_Package.Vector;
    subtype RVector is RV_Package.Vector;
    
    

@@ -436,9 +436,9 @@ package body Dense_AD.Integrator is
       case Mode is
 	 when Create => Create (File, Name => Name);
 	 when Append => Open (File, Append_File, Name);
+	 when Neither => null;
       end case;
       Print_XYZ (File, Var);
-      Close (File);
    end Print_XYZ;
    
    
@@ -447,7 +447,7 @@ package body Dense_AD.Integrator is
 			Name : in     String;
 			Lagrangian : not null access 
 			  function (T : real; X : Vector) return AD_Type;
-			Mode : in     Create_Or_Append := Append) is
+			Mode : in     Create_Or_Append := Neither) is
       use Real_IO, Real_Functions;
       Old : constant Evaluation_Level := Get_Evaluation_Level;
       L   : AD_Type;
@@ -462,6 +462,7 @@ package body Dense_AD.Integrator is
 	    Put_Line (File,
 		      "time, t, s, t_dot, s_dot, p_t, p_s, x1, y1, x2, y2, E");
 	 when Append => Open (File, Append_File, Name);
+	 when Neither => null;
       end case;
 
       Set_Evaluation_Level (Gradient);
@@ -492,7 +493,6 @@ package body Dense_AD.Integrator is
       Put (File, H); New_Line (File);
       
       Set_Evaluation_Level (Old);
-      Close (File);
    end Print_CSV;
 
    function Hamiltonian (T : in Real; 

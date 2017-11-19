@@ -8,7 +8,7 @@ package Dense_AD.Integrator is
    N : constant Nat := (Num - N_Constraints) / 2;
 
    type Dense_Or_Sparse is (Dense, Sparse);
-   type Create_Or_Append is (Create, Append);
+   type Create_Or_Append is (Create, Append, Neither);
    
    type Variable is record
       T : Real   := 0.0;
@@ -85,7 +85,7 @@ package Dense_AD.Integrator is
 			Name : in     String;
 			Lagrangian : not null access 
 			  function (T : real; X : Vector) return AD_Type;
-			Mode : in     Create_Or_Append := Append);
+			Mode : in     Create_Or_Append := Neither);
    
    function Hamiltonian (T : in Real; 
 			 X : in Vector;

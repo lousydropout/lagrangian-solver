@@ -10,7 +10,9 @@ Project Main is
 		--  "dynamics",
 		--  "ad_test",
 		"landscape",
-		"test",
+		"test_gnat",
+		"test_numerics",
+		--  "test",
 		--  "pendulum",
 		--  "pendulum_dae",
 		"henon_heiles",
@@ -31,20 +33,23 @@ Project Main is
   package Compiler is
      for Default_Switches ("Ada")
        use ("-O2",                      -- optimization flag
-	    "-gnata",                   -- assertions
+	    "-gnatp",                   -- assertions
 	    "-I-",                      -- don't look for source in current folder
-	    "-gnatVa",                  -- turn on all validity checking options
-	    "-s",                       -- if switches change
-	    "-gnaty3aCefilkpntM100",    -- various style checks
-	    "-gnateA",                  -- aliasing checks on subprogram parameters
-	    "-gnatW8",                  -- allow wide characters (e.g. π)
-	    "-gnateF",                  -- check overflow on predefined float types
-	    "-gnateV",                  -- validity checks on subprogram parameters
-	    "-gnato3");                 -- Overflow (mode : Eliminated)
-     for Default_Switches ("C") 
-       use ("-Wall",
-	    "-ftree-vectorize",
-	    "-fopt-info-vec=1");
+	    --  "-gnatVa",                  -- turn on all validity checking options
+	    --  "-s",                       -- if switches change
+	    --  "-gnaty3aCefilkpntM100",    -- various style checks
+	    --  "-gnateA",                  -- aliasing checks on subprogram parameters
+	    "-funroll-loops",
+	    "-ffast-math",
+	    "-gnatW8"                  -- allow wide characters (e.g. π)
+	    --  "-gnateF",                  -- check overflow on predefined float types
+	    --  "-gnateV",                  -- validity checks on subprogram parameters
+	    --  "-gnato3");                 -- Overflow (mode : Eliminated)
+	    );
+     --  for Default_Switches ("C") 
+     --    use ("-Wall",
+     --  	    "-ftree-vectorize",
+     --  	    "-fopt-info-vec=1");
   end Compiler;
   
   

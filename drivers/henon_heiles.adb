@@ -100,15 +100,18 @@ procedure Henon_Heiles is
    A, Q : Array_Of_Vectors;
    Fcsv : File_Type;
    H0 : constant Real := 1.0 / 12.0;
-   T_Final : constant Real := 1_000.0;
+   T_Final : constant Real := 10.0;
    Lower, Upper : Real;
    AD : AD_Type;
 
 begin
-   Control.Max_Dt := 100.0;
+   Control.Max_Dt := 10.0;
    X     := Get_IC (X, H0);
    AD    := Hamiltonian (0.0, X);
    State := Var;
+   for Item of X loop
+      Put (Item); New_Line;
+   end loop;
    
    Put (Val (AD)); New_Line;
    Create (Fcsv, Name => "out.csv");
@@ -116,7 +119,7 @@ begin
    Print_Lagrangian (Fcsv, Var, Lagrangian'Access);
    
    while T < T_Final loop
-      Put (Var.T); New_Line;
+      Put (Var.T); Put ("  "); Put (Control.Dt); New_Line;
       Y := Update (Lagrangian'Access, Var, Control, Sparse);
       A := Chebyshev_Transform (Y);
       
