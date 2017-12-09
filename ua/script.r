@@ -49,6 +49,6 @@ points (s_dot ~ s, subset (p, pt > 0), cex = 0.1)
 points (-s_dot ~ s, subset (p, pt < 0), cex = 0.1);
 
 setwd ("../13"); p <- read.csv ("poincare.csv"); # 3.1
-points (s_dot ~ s, subset (p, pt > 0), cex = 0.3, col = "red")
-points (-s_dot ~ s, subset (p, pt < 0), cex = 0.3, col = "red")
+points (s_dot ~ s, subset (p, pt > 0), cex = 0.1)
+points (-s_dot ~ s, subset (p, pt < 0), cex = 0.1)
 setwd ("..")
