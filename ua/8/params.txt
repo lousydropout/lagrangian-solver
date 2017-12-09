@@ -1,0 +1,12 @@
+s:
+0
+ω_s:
+0
+total energy:
+-6.5
+alpha:
+10
+dt:
+1.0e-1
+T_final:
+1_000.0
