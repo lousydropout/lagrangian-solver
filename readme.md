@@ -62,10 +62,10 @@ The driver files for these programs are contained in the directory *drivers* (al
 ```bash
     ./henon_heiles
 ```
-This outputs *out.csv*. The following is the *R* code I use to import and plot the data:
+This outputs *out.csv*. The following is the *R* code I use to import and plot the data (this should output the image shown at the top of this readme file):
 ```R
   data <- read.csv ("out.csv")
-  plot (q2_dot ~ q2, data, pch = 10, cex = 0.2)
+  plot (p2 ~ q2, data, pch = 10, cex = 0.2)
 ```
 
 
