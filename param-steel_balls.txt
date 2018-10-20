@@ -7,6 +7,6 @@ total energy:
 alpha:
 1_000
 dt:
-1.0e-2
+2.0e-2
 T_final:
-1_000.0
+10.0

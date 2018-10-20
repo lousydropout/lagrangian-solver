@@ -78,7 +78,7 @@ package Dense_AD.Integrator is
    procedure Print_XYZ (File : in out File_Type;
 			Var  : in     Variable;
 			Name : in     String;
-			Mode : in     Create_Or_Append := Append);
+			Mode : in     Create_Or_Append := Neither);
    
    procedure Print_CSV (File : in out File_Type;
 			Var  : in     Variable;

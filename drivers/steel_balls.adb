@@ -13,12 +13,14 @@ procedure Steel_Balls is
    Y    : Real_Vector (1 .. NK);
    A    : Array_Of_Vectors;
    Fcsv : File_Type;
+   Fxyz : File_Type;
    Dt   : Real;
-   Cname : String := "out.csv";
+   Cname : String := "sb.csv";
+   Xname : String := "sb.xyz";
    Total_Energy, T_Final  : Real;
    Line : String (1 .. 50);
    Last : Natural;
-   
+
 begin
    Control.Max_Dt := 1.0e2;
    Control.Tol    := 1.0e-10;
@@ -67,6 +69,7 @@ begin
    State   := Var;
    ------------------------------------------------------------
    Print_CSV (Fcsv, State, CName, Lagrangian'Access, Create);
+   Print_XYZ (Fxyz, State, XName, Create);
    
    while T < T_Final loop
       Y := Update (Lagrangian'Access, Var, Control, Sparse);
@@ -79,6 +82,7 @@ begin
       	 State.T := State.T + Dt;
    	 State.X := Interpolate (A, State.T, Var.T, Var.T + Control.Dt);
    	 Print_CSV (Fcsv, State, CName, Lagrangian'Access);
+   	 Print_XYZ (Fxyz, State, XName);
       end loop;
       ---------------------------------------------------------
       
@@ -86,4 +90,5 @@ begin
    end loop;
    
    Close (Fcsv);
+   Close (Fxyz);
 end Steel_Balls;

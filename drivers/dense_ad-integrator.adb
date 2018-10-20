@@ -399,7 +399,7 @@ package body Dense_AD.Integrator is
       use Real_Functions, Real_IO;
       X :  Real_Vector renames Var.X;
       X1, Y1, X2, Y2 : Real;
-      R : constant Real := 10.0;
+      R : constant Real := 2.0;
    begin
       X1 := -R * Sin (X (1));
       Y1 :=  R * Cos (X (1));
@@ -431,7 +431,7 @@ package body Dense_AD.Integrator is
    procedure Print_XYZ (File : in out File_Type;
 			Var  : in     Variable;
 			Name : in     String;
-			Mode : in     Create_Or_Append := Append) is
+			Mode : in     Create_Or_Append := Neither) is
    begin
       case Mode is
 	 when Create => Create (File, Name => Name);

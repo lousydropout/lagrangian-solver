@@ -99,8 +99,8 @@ procedure Henon_Heiles is
    Y    : Real_Vector (1 .. 2 * N * K);
    A, Q : Array_Of_Vectors;
    Fcsv : File_Type;
-   H0 : constant Real := 1.0 / 12.0;
-   T_Final : constant Real := 10.0;
+   H0 : constant Real := 1.0 / 8.0;
+   T_Final : constant Real := 400_000.0;
    Lower, Upper : Real;
    AD : AD_Type;
 
