@@ -1,5 +1,6 @@
 # A Lagrangian solver
 
+![Henon-Heiles](img/henon.pdf)
 - *keywords*: Lagrangian, automatic differentiation, backpropagation, ODEs, PDEs
 - *total lines of code*:
   - *Ada (2012)*: 7,933
@@ -41,6 +42,7 @@ First, requirements:
 - [Ada 2012 compiler](https://www.adacore.com/download)
 - [A C compiler](https://gcc.gnu.org/)
 - [CXSparse library (part of the SuiteSparse library)](http://faculty.cse.tamu.edu/davis/suitesparse.html)
+- [Ovito](https://ovito.org/)
 
 For now, the three examples available are:
 - a simple pendulum problem,
