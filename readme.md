@@ -1,6 +1,6 @@
 # A Lagrangian solver
 
-![Henon-Heiles](img/henon.pdf)
+![Henon-Heiles](img/henon.png)
 - *keywords*: Lagrangian, automatic differentiation, backpropagation, ODEs, PDEs
 - *total lines of code*:
   - *Ada (2012)*: 7,933
