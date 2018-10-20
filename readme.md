@@ -1,10 +1,15 @@
 # A Lagrangian solver
 
-![Henon-Heiles](img/henon.png)
+![](img/henon.png)
+
+**(A phase portrait of a chaotic Henon-Heiles system)**
+
+## 
+
 - *keywords*: Lagrangian, automatic differentiation, backpropagation, ODEs, PDEs
-- *total lines of code*:
-  - *Ada (2012)*: 7,933
-  - *C*: 63
+- *summary statistics*:
+  - *Ada (2012)* : **7,933** lines of code
+  - *C* : **63** lines of code
 
   1. [Introduction](#introduction)
   2. [Techniques used in this project](#techniques-used-in-this-project)
@@ -39,8 +44,8 @@ Beyond the two, I've also had to write a basic library for dealing with *sparse 
 ## How to use this library
 
 First, requirements:
-- [Ada 2012 compiler](https://www.adacore.com/download)
-- [A C compiler](https://gcc.gnu.org/)
+- Ada 2012 compiler [(GNAT Ada compiler)](https://www.adacore.com/download)
+- C compiler [(GNU C compiler)](https://gcc.gnu.org/)
 - [CXSparse library (part of the SuiteSparse library)](http://faculty.cse.tamu.edu/davis/suitesparse.html)
 - [Ovito](https://ovito.org/)
 
@@ -53,12 +58,13 @@ The driver files for these programs are contained in the directory *drivers* (al
 1. Open a terminal on the parent directory (the one containing the file *main.gpr*).
 2. Type the command below to compile all 3 examples listed above.
 ```bash
-    gprbuild -P main.gpr
+    gprbuild -P main.gpr  # main.gpr is a "project file" and functions
+                          # similar to a Makefile
 ```
 3. Then to run the files, use the commands below. Note that while the bin file *henon_heiles* does not take a file input, the other two do.
 
 #### Chaotic Henon-Heiles:
-*Note: This program will take a few minutes.*
+*Note: This program will take a few minutes to finish running.*
 ```bash
     ./henon_heiles
 ```
@@ -79,7 +85,7 @@ This outputs *pendulum.csv* which you can use, for example, R or python to visua
 ``` bash
     ./steel_balls < param-steel_balls.txt
 ```
-This will output two files: *sb.csv* and *sb.xyz*.
+This will output two files: *sb.xyz* and *sb.csv*.
 
 - *sb.xyz* can be read into *Ovito*, a visualization program mainly meant for molecular dynamics. You can load it into *Ovito* via *Load file (Ctrl+I)*. Then, in the lower-right hand corner, inside the *XYZ* tab, click on *File contains time steps* (else it won't know to look for the particles' positions at other timesteps in the same file). Lastly, if the particles look like they're overlapping or not touching each other, confirm that the particle radius is set to *1*. Then click on the *Play* buttom near the bottom to start the animation.
 - *sb.csv* contains more detailed information, but is not a file format readable by *Ovito*.
@@ -88,5 +94,5 @@ This will output two files: *sb.csv* and *sb.xyz*.
 ## Future
 
 Many improvements and extension remain to be done and I'm not sure if I'll ever get to them. Nevertheless, let me note just two here (one of each).
-1. The automatic differentiation here is implemented by overloading the various operators such as *+*, *-*, *\**, */*, *and* (for tensor multiplication), and *or* (for direct summation). I don't know what I'm doing wrong, but this seems to be creating a lot of overhead, and the program is a lot slower than I expected.
+1. The automatic differentiation here is implemented by overloading the various operators such as **+**, **-**, **\***, **/**, **and** (for tensor multiplication), and **or** (for direct summation). I don't know what's wrong, but this seems to be creating a lot of overhead, and the program is a lot slower than I expected.
 2. Much like in regular molecular dynamics, by implementing a octree algorithm, it is possible to reduce the number of terms in the Lagrangian and get the same speedup as in molecular dynamics. (Also, I'll need to review the formulations of the various isostats, and implement them, before this will act as a proper molecular dynamics program.)
