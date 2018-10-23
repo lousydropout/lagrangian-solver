@@ -13,8 +13,9 @@
 
   1. [Introduction](#introduction)
   2. [Techniques used in this project](#techniques-used-in-this-project)
-  3. [How to use this library](#how-to-use-this-library)
-  4. [Future](#future)
+  3. [Overview of the method](#overview-of-the-method)
+  4. [How to use this library](#how-to-use-this-library)
+  5. [Future](#future)
 
 ## Introduction
 
@@ -40,6 +41,43 @@ The *forward mode of automatic differentiation* is a way of getting the derivati
 
 Beyond the two, I've also had to write a basic library for dealing with *sparse matrices*. The majority of what I had to write is the basic addition, subtraction, and multiplication of sparse matrices and vectors as well as a wrapper to a sparse linear solver. The sparse linear solver I made use of is called *CXSparse*, which is part of the [SuiteSparse library](http://faculty.cse.tamu.edu/davis/suitesparse.html).
 
+## Overview of the method
+
+This is just a brief overview for those with some familiar with *Lagrangian mechanics* and *automatic differentiation*. For clarification on the details, see Section *3.3* in [``The design, implementation, applications of a novel numerical solver: the Lagrangian solver''](https://gitlab.com/sciencylab/lagrangian-solver/blob/master/chan%20--%20a%20lagrangian%20solver.pdf).
+
+Given a Lagrangian of the form
+```math
+L (\bold{x}(t), \bold{v}(t)),
+```
+where $`t`$ is time, $`\bold{x}(t)`$ are the particles' positions at time $`t`$, and $`\bold{v}(t)`$ are the particles' velocities at time $`t`$. Then the equations of motion governing the particles' trajectories are given by the **Euler-Lagrange equations**:
+```math
+\dfrac{d}{dt} \dfrac{\partial L}{\partial \bold{v}} - \dfrac{\partial L}{\partial \bold{x}} = 0.
+```
+
+The operator $`\dfrac{d}{dt}`$ can be represented as a linear operator $`\bold{D}`$ using the *collocation method*. The $`\dfrac{\partial L}{\partial \bold{x}}`$ and $`\dfrac{\partial L}{\partial \bold{v}}`$ can be calculated using automatic differentiation. The result of which is that the *Euler-Lagrange equations* gets converted into a system of non-linear equations.
+
+Let us define $`\bold{y} = (\bold{x}, \bold{v})`$ and $`\bold{F}(\bold{y})`$ as
+```math
+\bold{F}(\bold{y}) = \bold{D} \dfrac{\partial L}{\partial \bold{v}} - \dfrac{\partial L}{\partial \bold{x}},
+```
+then our goal can be stated as find the solution $`\bold{y}(t))`$ for which $`\bold{F}(\bold{y}(t)) = 0`$.
+To do so, we require the *Jacobian* of the $`\bold{F}(\bold{y})`$:
+```math
+\bold{J}(\bold{y}) = \dfrac{\partial \bold{F}}{\partial \bold{y}}.
+```
+The *Jacobian* $`\bold{J}`$ is therefore a linear combination of the *Hessian* of our Lagrangian $`L`$ (but is not the Hessian itself). Then, we can interative arrive at a solution (starting with an initial guess $`\bold{y}^{0}`$ and iterating up to some good-enough solution $`\bold{y}^{N}`$) using the *Newton-Raphson method*. That is, given $`\bold{y}^{(n)}`$, we can iteratively calculate a (hopefully) better solution $`\bold{y}^{(n+1)}`$ via
+```math
+\bold{y}^{(n+1)} := \bold{y}^{(n)} - \bold{J}(\bold{y}^{(n)})^{-1} \bold{F}(\bold{y}^{(n)})
+```
+until the solution has converged in some numerical sense such as
+```math
+\dfrac{||\bold{y}^{(n+1)} - \bold{y}^{(n)}|| }{ ||\bold{y}^{(n+1)}|| } < \varepsilon,
+```
+for some $`\varepsilon > 0`$, say $`10^{-15}`$.
+
+Ignoring a lot of details, we can compare our approach here to, say, supervised learning. Because the goal in supervised learning is to optimize some assumed mathematical model (e.g. a neural network) and the number of parameters is huge, the *Newton's approach* to optimization would be overly expensive. Instead, the popular choice is to use some variant of *gradient descent*, which only requires the *gradient* of the *loss function* and not the *Hessian*. For our problem here, while the goal is to extremize some function (namely, the integral of the Lagragian from some intial time to some final time), it's easier to restate the problem as solving some system of non-linear equations (the Euler-Lagrange equations).  As a result, we require the *gradient* and *Hessian* of the Lagragian.
+
+So, our overly simplified comparison is this. For supervised learning, the goal is to minimize a loss function and, to do that, only the *gradient* of the loss function is required. For computational classical mechanics, our goal is to solve a system of nonlinear equations when given a Lagrangian and, to do that, we require both the *gradient* and *Hessian* of the Lagragian.
 
 ## How to use this library
 
